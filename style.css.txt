@@ -1,0 +1,138 @@
+/* ใช้ฟอนต์ Kanit เพื่อความสวยงามของภาษาไทย */
+body {
+    font-family: 'Kanit', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    background-color: white;
+    padding: 2rem 3rem;
+    border-radius: 15px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+}
+
+h1 {
+    color: #4a4e69;
+}
+
+h2 {
+    color: #22223b;
+}
+
+.hidden {
+    display: none;
+}
+
+/* ส่วนตั้งค่า */
+#setup-area input {
+    width: calc(100% - 22px);
+    padding: 10px;
+    margin-bottom: 1rem;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-family: 'Kanit', sans-serif;
+}
+
+#setup-area button, #resetBtn {
+    background-color: #4a4e69;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background-color 0.3s;
+}
+
+#setup-area button:hover, #resetBtn:hover {
+    background-color: #22223b;
+}
+
+/* ตารางคะแนน */
+.scoreboard {
+    display: flex;
+    justify-content: space-around;
+    margin: 2rem 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.score {
+    display: block;
+    font-size: 3rem;
+    color: #fca311;
+}
+
+/* ผลลัพธ์ */
+.result-area {
+    margin: 1.5rem 0;
+    min-height: 80px;
+}
+
+#resultText {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+}
+
+#choicesText {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+/* ปุ่มตัวเลือก */
+.choices {
+    display: flex;
+    justify-content: center;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.choice-btn {
+    background-color: #e5e5e5;
+    border: 3px solid transparent;
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    font-size: 3rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    line-height: 1;
+}
+
+.choice-btn:hover {
+    transform: translateY(-5px);
+    border-color: #fca311;
+}
+
+.choice-btn br {
+    display: block;
+    content: "";
+    margin-top: -15px;
+}
+
+.choice-btn span {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 5px;
+}
+
+#resetBtn {
+    background-color: #d00000;
+}
+#resetBtn:hover {
+    background-color: #9d0208;
+}
