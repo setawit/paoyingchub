@@ -1,0 +1,114 @@
+// --- 1. ดึง Element จาก HTML มาเก็บในตัวแปร ---
+const setupArea = document.getElementById('setup-area');
+const gameArea = document.getElementById('game-area');
+const playerNameInput = document.getElementById('playerNameInput');
+const startGameBtn = document.getElementById('startGameBtn');
+const playerNameDisplay = document.getElementById('playerNameDisplay');
+const playerScoreDisplay = document.getElementById('playerScore');
+const aiScoreDisplay = document.getElementById('aiScore');
+const resultText = document.getElementById('resultText');
+const choicesText = document.getElementById('choicesText');
+const choiceButtons = document.querySelectorAll('.choice-btn');
+const resetBtn = document.getElementById('resetBtn');
+
+// --- 2. สร้างตัวแปรสำหรับเก็บค่าต่างๆ ของเกม ---
+let playerScore = 0;
+let aiScore = 0;
+let playerName = 'ผู้เล่น';
+const choices = ['rock', 'paper', 'scissors'];
+
+// --- 3. เพิ่ม Event Listener ให้กับปุ่มต่างๆ ---
+
+// ปุ่มเริ่มเกม
+startGameBtn.addEventListener('click', () => {
+    const name = playerNameInput.value.trim();
+    if (name) {
+        playerName = name;
+        playerNameDisplay.textContent = playerName;
+        setupArea.classList.add('hidden');
+        gameArea.classList.remove('hidden');
+    } else {
+        alert('กรุณาป้อนชื่อของคุณ!');
+    }
+});
+
+// ปุ่มตัวเลือก (ค้อน, กระดาษ, กรรไกร)
+choiceButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const playerChoice = button.dataset.choice;
+        playRound(playerChoice);
+    });
+});
+
+// ปุ่มเล่นใหม่
+resetBtn.addEventListener('click', () => {
+    playerScore = 0;
+    aiScore = 0;
+    updateScoreDisplay();
+    resultText.textContent = 'เลือกอาวุธของคุณ!';
+    resultText.style.color = '#22223b';
+    choicesText.textContent = '';
+});
+
+// --- 4. ฟังก์ชันหลักของเกม ---
+
+// ฟังก์ชันสุ่มตัวเลือกของ AI
+function getAIChoice() {
+    const randomIndex = Math.floor(Math.random() * choices.length);
+    return choices[randomIndex];
+}
+
+// ฟังก์ชันเปรียบเทียบและหาผู้ชนะ
+function playRound(playerChoice) {
+    const aiChoice = getAIChoice();
+    let result = '';
+
+    if (playerChoice === aiChoice) {
+        result = 'draw';
+    } else if (
+        (playerChoice === 'rock' && aiChoice === 'scissors') ||
+        (playerChoice === 'paper' && aiChoice === 'rock') ||
+        (playerChoice === 'scissors' && aiChoice === 'paper')
+    ) {
+        result = 'win';
+        playerScore++;
+    } else {
+        result = 'lose';
+        aiScore++;
+    }
+
+    updateScoreDisplay();
+    displayResult(result, playerChoice, aiChoice);
+}
+
+// ฟังก์ชันอัปเดตคะแนนบนหน้าจอ
+function updateScoreDisplay() {
+    playerScoreDisplay.textContent = playerScore;
+    aiScoreDisplay.textContent = aiScore;
+}
+
+// ฟังก์ชันแสดงผลลัพธ์
+function displayResult(result, playerChoice, aiChoice) {
+    const thaiChoices = {
+        rock: 'ค้อน',
+        paper: 'กระดาษ',
+        scissors: 'กรรไกร'
+    };
+
+    choicesText.textContent = `${playerName} เลือก ${thaiChoices[playerChoice]} | AI เลือก ${thaiChoices[aiChoice]}`;
+
+    switch (result) {
+        case 'win':
+            resultText.textContent = 'คุณชนะ!';
+            resultText.style.color = '#2a9d8f'; // สีเขียว
+            break;
+        case 'lose':
+            resultText.textContent = 'คุณแพ้!';
+            resultText.style.color = '#e76f51'; // สีแดง
+            break;
+        case 'draw':
+            resultText.textContent = 'เสมอ!';
+            resultText.style.color = '#8d99ae'; // สีเทา
+            break;
+    }
+}
