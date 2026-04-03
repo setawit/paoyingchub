@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>เครื่องคิดเลขทางการเงิน</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #6c757d;
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+
+        .tab-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+
+        .tab-content {
+            display: none;
+            padding: 30px 20px;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #495057;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result {
+            margin-top: 25px;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .result h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .result-item:last-child {
+            border-bottom: none;
+        }
+
+        .result-label {
+            color: #6c757d;
+            font-size: 14px;
+        }
+
+        .result-value {
+            color: #495057;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .result-value.highlight {
+            color: #667eea;
+            font-size: 20px;
+        }
+
+        .info-text {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .tab-btn {
+                font-size: 12px;
+                padding: 12px 5px;
+            }
+
+            .result-value.highlight {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧮 เครื่องคิดเลขทางการเงิน</h1>
+            <p>คำนวณง่าย ๆ ได้ผลลัพธ์แม่นยำ</p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('compound')">ดอกเบี้ยทบต้น</button>
+            <button class="tab-btn" onclick="switchTab('loan')">เงินกู้/ผ่อน</button>
+            <button class="tab-btn" onclick="switchTab('savings')">เงินออม</button>
+        </div>
+
+        <!-- Tab: ดอกเบี้ยทบต้น -->
+        <div id="compound" class="tab-content active">
+            <div class="form-group">
+                <label for="principal">เงินต้น (บาท)</label>
+                <input type="number" id="principal" placeholder="เช่น 100000" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="rate">ดอกเบี้ยต่อปี (%)</label>
+                <input type="number" id="rate" placeholder="เช่น 5" min="0" step="0.1">
+            </div>
+
+            <div class="form-group">
+                <label for="years">ระยะเวลา (ปี)</label>
+                <input type="number" id="years" placeholder="เช่น 10" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="frequency">ความถี่ในการทบต้น</label>
+                <select id="frequency">
+                    <option value="1">ปีละ 1 ครั้ง</option>
+                    <option value="2">ปีละ 2 ครั้ง</option>
+                    <option value="4">ปีละ 4 ครั้ง</option>
+                    <option value="12" selected>เดือนละ 1 ครั้ง</option>
+                </select>
+            </div>
+
+            <button class="calculate-btn" onclick="calculateCompound()">คำนวณ</button>
+
+            <div id="compound-result" class="result">
+                <h3>📊 ผลลัพธ์</h3>
+                <div class="result-item">
+                    <span class="result-label">เงินต้น</span>
+                    <span class="result-value" id="res-principal">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">ดอกเบี้ยที่ได้รับ</span>
+                    <span class="result-value" id="res-interest">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">จำนวนเงินสุดท้าย</span>
+                    <span class="result-value highlight" id="res-total">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: เงินกู้/ผ่อน -->
+        <div id="loan" class="tab-content">
+            <div class="form-group">
+                <label for="loan-amount">จำนวนเงินกู้ (บาท)</label>
+                <input type="number" id="loan-amount" placeholder="เช่น 1000000" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="loan-rate">ดอกเบี้ยต่อปี (%)</label>
+                <input type="number" id="loan-rate" placeholder="เช่น 6" min="0" step="0.1">
+            </div>
+
+            <div class="form-group">
+                <label for="loan-years">ระยะเวลาผ่อน (ปี)</label>
+                <input type="number" id="loan-years" placeholder="เช่น 5" min="0">
+            </div>
+
+            <button class="calculate-btn" onclick="calculateLoan()">คำนวณ</button>
+
+            <div id="loan-result" class="result">
+                <h3>💰 ผลลัพธ์</h3>
+                <div class="result-item">
+                    <span class="result-label">ยอดชำระต่อเดือน</span>
+                    <span class="result-value highlight" id="res-monthly">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">ดอกเบี้ยรวม</span>
+                    <span class="result-value" id="res-total-interest">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">จำนวนเงินรวมที่ต้องชำระ</span>
+                    <span class="result-value" id="res-total-payment">-</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tab: เงินออม -->
+        <div id="savings" class="tab-content">
+            <div class="form-group">
+                <label for="current-savings">เงินออมปัจจุบัน (บาท)</label>
+                <input type="number" id="current-savings" placeholder="เช่น 50000" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="target-amount">เป้าหมายที่ต้องการ (บาท)</label>
+                <input type="number" id="target-amount" placeholder="เช่น 500000" min="0">
+            </div>
+
+            <div class="form-group">
+                <label for="savings-rate">ดอกเบี้ยต่อปี (%)</label>
+                <input type="number" id="savings-rate" placeholder="เช่น 3" min="0" step="0.1">
+            </div>
+
+            <div class="form-group">
+                <label for="savings-years">ระยะเวลา (ปี)</label>
+                <input type="number" id="savings-years" placeholder="เช่น 10" min="0">
+            </div>
+
+            <button class="calculate-btn" onclick="calculateSavings()">คำนวณ</button>
+
+            <div id="savings-result" class="result">
+                <h3>🎯 ผลลัพธ์</h3>
+                <div class="result-item">
+                    <span class="result-label">เงินออมปัจจุบัน</span>
+                    <span class="result-value" id="res-current">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">เป้าหมาย</span>
+                    <span class="result-value" id="res-target">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">เงินที่จะมีในอนาคต</span>
+                    <span class="result-value" id="res-future">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">สถานะ</span>
+                    <span class="result-value" id="res-status">-</span>
+                </div>
+                <div class="result-item" id="additional-savings-row" style="display: none;">
+                    <span class="result-label">ควรออมเพิ่มต่อเดือน</span>
+                    <span class="result-value highlight" id="res-additional">-</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function formatNumber(num) {
+            return num.toLocaleString('th-TH', { 
+                minimumFractionDigits: 2, 
+                maximumFractionDigits: 2 
+            });
+        }
+
+        function switchTab(tabId) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to selected tab and content
+            event.target.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+
+            // Hide all results
+            document.querySelectorAll('.result').forEach(result => result.classList.remove('show'));
+        }
+
+        function calculateCompound() {
+            const principal = parseFloat(document.getElementById('principal').value) || 0;
+            const rate = parseFloat(document.getElementById('rate').value) || 0;
+            const years = parseFloat(document.getElementById('years').value) || 0;
+            const frequency = parseInt(document.getElementById('frequency').value) || 12;
+
+            if (principal <= 0 || rate <= 0 || years <= 0) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+
+            const r = rate / 100;
+            const n = frequency;
+            const t = years;
+
+            const total = principal * Math.pow((1 + r / n), n * t);
+            const interest = total - principal;
+
+            document.getElementById('res-principal').textContent = formatNumber(principal) + ' บาท';
+            document.getElementById('res-interest').textContent = formatNumber(interest) + ' บาท';
+            document.getElementById('res-total').textContent = formatNumber(total) + ' บาท';
+
+            document.getElementById('compound-result').classList.add('show');
+        }
+
+        function calculateLoan() {
+            const amount = parseFloat(document.getElementById('loan-amount').value) || 0;
+            const rate = parseFloat(document.getElementById('loan-rate').value) || 0;
+            const years = parseFloat(document.getElementById('loan-years').value) || 0;
+
+            if (amount <= 0 || rate <= 0 || years <= 0) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+
+            const monthlyRate = rate / 100 / 12;
+            const months = years * 12;
+
+            const monthlyPayment = amount * monthlyRate * Math.pow(1 + monthlyRate, months) / 
+                                   (Math.pow(1 + monthlyRate, months) - 1);
+            
+            const totalPayment = monthlyPayment * months;
+            const totalInterest = totalPayment - amount;
+
+            document.getElementById('res-monthly').textContent = formatNumber(monthlyPayment) + ' บาท';
+            document.getElementById('res-total-interest').textContent = formatNumber(totalInterest) + ' บาท';
+            document.getElementById('res-total-payment').textContent = formatNumber(totalPayment) + ' บาท';
+
+            document.getElementById('loan-result').classList.add('show');
+        }
+
+        function calculateSavings() {
+            const current = parseFloat(document.getElementById('current-savings').value) || 0;
+            const target = parseFloat(document.getElementById('target-amount').value) || 0;
+            const rate = parseFloat(document.getElementById('savings-rate').value) || 0;
+            const years = parseFloat(document.getElementById('savings-years').value) || 0;
+
+            if (current < 0 || target <= 0 || years <= 0) {
+                alert('กรุณากรอกข้อมูลให้ครบถ้วน');
+                return;
+            }
+
+            const r = rate / 100;
+            const futureValue = current * Math.pow((1 + r), years);
+
+            document.getElementById('res-current').textContent = formatNumber(current) + ' บาท';
+            document.getElementById('res-target').textContent = formatNumber(target) + ' บาท';
+            document.getElementById('res-future').textContent = formatNumber(futureValue) + ' บาท';
+
+            const additionalRow = document.getElementById('additional-savings-row');
+            
+            if (futureValue >= target) {
+                document.getElementById('res-status').textContent = '✅ ถึงเป้าหมาย';
+                document.getElementById('res-status').style.color = '#28a745';
+                additionalRow.style.display = 'none';
+            } else {
+                document.getElementById('res-status').textContent = '❌ ยังไม่ถึงเป้าหมาย';
+                document.getElementById('res-status').style.color = '#dc3545';
+                
+                // Calculate additional monthly savings needed
+                const shortfall = target - futureValue;
+                const months = years * 12;
+                const monthlyRate = r / 12;
+                
+                let additionalMonthly;
+                if (monthlyRate > 0) {
+                    additionalMonthly = shortfall * monthlyRate / (Math.pow(1 + monthlyRate, months) - 1);
+                } else {
+                    additionalMonthly = shortfall / months;
+                }
+                
+                document.getElementById('res-additional').textContent = formatNumber(additionalMonthly) + ' บาท';
+                additionalRow.style.display = 'flex';
+            }
+
+            document.getElementById('savings-result').classList.add('show');
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>เครื่องคิดเลขทางการเงิน</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>💰 เครื่องคิดเลขทางการเงิน</h1>
+            <p class="subtitle">คำนวณง่ายๆ บนมือถือ</p>
+        </header>
+
+        <!-- Tabs Navigation -->
+        <nav class="tabs">
+            <button class="tab-btn active" data-tab="compound">ดอกเบี้ยทบต้น</button>
+            <button class="tab-btn" data-tab="loan">เงินกู้/ผ่อน</button>
+            <button class="tab-btn" data-tab="savings">เงินออม</button>
+        </nav>
+
+        <!-- Compound Interest Calculator -->
+        <section id="compound" class="calculator-section active">
+            <h2>📈 คำนวณดอกเบี้ยทบต้น</h2>
+            <form id="compoundForm">
+                <div class="input-group">
+                    <label for="cp_principal">เงินต้น (บาท)</label>
+                    <input type="number" id="cp_principal" placeholder="เช่น 100000" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="cp_rate">ดอกเบี้ยต่อปี (%)</label>
+                    <input type="number" id="cp_rate" placeholder="เช่น 5" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="cp_years">ระยะเวลา (ปี)</label>
+                    <input type="number" id="cp_years" placeholder="เช่น 10" min="1" step="1">
+                </div>
+                <div class="input-group">
+                    <label for="cp_compound">ความถี่การทบต้น</label>
+                    <select id="cp_compound">
+                        <option value="1">ปีละ 1 ครั้ง</option>
+                        <option value="2">ปีละ 2 ครั้ง</option>
+                        <option value="4">ปีละ 4 ครั้ง</option>
+                        <option value="12">ทุกเดือน</option>
+                    </select>
+                </div>
+                <button type="submit" class="calculate-btn">คำนวณ</button>
+            </form>
+            <div class="result-box" id="compoundResult">
+                <p class="result-placeholder">กรอกข้อมูลแล้วกดคำนวณ</p>
+            </div>
+        </section>
+
+        <!-- Loan Calculator -->
+        <section id="loan" class="calculator-section">
+            <h2>🏠 คำนวณเงินกู้/ผ่อนชำระ</h2>
+            <form id="loanForm">
+                <div class="input-group">
+                    <label for="ln_amount">จำนวนเงินกู้ (บาท)</label>
+                    <input type="number" id="ln_amount" placeholder="เช่น 1000000" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="ln_rate">ดอกเบี้ยต่อปี (%)</label>
+                    <input type="number" id="ln_rate" placeholder="เช่น 7" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="ln_years">ระยะเวลาผ่อน (ปี)</label>
+                    <input type="number" id="ln_years" placeholder="เช่น 5" min="1" step="1">
+                </div>
+                <button type="submit" class="calculate-btn">คำนวณ</button>
+            </form>
+            <div class="result-box" id="loanResult">
+                <p class="result-placeholder">กรอกข้อมูลแล้วกดคำนวณ</p>
+            </div>
+        </section>
+
+        <!-- Savings Goal Calculator -->
+        <section id="savings" class="calculator-section">
+            <h2>🎯 คำนวณเป้าหมายเงินออม</h2>
+            <form id="savingsForm">
+                <div class="input-group">
+                    <label for="sv_goal">เป้าหมายเงินออม (บาท)</label>
+                    <input type="number" id="sv_goal" placeholder="เช่น 500000" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="sv_current">เงินออมปัจจุบัน (บาท)</label>
+                    <input type="number" id="sv_current" placeholder="เช่น 50000" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="sv_rate">ดอกเบี้ยต่อปี (%)</label>
+                    <input type="number" id="sv_rate" placeholder="เช่น 3" min="0" step="0.01">
+                </div>
+                <div class="input-group">
+                    <label for="sv_years">ระยะเวลา (ปี)</label>
+                    <input type="number" id="sv_years" placeholder="เช่น 5" min="1" step="1">
+                </div>
+                <button type="submit" class="calculate-btn">คำนวณ</button>
+            </form>
+            <div class="result-box" id="savingsResult">
+                <p class="result-placeholder">กรอกข้อมูลแล้วกดคำนวณ</p>
+            </div>
+        </section>
+
+        <footer>
+            <p>สร้างด้วย ❤️ เพื่อการใช้งานทางการเงินง่ายๆ</p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
