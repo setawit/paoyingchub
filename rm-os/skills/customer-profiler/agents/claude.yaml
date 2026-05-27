@@ -1,0 +1,3 @@
+interface:
+  display_name: "Customer Profiler"
+  short_description: "สร้าง structured customer profile จากข้อมูลดิบของ RM"

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Call Report Writer"
+  short_description: "ร่าง Call Report มาตรฐาน ธ.ก.ส. 301.02.05 จาก bullet notes ของ RM"

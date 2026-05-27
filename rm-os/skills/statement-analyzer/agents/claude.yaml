@@ -1,0 +1,3 @@
+interface:
+  display_name: "Statement Analyzer"
+  short_description: "วิเคราะห์ Bank Statement หาพฤติกรรมการเงิน รายได้จริง และ red flags"

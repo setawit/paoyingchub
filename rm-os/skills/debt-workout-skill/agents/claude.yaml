@@ -1,0 +1,3 @@
+interface:
+  display_name: "Debt Workout Skill"
+  short_description: "จัดทำแผนปรับโครงสร้างหนี้และ script เจรจาสำหรับ Watch/SM/NPL"
