@@ -11,25 +11,38 @@
 ```
 rm-os/
 └── skills/
-    ├── call-report-writer/       # RM-03, RM-03b — สำคัญที่สุด
-    ├── statement-analyzer/       # ใช้ร่วมกับทุก skill
-    ├── collateral-assessor/      # RM-04, CH-01
-    ├── debt-workout-skill/       # CH-03, WS-07
-    ├── credit-master/            # CH-05 — orchestrator
-    ├── product-designer-skill/   # ออกแบบโครงสร้างสินเชื่อ
-    ├── agri-economic-navigator/  # RM-05 — sector analysis
-    └── customer-profiler/        # RM-02 — เริ่มต้น workflow
+    ├── call-report-writer/          # RM-03, RM-03b — 4 modes: DRAFT/EXPORT/ANALYZE/ACTION
+    ├── statement-analyzer/          # วิเคราะห์ Statement, 10-section output
+    ├── collateral-assessor/         # 3 modules: อสังหาฯ / โรงเรือนฟาร์ม / stock ข้าว
+    ├── debt-workout-skill/          # CH-03, WS-07 — restructure + script เจรจา
+    ├── credit-master/               # CH-05 — orchestrator (SKILL.md + 01-04 sub-skills)
+    ├── product-designer-skill/      # 3 modules: วิเคราะห์ / เสนอธนาคาร / เสนอลูกค้า
+    ├── economic-review-skill/       # sector analysis เกษตร + references/ 3 ไฟล์
+    ├── customer-profiler/           # RM-02 — structure ข้อมูลดิบก่อน handoff skill อื่น
+    └── persuasion-scenario-writer/  # เขียน persuasive communication 5 scenarios
 ```
 
 ## โครงสร้างของแต่ละ Skill
 
+แต่ละ skill อาจมีโครงสร้างต่างกันตามที่ออกแบบไว้ โดยทั่วไปมีดังนี้:
+
 ```
 skill-name/
-├── SKILL.md              # main skill definition + workflow
-├── references/           # domain knowledge files
-│   ├── *.md             # referenced by SKILL.md
+├── SKILL.md              # main skill definition + workflow (บังคับ)
+├── references/           # domain knowledge (ถ้ามี)
+│   └── *.md
 └── agents/
-    └── claude.yaml      # display name + short description
+    └── *.yaml            # display name + short description (ถ้ามี)
+```
+
+`credit-master` ใช้โครงสร้างพิเศษ — sub-skills เป็นไฟล์ลำดับ:
+```
+credit-master/
+├── SKILL.md          # controller/orchestrator
+├── 01_diagnose.md    # diagnose-fin
+├── 02_risk.md        # assess-risk
+├── 03_structure.md   # structure-loan
+└── 04_memo.md        # craft-memo
 ```
 
 ## ลำดับการใช้ (Recommended Workflow)
@@ -37,11 +50,12 @@ skill-name/
 1. **`customer-profiler`** — เริ่มทุก workflow ด้วยการ structure ข้อมูลลูกค้า
 2. **`statement-analyzer`** — วิเคราะห์การเงินก่อนตัดสินใจ
 3. **`collateral-assessor`** — ประเมินหลักประกัน
-4. **`agri-economic-navigator`** — ใส่ context ด้าน sector (ถ้าเกษตร/SME)
+4. **`economic-review-skill`** — ใส่ context ด้าน sector (ถ้าเกษตร/SME)
 5. **`product-designer-skill`** — ออกแบบโครงสร้างสินเชื่อ
 6. **`credit-master`** — orchestrate ทั้งหมดเป็น Credit Memo
 7. **`call-report-writer`** — ร่าง Call Report หลังเยี่ยมลูกค้า
 8. **`debt-workout-skill`** — ใช้เฉพาะกรณี Watch/SM/NPL
+9. **`persuasion-scenario-writer`** — เขียนสื่อสารโน้มน้าว (proposal, memo, post)
 
 ## Security Rules (บังคับทุก skill)
 
@@ -53,7 +67,6 @@ skill-name/
 ## การเพิ่ม Skill ใหม่
 
 1. สร้างโฟลเดอร์ใน `skills/`
-2. เขียน `SKILL.md` ตาม template เดิม (frontmatter + sections)
-3. เพิ่ม references ใน `references/`
-4. เพิ่ม `agents/claude.yaml` พร้อม display_name
-5. อัปเดต README ที่ root และ `../RM-OS-CLAUDE.md`
+2. เขียน `SKILL.md` — frontmatter (`name`, `description` + trigger words) + workflow sections
+3. เพิ่ม references ใน `references/` ถ้ามี domain knowledge แยก
+4. อัปเดต `rm-os/CLAUDE.md` และ `../RM-OS-CLAUDE.md`

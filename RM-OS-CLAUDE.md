@@ -96,14 +96,15 @@ Skill = bundled prompt + domain knowledge + output template สำหรับ�
 
 | Skill | หน้าที่ | Module |
 |-------|---------|--------|
-| `call-report-writer` | ร่าง Call Report จาก bullet notes — รูปแบบ ธ.ก.ส. 301.02.05 | RM-03, RM-03b |
-| `statement-analyzer` | วิเคราะห์ Bank Statement — พฤติกรรมเงิน, red flags | ทุก module |
-| `collateral-assessor` | ตรวจหลักประกัน — โฉนด, แบบแปลน, site visit checklist | RM-04, CH-01 |
-| `debt-workout-skill` | Watch/SM/NPL — restructure proposal, action plan | CH-03, WS-07 |
-| `credit-master` | Controller — orchestrate skill อื่นใน workflow | CH-05 |
-| `product-designer-skill` | ออกแบบสินเชื่อ, true cost, proposal | ทุก module |
-| `agri-economic-navigator` | Macro-Micro analysis สำหรับ sector เกษตร | RM-05 |
-| `customer-profiler` | สร้าง customer profile จากข้อมูลดิบ | RM-02 |
+| `call-report-writer` | 4 modes: DRAFT / EXPORT (.docx) / ANALYZE / ACTION — มาตรฐาน 301.02.05 | RM-03, RM-03b |
+| `statement-analyzer` | วิเคราะห์ Bank Statement 10-section — พฤติกรรมเงิน, red flags, cross-check | ทุก module |
+| `collateral-assessor` | 3 modules: อสังหาฯ / โรงเรือนฟาร์ม / stock ข้าวเปลือก — LTV calc | RM-04, CH-01 |
+| `debt-workout-skill` | Watch/SM/NPL — restructure plan + negotiation script | CH-03, WS-07 |
+| `credit-master` | Controller → diagnose-fin → assess-risk → structure-loan → craft-memo | CH-05 |
+| `product-designer-skill` | 3 modules: วิเคราะห์/เสนอธนาคาร/เสนอลูกค้า — true cost, competitive analysis | ทุก module |
+| `economic-review-skill` | Macro-Micro analysis สำหรับ sector เกษตรไทย | RM-05 |
+| `customer-profiler` | Structure ข้อมูลดิบลูกค้าให้พร้อมใช้ใน skills อื่น | RM-02 |
+| `persuasion-scenario-writer` | เขียน persuasive communication: post / speech / memo / pitch / negotiation | cross-cutting |
 
 ### Skill Development Lifecycle
 1. **Design** — RM domain expert + Prompt engineer co-design
