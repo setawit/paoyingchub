@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Loan Brain OS — Credit Productivity &amp; Decision Engine</title>
+  <style>
+/* =============================================================================
+ * Loan Brain OS — UI (Professional banking theme)
+ * Thai UI + English financial terms
+ * =========================================================================== */
+
+:root {
+  --green:   #00733e;   /* BAAC green */
+  --green-d: #004d29;
+  --gold:    #f2a900;
+  --ink:     #1b2430;
+  --muted:   #6b7785;
+  --line:    #e3e8ee;
+  --bg:      #f4f6f9;
+  --card:    #ffffff;
+  --pass:    #1a9d5a;
+  --warn:    #e08a00;
+  --fail:    #d23b3b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Kanit', sans-serif;
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-weight: 300;
+}
+
+/* ---------- Topbar ---------- */
+.topbar {
+  display: flex; align-items: center; gap: 1.5rem;
+  background: linear-gradient(100deg, var(--green-d), var(--green));
+  color: #fff; padding: 0.7rem 1.5rem;
+  position: sticky; top: 0; z-index: 50;
+  box-shadow: 0 2px 12px rgba(0,0,0,.15);
+}
+.brand { display: flex; align-items: center; gap: .6rem; }
+.logo { font-size: 1.8rem; }
+.brand-name { font-weight: 600; font-size: 1.15rem; line-height: 1; }
+.brand-sub { font-size: .72rem; opacity: .85; }
+.nav { display: flex; gap: .4rem; margin-left: auto; }
+.nav-btn {
+  background: rgba(255,255,255,.12); color: #fff; border: none;
+  padding: .5rem .9rem; border-radius: 8px; cursor: pointer;
+  font-family: inherit; font-size: .9rem; font-weight: 400;
+  transition: background .2s;
+}
+.nav-btn:hover { background: rgba(255,255,255,.25); }
+.nav-btn.active { background: var(--gold); color: var(--ink); font-weight: 500; }
+.fw-badge {
+  font-size: .7rem; background: rgba(0,0,0,.2); padding: .35rem .6rem;
+  border-radius: 6px; white-space: nowrap;
+}
+
+/* ---------- Layout ---------- */
+.wrap { max-width: 1080px; margin: 0 auto; padding: 1.8rem 1.2rem 3rem; }
+.view h2 { color: var(--green-d); font-weight: 600; margin-top: 0; }
+.lead { color: var(--muted); font-size: 1.05rem; max-width: 720px; }
+.muted { color: var(--muted); }
+.hidden { display: none !important; }
+.section-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .8rem; }
+
+/* ---------- Dashboard ---------- */
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1rem; margin: 1.4rem 0; }
+.stat { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 1.1rem; text-align: center; }
+.stat-num { font-size: 1.7rem; font-weight: 600; color: var(--green); }
+.stat div:last-child { font-size: .82rem; color: var(--muted); }
+
+.pipeline {
+  display: flex; align-items: stretch; gap: .5rem; margin: 1.8rem 0;
+  flex-wrap: wrap;
+}
+.pl-step {
+  flex: 1; min-width: 150px; background: var(--card); border: 1px solid var(--line);
+  border-radius: 12px; padding: 1rem; text-align: center; font-size: .85rem; color: var(--muted);
+}
+.pl-step b { color: var(--ink); font-weight: 600; font-size: 1rem; }
+.pl-step.engine { border-color: var(--gold); background: #fffaf0; }
+.pl-step.out { border-color: var(--green); background: #f0faf4; }
+.pl-arrow { display: flex; align-items: center; color: var(--gold); font-size: 1.5rem; font-weight: 700; }
+
+.cta { text-align: center; margin: 1.6rem 0; }
+
+/* ---------- Buttons ---------- */
+.btn {
+  font-family: inherit; border: none; border-radius: 8px; cursor: pointer;
+  padding: .6rem 1.1rem; font-size: .92rem; font-weight: 500; transition: all .2s;
+}
+.btn.sm { padding: .35rem .7rem; font-size: .8rem; }
+.btn.big { padding: .9rem 2.2rem; font-size: 1.1rem; }
+.btn-primary { background: var(--green); color: #fff; }
+.btn-primary:hover { background: var(--green-d); }
+.btn-ghost { background: #fff; color: var(--green-d); border: 1px solid var(--line); }
+.btn-ghost:hover { border-color: var(--green); }
+.btn-approve { background: var(--pass); color: #fff; }
+.btn-warn { background: var(--warn); color: #fff; }
+
+/* ---------- Form ---------- */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.2rem 0; }
+fieldset { border: 1px solid var(--line); border-radius: 12px; background: var(--card); padding: 1rem 1.2rem 1.2rem; }
+legend { font-weight: 600; color: var(--green-d); padding: 0 .5rem; font-size: .95rem; }
+label { display: block; font-size: .82rem; color: var(--muted); margin-top: .7rem; }
+label.full { grid-column: 1 / -1; }
+input, select {
+  width: 100%; margin-top: .25rem; padding: .55rem .6rem; border: 1px solid var(--line);
+  border-radius: 7px; font-family: inherit; font-size: .92rem; color: var(--ink);
+}
+input:focus, select:focus { outline: none; border-color: var(--green); }
+
+/* ---------- Output ---------- */
+.gen-banner {
+  background: linear-gradient(100deg, var(--gold), #ffc94d); color: var(--ink);
+  padding: .8rem 1.1rem; border-radius: 10px; font-weight: 500; margin-bottom: 1rem;
+}
+.gen-banner span { font-weight: 300; font-size: .85rem; opacity: .8; margin-left: .4rem; }
+.output-card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 1.2rem 1.4rem; margin-bottom: 1rem; }
+.output-card h3 { color: var(--green-d); margin-top: 0; font-weight: 600; }
+.output-card h4 { color: var(--ink); font-weight: 600; margin-bottom: .4rem; }
+
+.kv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: .6rem; margin: .8rem 0; }
+.kv-grid div { background: var(--bg); border-radius: 8px; padding: .6rem .8rem; }
+.kv-grid span { display: block; font-size: .78rem; color: var(--muted); }
+.kv-grid b { font-size: 1.05rem; }
+
+.ratio-table { width: 100%; border-collapse: collapse; margin-top: .6rem; font-size: .9rem; }
+.ratio-table th, .ratio-table td { text-align: left; padding: .55rem .6rem; border-bottom: 1px solid var(--line); }
+.ratio-table th { color: var(--muted); font-weight: 500; font-size: .8rem; }
+.ratio-table td.num { text-align: right; font-variant-numeric: tabular-nums; }
+.ratio-table small { color: var(--muted); font-weight: 300; }
+
+.badge { display: inline-block; padding: .15rem .55rem; border-radius: 20px; font-size: .75rem; font-weight: 500; }
+.g-pass { background: #e3f6ec; color: var(--pass); }
+.g-warn { background: #fdf0d9; color: var(--warn); }
+.g-fail { background: #fbe4e4; color: var(--fail); }
+.badge.status { background: #eef2f7; color: var(--muted); }
+
+/* ---------- Risk ---------- */
+.risk-score { background: var(--bg); border-radius: 8px; padding: .6rem .9rem; margin-bottom: .8rem; font-size: .95rem; }
+.risk-item { border-left: 4px solid var(--line); padding: .6rem .9rem; margin-bottom: .6rem; background: var(--bg); border-radius: 0 8px 8px 0; }
+.risk-item.sev-high { border-color: var(--fail); }
+.risk-item.sev-medium { border-color: var(--warn); }
+.risk-item.sev-low { border-color: var(--pass); }
+.risk-head { font-weight: 500; }
+.risk-cat { font-size: .78rem; color: var(--muted); margin: .2rem 0; }
+.risk-mit { font-size: .85rem; }
+.risk-mit span { color: var(--green-d); font-weight: 500; }
+
+/* ---------- Recommendation ---------- */
+.decision { border-radius: 10px; padding: .9rem 1.1rem; margin: .6rem 0; }
+.decision-label { font-size: 1.2rem; font-weight: 600; }
+.decision-meta { font-size: .82rem; opacity: .8; }
+.decision-approve { background: #e3f6ec; color: var(--pass); }
+.decision-conditional { background: #fdf0d9; color: var(--warn); }
+.decision-reject { background: #fbe4e4; color: var(--fail); }
+.cond-list { margin: .4rem 0; padding-left: 1.2rem; }
+.cond-list li { margin-bottom: .3rem; font-size: .92rem; }
+
+/* ---------- Credit Memo ---------- */
+.memo pre {
+  background: #fbfbf7; border: 1px solid var(--line); border-radius: 8px;
+  padding: 1rem 1.2rem; overflow-x: auto; font-family: 'Sarabun', 'Kanit', monospace;
+  font-size: .82rem; line-height: 1.55; white-space: pre-wrap;
+}
+
+/* ---------- Approval bar ---------- */
+.approval-bar {
+  background: var(--ink); color: #fff; border-radius: 12px; padding: 1rem 1.3rem;
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
+}
+.approval-note { font-size: .88rem; font-weight: 300; }
+.approval-actions { display: flex; gap: .5rem; flex-wrap: wrap; }
+.approval-bar .btn-ghost { background: transparent; color: #fff; border-color: rgba(255,255,255,.3); }
+
+/* ---------- Knowledge base ---------- */
+.kb-list { margin-top: 1rem; }
+.kb-row {
+  display: flex; justify-content: space-between; align-items: center; gap: 1rem;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+  padding: .8rem 1.1rem; margin-bottom: .6rem; flex-wrap: wrap;
+}
+.kb-side { display: flex; align-items: center; gap: .5rem; }
+
+/* ---------- Footer ---------- */
+.foot { text-align: center; color: var(--muted); font-size: .82rem; padding: 1.5rem; }
+
+/* ---------- Responsive ---------- */
+@media (max-width: 760px) {
+  .stats-grid, .form-grid, .kv-grid { grid-template-columns: 1fr; }
+  .nav { width: 100%; order: 3; }
+  .topbar { flex-wrap: wrap; }
+  .pl-arrow { display: none; }
+}
+
+</style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ===================== Header ===================== -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">🧠</span>
+      <div>
+        <div class="brand-name">Loan Brain OS</div>
+        <div class="brand-sub">Credit Productivity &amp; Decision Engine · BAAC</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button id="nav-dashboard" class="nav-btn">Dashboard</button>
+      <button id="nav-newcase" class="nav-btn">+ สร้างเคสใหม่</button>
+      <button id="nav-knowledge" class="nav-btn">คลังความรู้ (Cases)</button>
+    </nav>
+    <div id="fw-version" class="fw-badge">Framework</div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- ===================== Dashboard ===================== -->
+    <section id="view-dashboard" class="view">
+      <h2>ภาพรวมระบบ</h2>
+      <p class="lead">
+        ระบบที่แปลง <b>ข้อมูลลูกค้า → เคสสินเชื่อพร้อมเสนอ</b> แบบอัตโนมัติ
+        — ลดเวลาจาก 2–4 ชั่วโมง/เคส เหลือระดับวินาที
+      </p>
+      <div id="dash-stats" class="stats-grid"></div>
+
+      <div class="pipeline">
+        <div class="pl-step"><b>Input</b><br>ข้อมูลลูกค้า</div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-step engine"><b>Engine</b><br>Framework · Knowledge · Risk Pattern</div>
+        <div class="pl-arrow">→</div>
+        <div class="pl-step out"><b>Output (Auto)</b><br>Analysis · Risk · Recommendation · Credit Memo</div>
+      </div>
+
+      <div class="cta">
+        <button class="btn btn-primary" onclick="document.getElementById('nav-newcase').click()">
+          ▶ เริ่ม Demo เคสฟาร์มสุกร 25 ล้านบาท
+        </button>
+      </div>
+    </section>
+
+    <!-- ===================== New Case ===================== -->
+    <section id="view-newcase" class="view hidden">
+      <div class="section-head">
+        <h2>สร้างเคสสินเชื่อ</h2>
+        <button id="btn-loadsample" class="btn btn-ghost">↻ โหลดเคสตัวอย่าง (ฟาร์มสุกร 25 ลบ.)</button>
+      </div>
+
+      <div class="form-grid">
+        <fieldset>
+          <legend>ข้อมูลผู้กู้ (Borrower)</legend>
+          <label>เลขที่อ้างอิง<input id="f_refNo"></label>
+          <label>ชื่อผู้กู้<input id="f_borrowerName"></label>
+          <label>ประเภทกิจการ<input id="f_businessType"></label>
+          <label>กลุ่มอุตสาหกรรม
+            <select id="f_industry">
+              <option value="swine_farm">ฟาร์มสุกร (Swine Farm)</option>
+              <option value="other">อื่น ๆ (Other)</option>
+            </select>
+          </label>
+          <label class="full">วัตถุประสงค์<input id="f_purpose"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>วงเงิน &amp; หลักประกัน (Facility &amp; Collateral)</legend>
+          <label>วงเงินขอกู้ (฿)<input id="f_loanAmount" type="number"></label>
+          <label>ระยะเวลา (เดือน)<input id="f_termMonths" type="number"></label>
+          <label>มูลค่าหลักประกัน (฿)<input id="f_collateralValue" type="number"></label>
+          <label class="full">รายละเอียดหลักประกัน<input id="f_collateralDesc"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>งบการเงิน/ปี (Financials)</legend>
+          <label>รายได้รวม (Revenue)<input id="f_annualRevenue" type="number"></label>
+          <label>ต้นทุน+ค่าใช้จ่าย (OpEx)<input id="f_annualOpEx" type="number"></label>
+          <label>สัดส่วนต้นทุนอาหารสัตว์ (%)<input id="f_feedCostRatio" type="number"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>โครงสร้างหนี้/ทุน &amp; สภาพคล่อง</legend>
+          <label>หนี้สินเดิม (฿)<input id="f_existingDebt" type="number"></label>
+          <label>ภาระผ่อนหนี้เดิม/ปี (฿)<input id="f_existingDebtService" type="number"></label>
+          <label>ส่วนของเจ้าของ Equity (฿)<input id="f_equity" type="number"></label>
+          <label>สินทรัพย์หมุนเวียน (฿)<input id="f_currentAssets" type="number"></label>
+          <label>หนี้สินหมุนเวียน (฿)<input id="f_currentLiabilities" type="number"></label>
+        </fieldset>
+      </div>
+
+      <div class="cta">
+        <button id="btn-generate" class="btn btn-primary big">⚡ Generate เคสสินเชื่อ</button>
+      </div>
+
+      <div id="output" class="hidden"></div>
+    </section>
+
+    <!-- ===================== Knowledge Base ===================== -->
+    <section id="view-knowledge" class="view hidden">
+      <div class="section-head">
+        <h2>คลังความรู้ — Case Knowledge Base</h2>
+        <button id="btn-clearstore" class="btn btn-ghost">ล้างคลัง</button>
+      </div>
+      <p class="muted">ทุกเคสที่บันทึกจะกลายเป็น asset ที่ reuse ได้ — Case 1 → asset, Case 100 → intelligence</p>
+      <div id="kb-list" class="kb-list"></div>
+    </section>
+
+  </main>
+
+  <footer class="foot">
+    Loan Brain OS — Phase 1 Brain Prototype · "ไม่ใช่การเขียนทีละเคส แต่คือการสร้างเคสในระดับระบบ"
+  </footer>
+
+  <!-- Loan Brain OS — all layers inlined (single-file artifact) -->
+  <script>
+/* =============================================================================
+ * KNOWLEDGE LAYER — "The Brain"
+ * -----------------------------------------------------------------------------
+ * ชั้นความรู้กลางของระบบ : framework การคิด, risk pattern, benchmark, threshold
+ *
+ * Design Principle #2 — Control the Brain
+ *   logic ทั้งหมดอยู่ที่นี่ (central) / UI เป็นแค่ผู้ "apply" เท่านั้น
+ *   การแก้ logic การให้สินเชื่อ = แก้ที่ไฟล์นี้ไฟล์เดียว (governance จุดเดียว)
+ * =========================================================================== */
+
+const KNOWLEDGE = {
+
+  /* ---- Governance metadata : ใช้ track เวอร์ชันของ "สมอง" ---------------- */
+  governance: {
+    frameworkVersion: "1.0.0",
+    approvedBy: "Credit Policy Committee",
+    lastReviewed: "2026-06-06",
+    // ทุก output ต้องผูกกับเวอร์ชันนี้ เพื่อ trace ได้ว่าใช้ logic ชุดไหน
+  },
+
+  /* ---- ผลิตภัณฑ์สินเชื่อ (Loan Products) -------------------------------- */
+  products: {
+    farm_expansion: {
+      code: "FARM-EXP",
+      name: "สินเชื่อเพื่อขยายกิจการเกษตร (Agri Business Expansion)",
+      interestRate: 6.5,          // % ต่อปี (MRR-based)
+      maxTermMonths: 84,          // 7 ปี
+      maxLTV: 80,                 // Loan-to-Value สูงสุด %
+    },
+  },
+
+  /* ---- Credit Framework : 5 C's of Credit ------------------------------ *
+   * แต่ละ C มีน้ำหนัก (weight) รวมกัน = 100
+   * ระบบ enforce ว่า "ทุกเคสต้องผ่านครบทั้ง 5 C" (Risk Control 6.3)
+   * --------------------------------------------------------------------- */
+  framework: {
+    name: "5 C's of Credit",
+    dimensions: [
+      { key: "character",  label: "Character (ประวัติ/ความน่าเชื่อถือ)", weight: 20 },
+      { key: "capacity",   label: "Capacity (ความสามารถชำระหนี้)",       weight: 30 },
+      { key: "capital",    label: "Capital (เงินทุน/ส่วนของเจ้าของ)",     weight: 20 },
+      { key: "collateral", label: "Collateral (หลักประกัน)",            weight: 20 },
+      { key: "conditions", label: "Conditions (ภาวะตลาด/เงื่อนไข)",       weight: 10 },
+    ],
+  },
+
+  /* ---- Thresholds : เกณฑ์ตัดสินทางการเงิน ------------------------------ *
+   * Engine ใช้ค่าเหล่านี้ตัดสิน pass/fail แบบ deterministic
+   * --------------------------------------------------------------------- */
+  thresholds: {
+    dscr:        { min: 1.25, strong: 1.50 },   // Debt Service Coverage Ratio
+    ltv:         { max: 80,   safe: 70 },        // Loan-to-Value (%)
+    de:          { max: 2.0,  safe: 1.5 },       // Debt-to-Equity
+    currentRatio:{ min: 1.0,  safe: 1.5 },       // สภาพคล่อง
+    netMargin:   { min: 5,    safe: 12 },        // Net Profit Margin (%)
+  },
+
+  /* ---- Industry Benchmark : ค่ามาตรฐานอุตสาหกรรม ----------------------- *
+   * ใช้เปรียบเทียบเคสกับค่ากลางของกลุ่มธุรกิจ (knowledge reuse)
+   * --------------------------------------------------------------------- */
+  benchmarks: {
+    swine_farm: {
+      label: "ฟาร์มสุกรขุน (Swine Fattening)",
+      feedCostRatio: 65,   // ต้นทุนอาหารสัตว์ต่อรายได้ %
+      netMargin: 12,       // Net margin ปกติของอุตสาหกรรม %
+      revenuePerHead: 8000,// รายได้ต่อสุกรขุน 1 ตัว (บาท)
+      cyclesPerYear: 2.4,
+    },
+  },
+
+  /* ---- Risk Pattern Library : คลังรูปแบบความเสี่ยง ---------------------- *
+   * Hidden Risk (1.2) + Risk Control (6.3) : "risk pattern ถูกตรวจอัตโนมัติ"
+   * แต่ละ pattern มีฟังก์ชัน detect(case, ratios) → คืน true ถ้าเข้าข่าย
+   * severity : high | medium | low
+   * --------------------------------------------------------------------- */
+  riskPatterns: [
+    {
+      id: "ASF_DISEASE",
+      category: "ความเสี่ยงด้านการผลิต (Production)",
+      label: "ความเสี่ยงโรคระบาดในสุกร (ASF / PRRS)",
+      severity: "high",
+      // ความเสี่ยงเชิงโครงสร้างของธุรกิจสุกร — flag เสมอสำหรับฟาร์มสุกร
+      detect: (c) => c.industry === "swine_farm",
+      mitigation: "กำหนดเงื่อนไขทำประกันปศุสัตว์ + มาตรฐาน biosecurity GFM/GAP",
+    },
+    {
+      id: "FEED_PRICE",
+      category: "ความเสี่ยงด้านต้นทุน (Cost)",
+      label: "ความผันผวนราคาวัตถุดิบอาหารสัตว์ (ข้าวโพด/กากถั่วเหลือง)",
+      severity: "medium",
+      detect: (c) => c.industry === "swine_farm" && c.feedCostRatio >= 60,
+      mitigation: "แนะนำทำสัญญาซื้อล่วงหน้า (forward) / สำรองวัตถุดิบ 2-3 เดือน",
+    },
+    {
+      id: "PRICE_CYCLE",
+      category: "ความเสี่ยงด้านตลาด (Market)",
+      label: "วัฏจักรราคาสุกรมีชีวิต (Hog Price Cycle) ผันผวนสูง",
+      severity: "medium",
+      detect: (c) => c.industry === "swine_farm",
+      mitigation: "ทำ sensitivity ราคาขาย -15% / กำหนดเงื่อนไขสัญญารับซื้อ (contract farming)",
+    },
+    {
+      id: "CONCENTRATION",
+      category: "ความเสี่ยงเชิงโครงสร้าง (Structural)",
+      label: "พึ่งพารายได้จากสินค้าเดียว (Single-commodity concentration)",
+      severity: "low",
+      detect: (c) => true, // เคสฟาร์มเดี่ยวมักกระจุกตัว
+      mitigation: "ติดตามแผนกระจายความเสี่ยง / สัดส่วนรายได้",
+    },
+    {
+      id: "LOW_DSCR",
+      category: "ความเสี่ยงด้านการชำระหนี้ (Repayment)",
+      label: "ความสามารถชำระหนี้ต่ำกว่าเกณฑ์ (DSCR ต่ำ)",
+      severity: "high",
+      detect: (c, r) => r.dscr < KNOWLEDGE.thresholds.dscr.min,
+      mitigation: "ลดวงเงิน / ขยายระยะเวลา / เพิ่มผู้ค้ำประกัน",
+    },
+    {
+      id: "HIGH_LTV",
+      category: "ความเสี่ยงด้านหลักประกัน (Collateral)",
+      label: "สัดส่วนวงเงินต่อหลักประกันสูง (LTV สูง)",
+      severity: "medium",
+      detect: (c, r) => r.ltv > KNOWLEDGE.thresholds.ltv.max,
+      mitigation: "เพิ่มหลักประกัน / ลดวงเงินให้ LTV ≤ 80%",
+    },
+    {
+      id: "HIGH_LEVERAGE",
+      category: "ความเสี่ยงด้านโครงสร้างทุน (Leverage)",
+      label: "ภาระหนี้ต่อทุนสูง (D/E สูง)",
+      severity: "medium",
+      detect: (c, r) => r.de > KNOWLEDGE.thresholds.de.max,
+      mitigation: "ขอให้ผู้กู้เพิ่มทุน / ลดวงเงินกู้",
+    },
+  ],
+};
+
+// expose ให้ layer อื่นเรียกใช้ (ใน global scope ของ static site)
+window.KNOWLEDGE = KNOWLEDGE;
+
+
+/* =============================================================================
+ * ENGINE LAYER — "Knowledge → Output Engine"
+ * -----------------------------------------------------------------------------
+ * หัวใจของ Loan Brain OS : รับ input ลูกค้า → ประมวลผลผ่าน framework + knowledge
+ * → ผลิต analysis แบบ deterministic (Design Principle #1 : Output > Process)
+ *
+ * Engine ไม่เก็บ logic การให้สินเชื่อเอง — ดึงทุกเกณฑ์จาก KNOWLEDGE (control)
+ * =========================================================================== */
+
+const ENGINE = (() => {
+
+  const fmt = (n) => Number(n || 0).toLocaleString("th-TH");
+  const round2 = (n) => Math.round(n * 100) / 100;
+
+  /* ---- 1) คำนวณภาระหนี้รายปี (Annual Debt Service) -------------------- *
+   * สูตร PMT มาตรฐาน : ผ่อนเท่ากันทุกงวด (amortizing)
+   * ------------------------------------------------------------------- */
+  function annualDebtService(loanAmount, annualRatePct, termMonths) {
+    const r = (annualRatePct / 100) / 12;
+    const n = termMonths;
+    if (r === 0) return (loanAmount / n) * 12;
+    const pmt = loanAmount * r / (1 - Math.pow(1 + r, -n));
+    return pmt * 12;
+  }
+
+  /* ---- 2) Financial Analysis : คำนวณ ratio ทั้งหมด ------------------- */
+  function calculateFinancials(c) {
+    const product = KNOWLEDGE.products[c.product] || KNOWLEDGE.products.farm_expansion;
+
+    const noi = c.annualRevenue - c.annualOpEx;            // Net Operating Income
+    const netProfit = noi - c.existingDebtService;          // กำไรสุทธิหลังหนี้เดิม
+    const newDebtService = annualDebtService(
+      c.loanAmount, product.interestRate, c.termMonths
+    );
+    const totalDebtService = newDebtService + c.existingDebtService;
+    const totalDebt = c.loanAmount + c.existingDebt;
+
+    return {
+      noi,
+      netProfit,
+      newDebtService: Math.round(newDebtService),
+      totalDebtService: Math.round(totalDebtService),
+      // --- Key Ratios ---
+      dscr:        round2(noi / totalDebtService),
+      ltv:         round2((c.loanAmount / c.collateralValue) * 100),
+      de:          round2(totalDebt / c.equity),
+      currentRatio:round2(c.currentAssets / c.currentLiabilities),
+      netMargin:   round2((netProfit / c.annualRevenue) * 100),
+      feedCostRatio: c.feedCostRatio,
+      interestRate: product.interestRate,
+      termMonths: c.termMonths,
+    };
+  }
+
+  /* ---- 3) ประเมินแต่ละ ratio เทียบ threshold (pass / warn / fail) ----- */
+  function gradeRatio(value, t, higherIsBetter = true) {
+    if (higherIsBetter) {
+      if (value >= (t.strong ?? t.safe)) return "pass";
+      if (value >= t.min) return "warn";
+      return "fail";
+    } else { // lower is better (LTV, D/E)
+      if (value <= t.safe) return "pass";
+      if (value <= t.max) return "warn";
+      return "fail";
+    }
+  }
+
+  function buildRatioReport(r) {
+    const T = KNOWLEDGE.thresholds;
+    return [
+      { key: "DSCR",          value: r.dscr,         unit: "x", grade: gradeRatio(r.dscr, T.dscr, true),
+        target: `≥ ${T.dscr.min}`, desc: "ความสามารถชำระหนี้ (Debt Service Coverage)" },
+      { key: "LTV",           value: r.ltv,          unit: "%", grade: gradeRatio(r.ltv, T.ltv, false),
+        target: `≤ ${T.ltv.max}%`, desc: "วงเงินต่อมูลค่าหลักประกัน (Loan-to-Value)" },
+      { key: "D/E",           value: r.de,           unit: "x", grade: gradeRatio(r.de, T.de, false),
+        target: `≤ ${T.de.max}`, desc: "หนี้สินต่อส่วนของเจ้าของ (Debt-to-Equity)" },
+      { key: "Current Ratio", value: r.currentRatio, unit: "x", grade: gradeRatio(r.currentRatio, T.currentRatio, true),
+        target: `≥ ${T.currentRatio.min}`, desc: "สภาพคล่องระยะสั้น (Liquidity)" },
+      { key: "Net Margin",    value: r.netMargin,    unit: "%", grade: gradeRatio(r.netMargin, T.netMargin, true),
+        target: `≥ ${T.netMargin.min}%`, desc: "อัตรากำไรสุทธิ (Net Profit Margin)" },
+    ];
+  }
+
+  /* ---- 4) Risk Assessment : รัน risk pattern ทั้งหมดอัตโนมัติ --------- *
+   * Risk Control (6.3) : "risk pattern ถูกตรวจอัตโนมัติ" — ไม่พึ่งคนจำ
+   * ------------------------------------------------------------------- */
+  function assessRisk(c, ratios) {
+    const triggered = KNOWLEDGE.riskPatterns.filter((p) => {
+      try { return p.detect(c, ratios); } catch { return false; }
+    });
+
+    const weight = { high: 25, medium: 12, low: 5 };
+    const rawScore = triggered.reduce((s, p) => s + weight[p.severity], 0);
+    const riskScore = Math.min(100, rawScore);          // 0 = ปลอดภัย, 100 = เสี่ยงสุด
+
+    let level = "ต่ำ (Low)";
+    if (riskScore >= 50) level = "สูง (High)";
+    else if (riskScore >= 25) level = "ปานกลาง (Medium)";
+
+    return { triggered, riskScore, level };
+  }
+
+  /* ---- 5) Recommendation : สรุปคำแนะนำ + เงื่อนไข ---------------------- *
+   * รวมผล ratio (กี่ตัวผ่าน) + risk → ตัดสิน decision
+   * Design Principle #4 : AI = draft, RM = approve (นี่คือ "draft")
+   * ------------------------------------------------------------------- */
+  function generateRecommendation(ratioReport, risk) {
+    const fails = ratioReport.filter((x) => x.grade === "fail");
+    const warns = ratioReport.filter((x) => x.grade === "warn");
+
+    let decision, color, summary;
+    const hasHighRisk = risk.triggered.some(
+      (p) => p.severity === "high" && p.id !== "ASF_DISEASE"
+    );
+
+    if (fails.length === 0 && warns.length <= 1 && risk.riskScore < 50) {
+      decision = "อนุมัติ (Approve)";
+      color = "approve";
+      summary = "เคสผ่านเกณฑ์ทางการเงินครบถ้วน ความเสี่ยงอยู่ในระดับที่บริหารจัดการได้";
+    } else if (fails.length === 0 && !hasHighRisk) {
+      decision = "อนุมัติแบบมีเงื่อนไข (Approve with Conditions)";
+      color = "conditional";
+      summary = "เคสมีศักยภาพชำระหนี้ แต่มีจุดที่ต้องควบคุมด้วยเงื่อนไขก่อนเบิกจ่าย";
+    } else {
+      decision = "ทบทวน / ปรับโครงสร้าง (Reconsider)";
+      color = "reject";
+      summary = "มีตัวชี้วัดสำคัญไม่ผ่านเกณฑ์ ควรปรับโครงสร้างวงเงินหรือหลักประกันก่อน";
+    }
+
+    // รวมเงื่อนไข : มาจาก mitigation ของ risk ที่ trigger + ratio ที่ warn/fail
+    const conditions = [];
+    risk.triggered.forEach((p) => conditions.push(p.mitigation));
+    [...fails, ...warns].forEach((x) =>
+      conditions.push(`เฝ้าระวัง ${x.key} (ปัจจุบัน ${x.value}${x.unit}, เป้า ${x.target})`)
+    );
+
+    return {
+      decision, color, summary,
+      conditions: [...new Set(conditions)],   // dedupe
+      passCount: ratioReport.length - fails.length - warns.length,
+      totalCount: ratioReport.length,
+    };
+  }
+
+  /* ---- 6) MAIN : วิ่งทั้ง pipeline ในครั้งเดียว ----------------------- *
+   * Input → [Financials → Risk → Recommendation] → Analysis object
+   * ------------------------------------------------------------------- */
+  function run(c) {
+    const ratios = calculateFinancials(c);
+    const ratioReport = buildRatioReport(ratios);
+    const risk = assessRisk(c, ratios);
+    const recommendation = generateRecommendation(ratioReport, risk);
+
+    return {
+      case: c,
+      ratios,
+      ratioReport,
+      risk,
+      recommendation,
+      generatedAt: new Date().toISOString(),
+      frameworkVersion: KNOWLEDGE.governance.frameworkVersion,
+    };
+  }
+
+  return { run, annualDebtService, fmt };
+})();
+
+window.ENGINE = ENGINE;
+
+
+/* =============================================================================
+ * CONTROL LAYER — Standardized Output Templates
+ * -----------------------------------------------------------------------------
+ * Critical Risk 7.1 (Governance Failure) : ถ้า output ไม่สม่ำเสมอ → trust พัง
+ * แก้โดย : ทุก output ผ่าน template กลางชุดเดียวที่นี่ (ไม่ให้แต่ละคนเขียนเอง)
+ *
+ * รับ analysis object จาก ENGINE → คืน HTML string ที่ format มาตรฐาน
+ * =========================================================================== */
+
+const TEMPLATES = (() => {
+
+  const fmt = (n) => Number(Math.round(n) || 0).toLocaleString("th-TH");
+  const gradeBadge = (g) => {
+    const map = { pass: ["ผ่าน", "g-pass"], warn: ["เฝ้าระวัง", "g-warn"], fail: ["ไม่ผ่าน", "g-fail"] };
+    const [t, cls] = map[g] || ["-", ""];
+    return `<span class="badge ${cls}">${t}</span>`;
+  };
+  const sevBadge = (s) => {
+    const map = { high: ["สูง", "g-fail"], medium: ["กลาง", "g-warn"], low: ["ต่ำ", "g-pass"] };
+    const [t, cls] = map[s] || ["-", ""];
+    return `<span class="badge ${cls}">${t}</span>`;
+  };
+
+  /* ---- 1) CREDIT ANALYSIS --------------------------------------------- */
+  function creditAnalysis(a) {
+    const c = a.case, r = a.ratios;
+    const rows = a.ratioReport.map((x) => `
+      <tr>
+        <td><strong>${x.key}</strong><br><small>${x.desc}</small></td>
+        <td class="num">${x.value}${x.unit}</td>
+        <td class="num">${x.target}</td>
+        <td>${gradeBadge(x.grade)}</td>
+      </tr>`).join("");
+
+    return `
+      <h3>1. Credit Analysis — การวิเคราะห์สินเชื่อ</h3>
+      <div class="kv-grid">
+        <div><span>รายได้รวม/ปี (Revenue)</span><b>${fmt(c.annualRevenue)} ฿</b></div>
+        <div><span>กำไรจากการดำเนินงาน (NOI)</span><b>${fmt(r.noi)} ฿</b></div>
+        <div><span>ภาระหนี้ใหม่/ปี (New Debt Service)</span><b>${fmt(r.newDebtService)} ฿</b></div>
+        <div><span>ภาระหนี้รวม/ปี (Total Debt Service)</span><b>${fmt(r.totalDebtService)} ฿</b></div>
+      </div>
+      <table class="ratio-table">
+        <thead><tr><th>Ratio</th><th>ค่าจริง</th><th>เกณฑ์</th><th>ผล</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  }
+
+  /* ---- 2) RISK ASSESSMENT --------------------------------------------- */
+  function riskAssessment(a) {
+    const risk = a.risk;
+    if (!risk.triggered.length) {
+      return `<h3>2. Risk Assessment — การประเมินความเสี่ยง</h3>
+              <p class="muted">ไม่พบ risk pattern ที่เข้าข่าย</p>`;
+    }
+    const items = risk.triggered.map((p) => `
+      <div class="risk-item sev-${p.severity}">
+        <div class="risk-head">${sevBadge(p.severity)} <strong>${p.label}</strong></div>
+        <div class="risk-cat">${p.category}</div>
+        <div class="risk-mit"><span>แนวทางควบคุม:</span> ${p.mitigation}</div>
+      </div>`).join("");
+
+    return `
+      <h3>2. Risk Assessment — การประเมินความเสี่ยง</h3>
+      <div class="risk-score">
+        Risk Score: <b>${risk.riskScore}/100</b> &nbsp;|&nbsp; ระดับ: <b>${risk.level}</b>
+        <span class="muted">(ตรวจอัตโนมัติจาก ${KNOWLEDGE.riskPatterns.length} risk patterns)</span>
+      </div>
+      ${items}`;
+  }
+
+  /* ---- 3) RECOMMENDATION ---------------------------------------------- */
+  function recommendation(a) {
+    const rec = a.recommendation;
+    const conds = rec.conditions.map((x) => `<li>${x}</li>`).join("");
+    return `
+      <h3>3. Recommendation — ข้อเสนอแนะ</h3>
+      <div class="decision decision-${rec.color}">
+        <div class="decision-label">${rec.decision}</div>
+        <div class="decision-meta">ผ่านเกณฑ์การเงิน ${rec.passCount}/${rec.totalCount} ตัวชี้วัด</div>
+      </div>
+      <p>${rec.summary}</p>
+      <h4>เงื่อนไขประกอบการพิจารณา (Covenants)</h4>
+      <ul class="cond-list">${conds}</ul>`;
+  }
+
+  /* ---- 4) CREDIT MEMO (draft) ----------------------------------------- *
+   * เอกสารฉบับร่างพร้อมเสนอ — รวมทุก section เป็นรูปแบบมาตรฐานของธนาคาร
+   * ------------------------------------------------------------------- */
+  function creditMemo(a) {
+    const c = a.case, r = a.ratios, rec = a.recommendation;
+    const d = new Date(a.generatedAt);
+    const dateStr = d.toLocaleDateString("th-TH", { year: "numeric", month: "long", day: "numeric" });
+    const conds = rec.conditions.map((x, i) => `${i + 1}. ${x}`).join("\n      ");
+
+    return `
+      <h3>4. Credit Memo (ฉบับร่าง) — บันทึกเสนอขออนุมัติสินเชื่อ</h3>
+      <div class="memo">
+<pre>
+บันทึกข้อความเสนอขออนุมัติสินเชื่อ (CREDIT MEMORANDUM)
+ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (BAAC)
+เลขที่อ้างอิง : ${c.refNo || "DRAFT-AUTO"}        วันที่ : ${dateStr}
+──────────────────────────────────────────────────────────────
+
+1. ข้อมูลผู้ขอสินเชื่อ
+   ชื่อผู้กู้        : ${c.borrowerName}
+   ประเภทกิจการ     : ${c.businessType}
+   วัตถุประสงค์      : ${c.purpose}
+
+2. รายละเอียดวงเงินที่เสนอ
+   วงเงินขอกู้       : ${fmt(c.loanAmount)} บาท
+   ระยะเวลา         : ${c.termMonths} เดือน (${(c.termMonths / 12).toFixed(0)} ปี)
+   อัตราดอกเบี้ย      : ${r.interestRate}% ต่อปี
+   ผ่อนชำระ/ปี       : ${fmt(r.newDebtService)} บาท
+   หลักประกัน        : ${c.collateralDesc} (มูลค่า ${fmt(c.collateralValue)} บาท)
+
+3. บทวิเคราะห์ความสามารถชำระหนี้
+   - กำไรจากการดำเนินงาน (NOI)  : ${fmt(r.noi)} บาท/ปี
+   - DSCR                       : ${r.dscr}x  (เกณฑ์ ≥ ${KNOWLEDGE.thresholds.dscr.min})
+   - LTV                        : ${r.ltv}%  (เกณฑ์ ≤ ${KNOWLEDGE.thresholds.ltv.max}%)
+   - D/E                        : ${r.de}x
+   - Net Profit Margin          : ${r.netMargin}%
+
+4. ความเห็นด้านความเสี่ยง
+   ระดับความเสี่ยงโดยรวม : ${a.risk.level} (Risk Score ${a.risk.riskScore}/100)
+   ความเสี่ยงสำคัญที่ตรวจพบ :
+   ${a.risk.triggered.map((p, i) => `${i + 1}. ${p.label}`).join("\n   ") || "- ไม่มี"}
+
+5. ความเห็นและข้อเสนอ
+   ผลการพิจารณา (ฉบับร่าง) : ${rec.decision}
+   ${rec.summary}
+
+   เงื่อนไขประกอบการอนุมัติ :
+      ${conds}
+
+6. การลงนาม
+   ผู้จัดทำ (RM)        : ____________________   (ระบบร่างให้อัตโนมัติ)
+   ผู้พิจารณา/อนุมัติ    : ____________________
+──────────────────────────────────────────────────────────────
+สร้างโดย Loan Brain OS | Framework v${a.frameworkVersion}
+* เอกสารนี้เป็น "ฉบับร่าง" — ต้องผ่านการตรวจและอนุมัติโดยเจ้าหน้าที่ (Human-in-the-loop)
+</pre>
+      </div>`;
+  }
+
+  return { creditAnalysis, riskAssessment, recommendation, creditMemo };
+})();
+
+window.TEMPLATES = TEMPLATES;
+
+
+/* =============================================================================
+ * SAMPLE CASES — เคสตัวอย่างสำหรับ Demo
+ * -----------------------------------------------------------------------------
+ * เคสหลัก : ฟาร์มสุกรขุน วงเงิน 25 ล้านบาท (ตาม next step ในเอกสารข้อเสนอ)
+ * ข้อมูลสมมติ — ตัวเลขออกแบบให้ ratio สมเหตุสมผลและโชว์การทำงานของ engine
+ * =========================================================================== */
+
+const SAMPLE_CASES = {
+
+  swine_25m: {
+    refNo: "BAAC-2026-0148",
+    borrowerName: "นายสมชาย เกษตรมั่นคง",
+    businessType: "ฟาร์มสุกรขุน (Swine Fattening Farm)",
+    industry: "swine_farm",
+    purpose: "ขยายโรงเรือนสุกรขุนระบบปิด (EVAP) เพิ่มกำลังผลิต 2,000 ตัว/รุ่น",
+    product: "farm_expansion",
+
+    // --- วงเงิน & หลักประกัน ---
+    loanAmount: 25000000,         // 25 ล้านบาท
+    termMonths: 84,               // 7 ปี
+    collateralValue: 35000000,    // ที่ดิน + สิ่งปลูกสร้าง
+    collateralDesc: "ที่ดินพร้อมโรงเรือน 3 หลัง เนื้อที่ 28 ไร่",
+
+    // --- งบการเงิน (ต่อปี) ---
+    annualRevenue: 42000000,      // รายได้จากการขายสุกรขุน
+    annualOpEx: 34000000,         // ต้นทุน+ค่าใช้จ่ายดำเนินงาน (อาหารสัตว์เป็นหลัก)
+    feedCostRatio: 65,            // ต้นทุนอาหารสัตว์ 65% ของรายได้
+
+    // --- โครงสร้างหนี้/ทุน ---
+    existingDebt: 5000000,        // หนี้เดิม
+    existingDebtService: 1000000, // ภาระผ่อนหนี้เดิม/ปี
+    equity: 20000000,             // ส่วนของเจ้าของ
+
+    // --- สภาพคล่อง ---
+    currentAssets: 9000000,
+    currentLiabilities: 6000000,
+  },
+};
+
+window.SAMPLE_CASES = SAMPLE_CASES;
+
+
+
+/* STORE — knowledge reuse. localStorage if available, else in-memory
+ * (Claude artifact sandbox blocks localStorage). */
+const STORE = (() => {
+  const KEY = "loanBrainOS.cases";
+  let mem = [];
+  let useLS = false;
+  try { const t="__t"; localStorage.setItem(t,"1"); localStorage.removeItem(t); useLS = true; } catch (e) { useLS = false; }
+
+  function _all() {
+    if (!useLS) return mem;
+    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; }
+  }
+  function _save(list) {
+    if (!useLS) { mem = list; return; }
+    try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { useLS = false; mem = list; }
+  }
+  function saveCase(analysis, status) {
+    const list = _all();
+    const record = {
+      id: "C" + Date.now(), refNo: analysis.case.refNo,
+      borrowerName: analysis.case.borrowerName, loanAmount: analysis.case.loanAmount,
+      decision: analysis.recommendation.decision, riskScore: analysis.risk.riskScore,
+      status: status || "รอพิจารณา", savedAt: new Date().toISOString(), case: analysis.case,
+    };
+    list.unshift(record); _save(list); return record;
+  }
+  function list() { return _all(); }
+  function remove(id) { _save(_all().filter((x) => x.id !== id)); }
+  function clear() { _save([]); }
+  function stats() {
+    const all = _all();
+    return {
+      total: all.length,
+      approved: all.filter((x) => x.status === "อนุมัติแล้ว").length,
+      totalAmount: all.reduce((s, x) => s + (x.loanAmount || 0), 0),
+      avgRisk: all.length ? Math.round(all.reduce((s, x) => s + (x.riskScore || 0), 0) / all.length) : 0,
+    };
+  }
+  return { saveCase, list, remove, clear, stats };
+})();
+window.STORE = STORE;
+
+
+/* =============================================================================
+ * APP — Orchestration & UI
+ * -----------------------------------------------------------------------------
+ * เชื่อม UI ↔ ENGINE ↔ TEMPLATES ↔ STORE
+ * Flow : กรอก/โหลด input → ENGINE.run() → render output → RM approve → STORE
+ *
+ * Design Principle #4 : AI = draft, RM = approve (ปุ่มอนุมัติ/ส่งกลับแก้)
+ * =========================================================================== */
+
+const APP = (() => {
+  let currentAnalysis = null;
+
+  const $ = (id) => document.getElementById(id);
+  const fmt = (n) => Number(n || 0).toLocaleString("th-TH");
+
+  /* ---- Navigation ระหว่าง view ---------------------------------------- */
+  function showView(name) {
+    ["dashboard", "newcase", "knowledge"].forEach((v) => {
+      $("view-" + v).classList.toggle("hidden", v !== name);
+      $("nav-" + v).classList.toggle("active", v === name);
+    });
+    if (name === "dashboard") renderDashboard();
+    if (name === "knowledge") renderKnowledge();
+  }
+
+  /* ---- อ่านค่าจากฟอร์ม input ------------------------------------------ */
+  function readForm() {
+    const num = (id) => Number($(id).value) || 0;
+    return {
+      refNo: $("f_refNo").value,
+      borrowerName: $("f_borrowerName").value,
+      businessType: $("f_businessType").value,
+      industry: $("f_industry").value,
+      purpose: $("f_purpose").value,
+      product: "farm_expansion",
+      loanAmount: num("f_loanAmount"),
+      termMonths: num("f_termMonths"),
+      collateralValue: num("f_collateralValue"),
+      collateralDesc: $("f_collateralDesc").value,
+      annualRevenue: num("f_annualRevenue"),
+      annualOpEx: num("f_annualOpEx"),
+      feedCostRatio: num("f_feedCostRatio"),
+      existingDebt: num("f_existingDebt"),
+      existingDebtService: num("f_existingDebtService"),
+      equity: num("f_equity"),
+      currentAssets: num("f_currentAssets"),
+      currentLiabilities: num("f_currentLiabilities"),
+    };
+  }
+
+  function fillForm(c) {
+    const set = (id, v) => { $(id).value = v; };
+    set("f_refNo", c.refNo); set("f_borrowerName", c.borrowerName);
+    set("f_businessType", c.businessType); set("f_industry", c.industry);
+    set("f_purpose", c.purpose); set("f_loanAmount", c.loanAmount);
+    set("f_termMonths", c.termMonths); set("f_collateralValue", c.collateralValue);
+    set("f_collateralDesc", c.collateralDesc); set("f_annualRevenue", c.annualRevenue);
+    set("f_annualOpEx", c.annualOpEx); set("f_feedCostRatio", c.feedCostRatio);
+    set("f_existingDebt", c.existingDebt); set("f_existingDebtService", c.existingDebtService);
+    set("f_equity", c.equity); set("f_currentAssets", c.currentAssets);
+    set("f_currentLiabilities", c.currentLiabilities);
+  }
+
+  /* ---- GENERATE : หัวใจของ demo --------------------------------------- *
+   * จับเวลาเพื่อโชว์ value prop "3 ชม. → 20 นาที / วินาที"
+   * ------------------------------------------------------------------- */
+  function generate() {
+    const t0 = performance.now();
+    const input = readForm();
+    if (!input.borrowerName || !input.loanAmount) {
+      alert("กรุณากรอกชื่อผู้กู้และวงเงินขอกู้เป็นอย่างน้อย");
+      return;
+    }
+    currentAnalysis = ENGINE.run(input);
+    const ms = Math.max(1, Math.round(performance.now() - t0));
+
+    const out = $("output");
+    out.innerHTML = `
+      <div class="gen-banner">
+        ⚡ ระบบผลิตผลวิเคราะห์เสร็จใน <b>${ms} มิลลิวินาที</b>
+        <span>(เทียบกระบวนการเดิม 2–4 ชั่วโมง/เคส)</span>
+      </div>
+      <div class="output-card">${TEMPLATES.creditAnalysis(currentAnalysis)}</div>
+      <div class="output-card">${TEMPLATES.riskAssessment(currentAnalysis)}</div>
+      <div class="output-card">${TEMPLATES.recommendation(currentAnalysis)}</div>
+      <div class="output-card">${TEMPLATES.creditMemo(currentAnalysis)}</div>
+      ${approvalBar()}
+    `;
+    out.classList.remove("hidden");
+    out.scrollIntoView({ behavior: "smooth" });
+    bindApproval();
+  }
+
+  /* ---- RM Approval Bar (Human-in-the-loop) --------------------------- */
+  function approvalBar() {
+    return `
+      <div class="approval-bar">
+        <span class="approval-note">
+          🧑‍⚖️ เอกสารนี้เป็น <b>ฉบับร่างจากระบบ</b> — เจ้าหน้าที่ (RM) เป็นผู้ตัดสินใจขั้นสุดท้าย
+        </span>
+        <div class="approval-actions">
+          <button class="btn btn-approve" data-status="อนุมัติแล้ว">✓ อนุมัติ &amp; บันทึกเข้าคลัง</button>
+          <button class="btn btn-warn" data-status="ส่งกลับแก้ไข">↩ ส่งกลับแก้ไข</button>
+          <button class="btn btn-ghost" data-status="รอพิจารณา">บันทึกเป็นร่าง</button>
+        </div>
+      </div>`;
+  }
+
+  function bindApproval() {
+    document.querySelectorAll(".approval-actions .btn").forEach((b) => {
+      b.addEventListener("click", () => {
+        const rec = STORE.saveCase(currentAnalysis, b.dataset.status);
+        alert(`บันทึกเคส ${rec.refNo} สถานะ "${rec.status}" เข้าคลังความรู้แล้ว`);
+        showView("knowledge");
+      });
+    });
+  }
+
+  /* ---- DASHBOARD ------------------------------------------------------ */
+  function renderDashboard() {
+    const s = STORE.stats();
+    $("dash-stats").innerHTML = `
+      <div class="stat"><div class="stat-num">${s.total}</div><div>เคสในคลัง</div></div>
+      <div class="stat"><div class="stat-num">${s.approved}</div><div>อนุมัติแล้ว</div></div>
+      <div class="stat"><div class="stat-num">${fmt(s.totalAmount)}</div><div>วงเงินรวม (฿)</div></div>
+      <div class="stat"><div class="stat-num">${s.avgRisk}</div><div>Risk Score เฉลี่ย</div></div>`;
+  }
+
+  /* ---- KNOWLEDGE BASE : รายการเคสที่สะสม ------------------------------ */
+  function renderKnowledge() {
+    const list = STORE.list();
+    const box = $("kb-list");
+    if (!list.length) {
+      box.innerHTML = `<p class="muted">ยังไม่มีเคสในคลัง — สร้างเคสใหม่เพื่อเริ่มสะสม knowledge</p>`;
+      return;
+    }
+    box.innerHTML = list.map((x) => `
+      <div class="kb-row">
+        <div class="kb-main">
+          <strong>${x.borrowerName}</strong> <span class="muted">(${x.refNo})</span>
+          <div class="muted">วงเงิน ${fmt(x.loanAmount)} ฿ · ${x.decision} · Risk ${x.riskScore}</div>
+        </div>
+        <div class="kb-side">
+          <span class="badge status">${x.status}</span>
+          <button class="btn btn-ghost sm" data-load="${x.id}">เปิดดู</button>
+          <button class="btn btn-ghost sm" data-del="${x.id}">ลบ</button>
+        </div>
+      </div>`).join("");
+
+    box.querySelectorAll("[data-load]").forEach((b) => b.addEventListener("click", () => {
+      const rec = STORE.list().find((x) => x.id === b.dataset.load);
+      fillForm(rec.case); showView("newcase"); generate();
+    }));
+    box.querySelectorAll("[data-del]").forEach((b) => b.addEventListener("click", () => {
+      STORE.remove(b.dataset.del); renderKnowledge(); renderDashboard();
+    }));
+  }
+
+  /* ---- INIT ----------------------------------------------------------- */
+  function init() {
+    $("nav-dashboard").addEventListener("click", () => showView("dashboard"));
+    $("nav-newcase").addEventListener("click", () => showView("newcase"));
+    $("nav-knowledge").addEventListener("click", () => showView("knowledge"));
+
+    $("btn-generate").addEventListener("click", generate);
+    $("btn-loadsample").addEventListener("click", () => {
+      fillForm(SAMPLE_CASES.swine_25m);
+    });
+    $("btn-clearstore").addEventListener("click", () => {
+      if (confirm("ลบเคสทั้งหมดในคลัง?")) { STORE.clear(); renderKnowledge(); renderDashboard(); }
+    });
+
+    // แสดงเวอร์ชัน framework (governance)
+    $("fw-version").textContent =
+      "Framework v" + KNOWLEDGE.governance.frameworkVersion +
+      " · " + KNOWLEDGE.framework.name;
+
+    fillForm(SAMPLE_CASES.swine_25m);   // โหลดเคสตัวอย่างไว้ให้พร้อม demo
+    showView("dashboard");
+  }
+
+  return { init };
+})();
+
+document.addEventListener("DOMContentLoaded", APP.init);
+
+  </script>
+</body>
+</html>
