@@ -224,3 +224,10 @@ fieldset.full { grid-column: 1 / -1; }
 .ratio-table small { color: var(--muted); font-weight: 300; }
 .ratio-table tr.hl { background: #fff8e9; }
 .ratio-table tr.hl td { font-size: 1rem; }
+
+/* ---------- haircut transparency (v2.1) ---------- */
+.ratio-table td.capped { color: var(--warn); }
+.ratio-table td.capped .cap { display: inline-block; font-size: .66rem; background: #fdf0d9;
+  color: var(--warn); border-radius: 4px; padding: 0 .3rem; margin-left: .25rem; font-weight: 500; }
+.haircut-note { background: #fff8e9; border: 1px solid var(--gold); border-radius: 8px;
+  padding: .7rem .9rem; margin: .6rem 0; font-size: .85rem; line-height: 1.5; }

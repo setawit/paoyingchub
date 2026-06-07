@@ -51,14 +51,22 @@ const TEMPLATES = (() => {
   /* ===== PART B — ประมาณการ 3 กรณี + Assumption Ledger ================= */
   function partB(a) {
     const s = a.scenarios, full = a.routing.depth === "เต็ม";
-    const cols = full ? ["customer", "bank", "conservative"] : ["bank"];
-    const head = full
-      ? `<th>Customer</th><th>Bank</th><th>Conservative</th>`
-      : `<th>Bank Case</th>`;
+    // ย่อ/กลาง = Customer เทียบ Bank · เต็ม = + Conservative (stress) ด้วย
+    const cols = full ? ["customer", "bank", "conservative"] : ["customer", "bank"];
+    const labels = { customer: "Customer (ที่กรอก)", bank: "Bank (benchmark)", conservative: "Conservative (stress)" };
+    const head = cols.map((k) => `<th>${labels[k]}</th>`).join("");
 
-    // Assumption Ledger
+    // Assumption Ledger — มาร์คค่าที่ถูก haircut ให้ "มองเห็นได้"
+    let hasHaircut = false;
     const ledgerRows = s.ledger.map((row) => {
-      const vals = cols.map((k) => `<td class="num">${typeof row[k] === "number" ? Number(row[k]).toLocaleString("th-TH") : row[k]}</td>`).join("");
+      const vals = cols.map((k) => {
+        const v = row[k], num = typeof v === "number";
+        const capped = k === "bank" && num && typeof row.customer === "number" && v < row.customer;
+        if (capped) hasHaircut = true;
+        const disp = num ? Number(v).toLocaleString("th-TH") : v;
+        const tip = capped ? ` title="กรอก ${Number(row.customer).toLocaleString("th-TH")} → haircut เป็น benchmark"` : "";
+        return `<td class="num${capped ? " capped" : ""}"${tip}>${disp}${capped ? ' <span class="cap">⤵ benchmark</span>' : ""}</td>`;
+      }).join("");
       return `<tr><td>${row.label} <small>(${row.unit})</small></td>${vals}<td class="src">${row.source}</td></tr>`;
     }).join("");
 
@@ -68,14 +76,21 @@ const TEMPLATES = (() => {
       return `<tr><td>${label}</td>${vals}</tr>`;
     };
 
-    const note = full ? "" :
-      `<p class="muted">ℹ️ ระดับ "${a.routing.depth}" แสดง Bank Case อย่างเดียว — ระดับธนาคารขึ้นไปจะแตกครบ 3 กรณี</p>`;
+    const depthNote = full
+      ? `<p class="muted">ℹ️ ระดับธนาคารขึ้นไป — แตกครบ 3 กรณี (รวม Conservative/stress)</p>`
+      : `<p class="muted">ℹ️ ระดับ "${a.routing.depth}" — แสดง Customer เทียบ Bank (Conservative/stress ใช้เฉพาะระดับธนาคารขึ้นไป)</p>`;
+    const haircutNote = hasHaircut
+      ? `<div class="haircut-note">⚠️ สมมติฐานที่กรอกบางตัว <b>สูงกว่า benchmark</b> ระบบจึง haircut เป็นค่า benchmark ในกรณี Bank
+         (conservative underwriting) → นี่คือเหตุที่ค่า Bank/DSCR <b>ไม่ขยับเมื่อปรับ "ขึ้น"</b> เกิน benchmark
+         · ลองปรับ <b>ลง</b> หรือ <b>ลดต้นทุน/วงเงิน</b> จะเห็นการเปลี่ยน</div>`
+      : "";
 
     return `
       <div class="output-card">
         <div class="part-tag">ส่วน B · การประมาณการทางการเงิน</div>
-        <h3>Scenario Projection — เขียนครั้งเดียว แตก ${full ? 3 : 1} กรณี</h3>
-        ${note}
+        <h3>Scenario Projection — เขียนครั้งเดียว แตก ${cols.length} กรณี</h3>
+        ${depthNote}
+        ${haircutNote}
         <h4>📒 Assumption Ledger — สมมติฐานพร้อมที่มา <span class="muted">(กันนั่งเทียน)</span></h4>
         <table class="ratio-table led">
           <thead><tr><th>สมมติฐาน</th>${head}<th>ที่มา / กฎ</th></tr></thead>
