@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Loan Brain OS — Credit Productivity &amp; Decision Engine</title>
+  <title>Loan Brain OS v2 — Credit Productivity &amp; Decision Engine</title>
   <link rel="stylesheet" href="css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,120 +11,97 @@
 </head>
 <body>
 
-  <!-- ===================== Header ===================== -->
   <header class="topbar">
     <div class="brand">
       <span class="logo">🧠</span>
       <div>
-        <div class="brand-name">Loan Brain OS</div>
+        <div class="brand-name">Loan Brain OS <span class="v">v2</span></div>
         <div class="brand-sub">Credit Productivity &amp; Decision Engine · BAAC</div>
       </div>
     </div>
     <nav class="nav">
       <button id="nav-dashboard" class="nav-btn">Dashboard</button>
       <button id="nav-newcase" class="nav-btn">+ สร้างเคสใหม่</button>
-      <button id="nav-knowledge" class="nav-btn">คลังความรู้ (Cases)</button>
+      <button id="nav-knowledge" class="nav-btn">คลังความรู้</button>
     </nav>
-    <div id="fw-version" class="fw-badge">Framework</div>
+    <div id="fw-version" class="fw-badge">Policy</div>
   </header>
 
   <main class="wrap">
 
-    <!-- ===================== Dashboard ===================== -->
+    <!-- Dashboard -->
     <section id="view-dashboard" class="view">
       <h2>ภาพรวมระบบ</h2>
-      <p class="lead">
-        ระบบที่แปลง <b>ข้อมูลลูกค้า → เคสสินเชื่อพร้อมเสนอ</b> แบบอัตโนมัติ
-        — ลดเวลาจาก 2–4 ชั่วโมง/เคส เหลือระดับวินาที
-      </p>
+      <p class="lead">แปลง <b>ข้อมูลลูกค้า → Credit Approval พร้อมเสนอ</b> อัตโนมัติ
+        — Scenario Projection 3 กรณี · Risk Disclosure · จัดเส้นทางอนุมัติ (DoA) ในระดับวินาที</p>
       <div id="dash-stats" class="stats-grid"></div>
 
       <div class="pipeline">
-        <div class="pl-step"><b>Input</b><br>ข้อมูลลูกค้า</div>
+        <div class="pl-step"><b>Input</b><br>เลือกอุตสาหกรรม + driver</div>
         <div class="pl-arrow">→</div>
-        <div class="pl-step engine"><b>Engine</b><br>Framework · Knowledge · Risk Pattern</div>
+        <div class="pl-step engine"><b>Engine</b><br>Scenario · Risk Disclosure · DoA · Compliance</div>
         <div class="pl-arrow">→</div>
-        <div class="pl-step out"><b>Output (Auto)</b><br>Analysis · Risk · Recommendation · Credit Memo</div>
+        <div class="pl-step out"><b>Output</b><br>Credit Approval (A · B · C) ลึกตาม tier</div>
       </div>
 
-      <div class="cta">
-        <button class="btn btn-primary" onclick="document.getElementById('nav-newcase').click()">
-          ▶ เริ่ม Demo เคสฟาร์มสุกร 25 ล้านบาท
-        </button>
+      <h3>▶ เริ่ม Demo — เลือกเคสตัวอย่าง</h3>
+      <div class="sample-row">
+        <button class="btn btn-primary" data-sample="swine_25m">🐖 ฟาร์มสุกร 25 ลบ.<br><small>ระดับธนาคาร · 3 scenarios</small></button>
+        <button class="btn btn-ghost" data-sample="broiler_8m">🐔 ฟาร์มไก่เนื้อ 8 ลบ.<br><small>ระดับเขต</small></button>
+        <button class="btn btn-ghost" data-sample="rice_2_5m">🌾 นาข้าว 2.5 ลบ.<br><small>ระดับสาขา · ย่อ</small></button>
       </div>
     </section>
 
-    <!-- ===================== New Case ===================== -->
+    <!-- New Case -->
     <section id="view-newcase" class="view hidden">
-      <div class="section-head">
-        <h2>สร้างเคสสินเชื่อ</h2>
-        <button id="btn-loadsample" class="btn btn-ghost">↻ โหลดเคสตัวอย่าง (ฟาร์มสุกร 25 ลบ.)</button>
-      </div>
-
+      <div class="section-head"><h2>สร้างเคสสินเชื่อ</h2></div>
       <div class="form-grid">
         <fieldset>
-          <legend>ข้อมูลผู้กู้ (Borrower)</legend>
+          <legend>ผู้กู้ (Borrower)</legend>
           <label>เลขที่อ้างอิง<input id="f_refNo"></label>
           <label>ชื่อผู้กู้<input id="f_borrowerName"></label>
-          <label>ประเภทกิจการ<input id="f_businessType"></label>
-          <label>กลุ่มอุตสาหกรรม
-            <select id="f_industry">
-              <option value="swine_farm">ฟาร์มสุกร (Swine Farm)</option>
-              <option value="other">อื่น ๆ (Other)</option>
-            </select>
-          </label>
+          <label>กลุ่มอุตสาหกรรม<select id="f_industry"></select></label>
+          <label>ประเภทลูกค้า
+            <select id="f_customerType">
+              <option>เกษตรกร</option><option>นิติบุคคล</option>
+              <option>สหกรณ์/กลุ่มเกษตรกร</option><option>วิสาหกิจชุมชน</option>
+            </select></label>
+          <label>NCB Score<input id="f_ncbScore" type="number"></label>
           <label class="full">วัตถุประสงค์<input id="f_purpose"></label>
         </fieldset>
 
         <fieldset>
-          <legend>วงเงิน &amp; หลักประกัน (Facility &amp; Collateral)</legend>
+          <legend>วงเงิน &amp; หลักประกัน</legend>
           <label>วงเงินขอกู้ (฿)<input id="f_loanAmount" type="number"></label>
           <label>ระยะเวลา (เดือน)<input id="f_termMonths" type="number"></label>
+          <label>อัตราดอกเบี้ย (%)<input id="f_interestRate" type="number" step="any"></label>
           <label>มูลค่าหลักประกัน (฿)<input id="f_collateralValue" type="number"></label>
+          <label>ภาระผ่อนหนี้เดิม/ปี (฿)<input id="f_existingDebtService" type="number"></label>
           <label class="full">รายละเอียดหลักประกัน<input id="f_collateralDesc"></label>
         </fieldset>
 
-        <fieldset>
-          <legend>งบการเงิน/ปี (Financials)</legend>
-          <label>รายได้รวม (Revenue)<input id="f_annualRevenue" type="number"></label>
-          <label>ต้นทุน+ค่าใช้จ่าย (OpEx)<input id="f_annualOpEx" type="number"></label>
-          <label>สัดส่วนต้นทุนอาหารสัตว์ (%)<input id="f_feedCostRatio" type="number"></label>
-        </fieldset>
-
-        <fieldset>
-          <legend>โครงสร้างหนี้/ทุน &amp; สภาพคล่อง</legend>
-          <label>หนี้สินเดิม (฿)<input id="f_existingDebt" type="number"></label>
-          <label>ภาระผ่อนหนี้เดิม/ปี (฿)<input id="f_existingDebtService" type="number"></label>
-          <label>ส่วนของเจ้าของ Equity (฿)<input id="f_equity" type="number"></label>
-          <label>สินทรัพย์หมุนเวียน (฿)<input id="f_currentAssets" type="number"></label>
-          <label>หนี้สินหมุนเวียน (฿)<input id="f_currentLiabilities" type="number"></label>
+        <fieldset class="full">
+          <legend>สมมติฐานฐาน (Customer Case drivers) — ระบบจะแตกเป็น Bank &amp; Conservative ให้เอง</legend>
+          <div id="driver-box" class="driver-grid"></div>
         </fieldset>
       </div>
 
-      <div class="cta">
-        <button id="btn-generate" class="btn btn-primary big">⚡ Generate เคสสินเชื่อ</button>
-      </div>
-
+      <div class="cta"><button id="btn-generate" class="btn btn-primary big">⚡ Generate Credit Approval</button></div>
       <div id="output" class="hidden"></div>
     </section>
 
-    <!-- ===================== Knowledge Base ===================== -->
+    <!-- Knowledge Base -->
     <section id="view-knowledge" class="view hidden">
-      <div class="section-head">
-        <h2>คลังความรู้ — Case Knowledge Base</h2>
-        <button id="btn-clearstore" class="btn btn-ghost">ล้างคลัง</button>
-      </div>
-      <p class="muted">ทุกเคสที่บันทึกจะกลายเป็น asset ที่ reuse ได้ — Case 1 → asset, Case 100 → intelligence</p>
+      <div class="section-head"><h2>คลังความรู้ — Case Knowledge Base</h2>
+        <button id="btn-clearstore" class="btn btn-ghost">ล้างคลัง</button></div>
+      <p class="muted">Case 1 → asset · Case 100 → intelligence</p>
       <div id="kb-list" class="kb-list"></div>
     </section>
 
   </main>
 
-  <footer class="foot">
-    Loan Brain OS — Phase 1 Brain Prototype · "ไม่ใช่การเขียนทีละเคส แต่คือการสร้างเคสในระดับระบบ"
-  </footer>
+  <footer class="foot">Loan Brain OS v2 · Multi-industry · Scenario · Risk Disclosure · DoA Routing</footer>
 
-  <!-- Layers loaded in dependency order -->
   <script src="js/knowledge.js"></script>
   <script src="js/engine.js"></script>
   <script src="js/templates.js"></script>

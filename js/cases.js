@@ -1,39 +1,43 @@
 /* =============================================================================
- * SAMPLE CASES — เคสตัวอย่างสำหรับ Demo
- * -----------------------------------------------------------------------------
- * เคสหลัก : ฟาร์มสุกรขุน วงเงิน 25 ล้านบาท (ตาม next step ในเอกสารข้อเสนอ)
- * ข้อมูลสมมติ — ตัวเลขออกแบบให้ ratio สมเหตุสมผลและโชว์การทำงานของ engine
+ * SAMPLE CASES v2 — เคสตัวอย่าง 3 อุตสาหกรรม (โชว์ multi-industry + DoA tier)
  * =========================================================================== */
 
 const SAMPLE_CASES = {
 
+  // วงเงินใหญ่ → ระดับธนาคาร → แตกครบ 3 scenarios
   swine_25m: {
-    refNo: "BAAC-2026-0148",
-    borrowerName: "นายสมชาย เกษตรมั่นคง",
-    businessType: "ฟาร์มสุกรขุน (Swine Fattening Farm)",
-    industry: "swine_farm",
-    purpose: "ขยายโรงเรือนสุกรขุนระบบปิด (EVAP) เพิ่มกำลังผลิต 2,000 ตัว/รุ่น",
-    product: "farm_expansion",
+    refNo: "BAAC-2026-0148", borrowerName: "นายสมชาย เกษตรมั่นคง",
+    industry: "swine_farm", customerType: "เกษตรกร",
+    purpose: "ขยายโรงเรือนสุกรขุนระบบปิด (EVAP)",
+    loanAmount: 25000000, termMonths: 84, interestRate: 6.5,
+    collateralValue: 35000000, collateralDesc: "ที่ดินพร้อมโรงเรือน 28 ไร่",
+    existingDebtService: 1000000, ncbScore: 720, bankCapital: 220000000000,
+    flagBankrupt: false, flagAML: false,
+    drivers: { heads: 5800, weight: 112, price: 78, feedPct: 62, otherOpex: 7000000 },
+  },
 
-    // --- วงเงิน & หลักประกัน ---
-    loanAmount: 25000000,         // 25 ล้านบาท
-    termMonths: 84,               // 7 ปี
-    collateralValue: 35000000,    // ที่ดิน + สิ่งปลูกสร้าง
-    collateralDesc: "ที่ดินพร้อมโรงเรือน 3 หลัง เนื้อที่ 28 ไร่",
+  // วงเงินกลาง → ระดับเขต → ย่อ (1 scenario)
+  rice_2_5m: {
+    refNo: "BAAC-2026-0211", borrowerName: "นางสาวมาลี ทุ่งทอง",
+    industry: "rice_farm", customerType: "เกษตรกร",
+    purpose: "เงินทุนหมุนเวียนเพาะปลูกข้าวนาปี + ซื้อรถไถ",
+    loanAmount: 2500000, termMonths: 60, interestRate: 6.5,
+    collateralValue: 4000000, collateralDesc: "ที่ดินนา 35 ไร่",
+    existingDebtService: 120000, ncbScore: 690, bankCapital: 220000000000,
+    flagBankrupt: false, flagAML: false,
+    drivers: { rai: 350, yield: 720, price: 11.5, inputPerRai: 4200, otherOpex: 250000 },
+  },
 
-    // --- งบการเงิน (ต่อปี) ---
-    annualRevenue: 42000000,      // รายได้จากการขายสุกรขุน
-    annualOpEx: 34000000,         // ต้นทุน+ค่าใช้จ่ายดำเนินงาน (อาหารสัตว์เป็นหลัก)
-    feedCostRatio: 65,            // ต้นทุนอาหารสัตว์ 65% ของรายได้
-
-    // --- โครงสร้างหนี้/ทุน ---
-    existingDebt: 5000000,        // หนี้เดิม
-    existingDebtService: 1000000, // ภาระผ่อนหนี้เดิม/ปี
-    equity: 20000000,             // ส่วนของเจ้าของ
-
-    // --- สภาพคล่อง ---
-    currentAssets: 9000000,
-    currentLiabilities: 6000000,
+  // วงเงินกลาง-สูง → ระดับเขต/ธนาคาร
+  broiler_8m: {
+    refNo: "BAAC-2026-0305", borrowerName: "นายวิชัย ไก่ทองฟาร์ม",
+    industry: "broiler_farm", customerType: "เกษตรกร",
+    purpose: "สร้างโรงเรือนไก่เนื้อระบบปิดเพิ่ม 2 หลัง",
+    loanAmount: 8000000, termMonths: 72, interestRate: 6.5,
+    collateralValue: 12000000, collateralDesc: "ที่ดินพร้อมโรงเรือน 15 ไร่",
+    existingDebtService: 300000, ncbScore: 705, bankCapital: 220000000000,
+    flagBankrupt: false, flagAML: false,
+    drivers: { birds: 240000, weight: 2.4, price: 42, feedPct: 60, otherOpex: 1800000 },
   },
 };
 

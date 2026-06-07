@@ -1,138 +1,145 @@
 /* =============================================================================
- * KNOWLEDGE LAYER — "The Brain"
+ * KNOWLEDGE LAYER v2 — "The Brain"
  * -----------------------------------------------------------------------------
- * ชั้นความรู้กลางของระบบ : framework การคิด, risk pattern, benchmark, threshold
- *
- * Design Principle #2 — Control the Brain
- *   logic ทั้งหมดอยู่ที่นี่ (central) / UI เป็นแค่ผู้ "apply" เท่านั้น
- *   การแก้ logic การให้สินเชื่อ = แก้ที่ไฟล์นี้ไฟล์เดียว (governance จุดเดียว)
+ * ชั้นความรู้กลาง : Policy (versioned) · DoA · Industry Profiles · Risk · Challenge
+ * Design: Control the Brain — logic/นโยบายอยู่ที่นี่ที่เดียว, UI แค่ apply
  * =========================================================================== */
 
 const KNOWLEDGE = {
 
-  /* ---- Governance metadata : ใช้ track เวอร์ชันของ "สมอง" ---------------- */
-  governance: {
-    frameworkVersion: "1.0.0",
+  /* ---- CREDIT POLICY (versioned รายปี — snapshot immutable) ------------- */
+  policy: {
+    version: "v2026",
     approvedBy: "Credit Policy Committee",
-    lastReviewed: "2026-06-06",
-    // ทุก output ต้องผูกกับเวอร์ชันนี้ เพื่อ trace ได้ว่าใช้ logic ชุดไหน
-  },
-
-  /* ---- ผลิตภัณฑ์สินเชื่อ (Loan Products) -------------------------------- */
-  products: {
-    farm_expansion: {
-      code: "FARM-EXP",
-      name: "สินเชื่อเพื่อขยายกิจการเกษตร (Agri Business Expansion)",
-      interestRate: 6.5,          // % ต่อปี (MRR-based)
-      maxTermMonths: 84,          // 7 ปี
-      maxLTV: 80,                 // Loan-to-Value สูงสุด %
+    effectiveDate: "2026-01-01",
+    thresholds: {
+      dscr:        { min: 1.25, strong: 1.50 },
+      ltv:         { max: 80,   safe: 70 },
+      de:          { max: 2.0,  safe: 1.5 },
+      netMargin:   { min: 5,    safe: 12 },
     },
+    // พารามิเตอร์ stress สำหรับ Conservative Case (มาจากนโยบาย ไม่ใช่ RM กำหนด)
+    stress: { priceDrop: 0.15, feedAdd: 0, rateAddBps: 100 },
   },
 
-  /* ---- Credit Framework : 5 C's of Credit ------------------------------ *
-   * แต่ละ C มีน้ำหนัก (weight) รวมกัน = 100
-   * ระบบ enforce ว่า "ทุกเคสต้องผ่านครบทั้ง 5 C" (Risk Control 6.3)
+  /* ---- DoA MATRIX (อำนาจอนุมัติ + routing + ความลึก template) ---------- *
+   * ตอบ "เคสนี้เข้าท่อไหน + ใครทำเอกสาร + เอกสารลึกแค่ไหน"
+   * (เลขเพดานเป็นตัวอย่าง — องค์กรเติมจริงภายหลัง)
    * --------------------------------------------------------------------- */
-  framework: {
-    name: "5 C's of Credit",
-    dimensions: [
-      { key: "character",  label: "Character (ประวัติ/ความน่าเชื่อถือ)", weight: 20 },
-      { key: "capacity",   label: "Capacity (ความสามารถชำระหนี้)",       weight: 30 },
-      { key: "capital",    label: "Capital (เงินทุน/ส่วนของเจ้าของ)",     weight: 20 },
-      { key: "collateral", label: "Collateral (หลักประกัน)",            weight: 20 },
-      { key: "conditions", label: "Conditions (ภาวะตลาด/เงื่อนไข)",       weight: 10 },
+  doa: {
+    version: "v2026",
+    tiers: [
+      { max: 3_000_000,   tier: "ระดับสาขา",            preparedBy: "เจ้าหน้าที่สาขา",
+        chain: ["ผจก.สาขา"], depth: "ย่อ" },
+      { max: 10_000_000,  tier: "ระดับเขต/ภาค",          preparedBy: "เจ้าหน้าที่สาขา",
+        chain: ["ผจก.สาขา", "ฝ่ายกิจการสาขาภาค"], depth: "กลาง" },
+      { max: 50_000_000,  tier: "ระดับธนาคาร (ฝสข.)",     preparedBy: "RM (ศูนย์ธุรกิจสินเชื่อ)",
+        chain: ["RM", "หน่วยกลั่นกรอง", "คณะกรรมการระดับ ฝสข."], depth: "เต็ม" },
+      { max: 200_000_000, tier: "อนุกรรมการกลั่นกรอง",   preparedBy: "RM (ศูนย์ธุรกิจสินเชื่อ)",
+        chain: ["RM", "หน่วยกลั่นกรอง", "คณะอนุกรรมการกลั่นกรอง"], depth: "เต็ม" },
+      { max: Infinity,    tier: "คณะกรรมการ ธ.ก.ส.",      preparedBy: "RM (ศูนย์ธุรกิจสินเชื่อ)",
+        chain: ["RM", "หน่วยกลั่นกรอง", "คณะอนุกรรมการกลั่นกรอง", "คณะกรรมการ ธ.ก.ส."], depth: "เต็ม" },
     ],
   },
 
-  /* ---- Thresholds : เกณฑ์ตัดสินทางการเงิน ------------------------------ *
-   * Engine ใช้ค่าเหล่านี้ตัดสิน pass/fail แบบ deterministic
-   * --------------------------------------------------------------------- */
-  thresholds: {
-    dscr:        { min: 1.25, strong: 1.50 },   // Debt Service Coverage Ratio
-    ltv:         { max: 80,   safe: 70 },        // Loan-to-Value (%)
-    de:          { max: 2.0,  safe: 1.5 },       // Debt-to-Equity
-    currentRatio:{ min: 1.0,  safe: 1.5 },       // สภาพคล่อง
-    netMargin:   { min: 5,    safe: 12 },        // Net Profit Margin (%)
+  /* ---- COLLATERAL haircut (LTV สูงสุดตามประเภท) ------------------------ */
+  collateral: {
+    land_building: { label: "ที่ดินพร้อมสิ่งปลูกสร้าง", maxLTV: 80 },
+    land:          { label: "ที่ดินเปล่า",              maxLTV: 60 },
+    machine:       { label: "เครื่องจักร/อุปกรณ์",       maxLTV: 50 },
+    livestock:     { label: "ปศุสัตว์/ผลผลิต",           maxLTV: 40 },
+    deposit:       { label: "เงินฝาก/พันธบัตร",          maxLTV: 95 },
   },
 
-  /* ---- Industry Benchmark : ค่ามาตรฐานอุตสาหกรรม ----------------------- *
-   * ใช้เปรียบเทียบเคสกับค่ากลางของกลุ่มธุรกิจ (knowledge reuse)
+  /* ---- INDUSTRY PROFILES — หัวใจ multi-industry ------------------------ *
+   * แต่ละสาขามี: drivers, benchmark, สูตร revenue/cost, กฎ haircut,
+   * risk patterns, challenge patterns (สำหรับ Risk Disclosure)
    * --------------------------------------------------------------------- */
-  benchmarks: {
+  industries: {
+
     swine_farm: {
       label: "ฟาร์มสุกรขุน (Swine Fattening)",
-      feedCostRatio: 65,   // ต้นทุนอาหารสัตว์ต่อรายได้ %
-      netMargin: 12,       // Net margin ปกติของอุตสาหกรรม %
-      revenuePerHead: 8000,// รายได้ต่อสุกรขุน 1 ตัว (บาท)
-      cyclesPerYear: 2.4,
+      sector: "เกษตรกรรม",
+      drivers: [
+        { key: "heads",    label: "จำนวนสุกรขุน",     unit: "ตัว/ปี",  sample: 5800 },
+        { key: "weight",   label: "น้ำหนักขายเฉลี่ย", unit: "กก./ตัว", sample: 112 },
+        { key: "price",    label: "ราคาขาย",          unit: "บ./กก.",  sample: 78 },
+        { key: "feedPct",  label: "ต้นทุนอาหารสัตว์", unit: "% รายได้", sample: 62 },
+        { key: "otherOpex",label: "ค่าใช้จ่ายอื่น/ปี", unit: "บาท",    sample: 7000000 },
+      ],
+      benchmark: { price: 72, utilization: 0.95, feedPct: 65, netMargin: 12,
+                   priceSource: "ค่าเฉลี่ย 3 ปี (สศก./สมาคมผู้เลี้ยงสุกรฯ) + ราคาประกันรายได้" },
+      revenue: (d) => d.heads * d.weight * d.price,
+      cost:    (d, rev) => (d.feedPct / 100) * rev + d.otherOpex,
+      risks: [
+        { id: "ASF", sev: "high",   label: "โรคระบาดในสุกร (ASF/PRRS)",
+          mit: "เงื่อนไขทำประกันปศุสัตว์ + มาตรฐาน biosecurity GFM + ตรวจสุขภาพฝูงราย Q" },
+        { id: "FEED", sev: "medium", label: "ความผันผวนราคาวัตถุดิบอาหารสัตว์",
+          mit: "ทำสัญญาซื้อล่วงหน้า / สำรองวัตถุดิบ 2–3 เดือน" },
+        { id: "CYCLE", sev: "medium", label: "วัฏจักรราคาสุกรมีชีวิตผันผวนสูง",
+          mit: "ทำสัญญารับซื้อ (contract farming) / สมัครประกันรายได้" },
+      ],
+      challenges: [
+        { when: (s) => true, issue: "พึ่งรายได้สุกรอย่างเดียว (concentration)",
+          why: "รายได้กระจุกสินค้าเดียว เสี่ยงเมื่อราคา/โรคกระทบ",
+          ans: "เสนอแผนกระจาย: รับจ้างเลี้ยง / ขายมูล–ก๊าซชีวภาพ" },
+      ],
+    },
+
+    rice_farm: {
+      label: "นาข้าว (Rice Farming)",
+      sector: "เกษตรกรรม",
+      drivers: [
+        { key: "rai",        label: "พื้นที่เพาะปลูก",   unit: "ไร่",     sample: 350 },
+        { key: "yield",      label: "ผลผลิตต่อไร่",      unit: "กก./ไร่", sample: 720 },
+        { key: "price",      label: "ราคาข้าวเปลือก",    unit: "บ./กก.",  sample: 11.5 },
+        { key: "inputPerRai",label: "ต้นทุนปัจจัย/ไร่",  unit: "บ./ไร่",  sample: 4200 },
+        { key: "otherOpex",  label: "ค่าใช้จ่ายอื่น/ปี", unit: "บาท",    sample: 250000 },
+      ],
+      benchmark: { price: 10.5, yieldCap: 680, feedPct: null, netMargin: 18,
+                   priceSource: "ราคาประกันรายได้ + ค่าเฉลี่ยตลาดกลางข้าวเปลือก 3 ปี" },
+      revenue: (d) => d.rai * d.yield * d.price,
+      cost:    (d) => d.inputPerRai * d.rai + d.otherOpex,
+      risks: [
+        { id: "DROUGHT", sev: "high",   label: "ภัยแล้ง/น้ำท่วม กระทบผลผลิต",
+          mit: "เงื่อนไขทำประกันภัยพืชผล + ตรวจแหล่งน้ำ/ระบบชลประทาน" },
+        { id: "PRICE",   sev: "medium", label: "ราคาข้าวเปลือกผันผวนตามตลาดโลก",
+          mit: "เข้าโครงการประกันรายได้ / ชะลอขายช่วงราคาต่ำ" },
+      ],
+      challenges: [
+        { when: (s) => true, issue: "ผลผลิตขึ้นกับสภาพอากาศทั้งหมด",
+          why: "committee จะถามแผนรับมือภัยธรรมชาติ",
+          ans: "ทำประกันภัยพืชผล + ระบุแหล่งน้ำสำรอง + กระจายรอบปลูก" },
+      ],
+    },
+
+    broiler_farm: {
+      label: "ฟาร์มไก่เนื้อ (Broiler)",
+      sector: "เกษตรกรรม",
+      drivers: [
+        { key: "birds",    label: "จำนวนไก่",         unit: "ตัว/ปี",  sample: 240000 },
+        { key: "weight",   label: "น้ำหนักขายเฉลี่ย", unit: "กก./ตัว", sample: 2.4 },
+        { key: "price",    label: "ราคาขาย",          unit: "บ./กก.",  sample: 42 },
+        { key: "feedPct",  label: "ต้นทุนอาหารสัตว์", unit: "% รายได้", sample: 60 },
+        { key: "otherOpex",label: "ค่าใช้จ่ายอื่น/ปี", unit: "บาท",    sample: 1800000 },
+      ],
+      benchmark: { price: 40, utilization: 0.95, feedPct: 63, netMargin: 10,
+                   priceSource: "ค่าเฉลี่ยราคาไก่เนื้อหน้าฟาร์ม 3 ปี (สมาคมผู้เลี้ยงไก่)" },
+      revenue: (d) => d.birds * d.weight * d.price,
+      cost:    (d, rev) => (d.feedPct / 100) * rev + d.otherOpex,
+      risks: [
+        { id: "AI", sev: "high",   label: "ไข้หวัดนก (Avian Influenza)",
+          mit: "biosecurity เข้ม + ประกันปศุสัตว์ + contract กับผู้ประกอบการรายใหญ่" },
+        { id: "FEED", sev: "medium", label: "ราคาวัตถุดิบอาหารสัตว์ผันผวน",
+          mit: "contract farming ตรึงราคา / forward วัตถุดิบ" },
+      ],
+      challenges: [
+        { when: (s) => true, issue: "ระยะเลี้ยงสั้น รอบหมุนเร็ว แต่ไวต่อราคา",
+          why: "committee จะถามความมั่นคงของผู้รับซื้อ",
+          ans: "แนบสัญญา contract farming กับบริษัทผู้รับซื้อรายใหญ่" },
+      ],
     },
   },
-
-  /* ---- Risk Pattern Library : คลังรูปแบบความเสี่ยง ---------------------- *
-   * Hidden Risk (1.2) + Risk Control (6.3) : "risk pattern ถูกตรวจอัตโนมัติ"
-   * แต่ละ pattern มีฟังก์ชัน detect(case, ratios) → คืน true ถ้าเข้าข่าย
-   * severity : high | medium | low
-   * --------------------------------------------------------------------- */
-  riskPatterns: [
-    {
-      id: "ASF_DISEASE",
-      category: "ความเสี่ยงด้านการผลิต (Production)",
-      label: "ความเสี่ยงโรคระบาดในสุกร (ASF / PRRS)",
-      severity: "high",
-      // ความเสี่ยงเชิงโครงสร้างของธุรกิจสุกร — flag เสมอสำหรับฟาร์มสุกร
-      detect: (c) => c.industry === "swine_farm",
-      mitigation: "กำหนดเงื่อนไขทำประกันปศุสัตว์ + มาตรฐาน biosecurity GFM/GAP",
-    },
-    {
-      id: "FEED_PRICE",
-      category: "ความเสี่ยงด้านต้นทุน (Cost)",
-      label: "ความผันผวนราคาวัตถุดิบอาหารสัตว์ (ข้าวโพด/กากถั่วเหลือง)",
-      severity: "medium",
-      detect: (c) => c.industry === "swine_farm" && c.feedCostRatio >= 60,
-      mitigation: "แนะนำทำสัญญาซื้อล่วงหน้า (forward) / สำรองวัตถุดิบ 2-3 เดือน",
-    },
-    {
-      id: "PRICE_CYCLE",
-      category: "ความเสี่ยงด้านตลาด (Market)",
-      label: "วัฏจักรราคาสุกรมีชีวิต (Hog Price Cycle) ผันผวนสูง",
-      severity: "medium",
-      detect: (c) => c.industry === "swine_farm",
-      mitigation: "ทำ sensitivity ราคาขาย -15% / กำหนดเงื่อนไขสัญญารับซื้อ (contract farming)",
-    },
-    {
-      id: "CONCENTRATION",
-      category: "ความเสี่ยงเชิงโครงสร้าง (Structural)",
-      label: "พึ่งพารายได้จากสินค้าเดียว (Single-commodity concentration)",
-      severity: "low",
-      detect: (c) => true, // เคสฟาร์มเดี่ยวมักกระจุกตัว
-      mitigation: "ติดตามแผนกระจายความเสี่ยง / สัดส่วนรายได้",
-    },
-    {
-      id: "LOW_DSCR",
-      category: "ความเสี่ยงด้านการชำระหนี้ (Repayment)",
-      label: "ความสามารถชำระหนี้ต่ำกว่าเกณฑ์ (DSCR ต่ำ)",
-      severity: "high",
-      detect: (c, r) => r.dscr < KNOWLEDGE.thresholds.dscr.min,
-      mitigation: "ลดวงเงิน / ขยายระยะเวลา / เพิ่มผู้ค้ำประกัน",
-    },
-    {
-      id: "HIGH_LTV",
-      category: "ความเสี่ยงด้านหลักประกัน (Collateral)",
-      label: "สัดส่วนวงเงินต่อหลักประกันสูง (LTV สูง)",
-      severity: "medium",
-      detect: (c, r) => r.ltv > KNOWLEDGE.thresholds.ltv.max,
-      mitigation: "เพิ่มหลักประกัน / ลดวงเงินให้ LTV ≤ 80%",
-    },
-    {
-      id: "HIGH_LEVERAGE",
-      category: "ความเสี่ยงด้านโครงสร้างทุน (Leverage)",
-      label: "ภาระหนี้ต่อทุนสูง (D/E สูง)",
-      severity: "medium",
-      detect: (c, r) => r.de > KNOWLEDGE.thresholds.de.max,
-      mitigation: "ขอให้ผู้กู้เพิ่มทุน / ลดวงเงินกู้",
-    },
-  ],
 };
 
-// expose ให้ layer อื่นเรียกใช้ (ใน global scope ของ static site)
 window.KNOWLEDGE = KNOWLEDGE;

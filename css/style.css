@@ -191,3 +191,36 @@ input:focus, select:focus { outline: none; border-color: var(--green); }
   .topbar { flex-wrap: wrap; }
   .pl-arrow { display: none; }
 }
+
+/* ============================ v2 additions ============================= */
+.brand-name .v { background: var(--gold); color: var(--ink); font-size: .65rem;
+  padding: .05rem .4rem; border-radius: 5px; vertical-align: middle; font-weight: 700; }
+
+.sample-row { display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0; }
+.sample-row .btn { flex: 1; min-width: 180px; line-height: 1.3; }
+.sample-row .btn small { font-weight: 300; opacity: .8; }
+
+.driver-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; }
+fieldset.full { grid-column: 1 / -1; }
+
+.part-tag { display: inline-block; background: var(--green-d); color: #fff;
+  font-size: .72rem; font-weight: 500; padding: .2rem .7rem; border-radius: 6px; margin-bottom: .5rem; }
+
+.route-box { background: #f0faf4; border: 1px solid var(--green); border-radius: 10px; padding: .9rem 1.1rem; margin: .8rem 0; }
+.route-head { font-weight: 600; color: var(--green-d); margin-bottom: .6rem; }
+.route-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: .6rem; margin-bottom: .6rem; }
+.route-grid span { display: block; font-size: .75rem; color: var(--muted); }
+.route-grid b { font-size: .95rem; }
+.route-chain { font-size: .85rem; }
+.route-chain > span { color: var(--muted); }
+.chip { display: inline-block; background: #fff; border: 1px solid var(--green);
+  border-radius: 20px; padding: .15rem .7rem; font-size: .8rem; margin: .15rem .2rem; }
+
+.mini-table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.mini-table td { padding: .4rem .5rem; border-bottom: 1px solid var(--line); }
+.mini-table td:last-child { text-align: right; color: var(--muted); }
+
+.ratio-table.led td.src { font-size: .76rem; color: var(--muted); max-width: 320px; }
+.ratio-table small { color: var(--muted); font-weight: 300; }
+.ratio-table tr.hl { background: #fff8e9; }
+.ratio-table tr.hl td { font-size: 1rem; }

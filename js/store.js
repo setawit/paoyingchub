@@ -1,57 +1,45 @@
 /* =============================================================================
- * KNOWLEDGE REUSE STORE — คลังเคส (Case Knowledge Base)
- * -----------------------------------------------------------------------------
- * Value Prop 6.4 : "Case 1 → asset, Case 100 → intelligence"
- * เปลี่ยนจาก knowledge ที่เสียทุกครั้ง → knowledge ที่สะสม
- *
- * Phase 1 : ใช้ localStorage (ของจริงจะต่อ DB ใน Phase 2-3)
+ * KNOWLEDGE REUSE STORE v2 — คลังเคส
+ * localStorage ถ้าใช้ได้ มิฉะนั้น in-memory (รองรับ Claude artifact sandbox)
  * =========================================================================== */
 
 const STORE = (() => {
-  const KEY = "loanBrainOS.cases";
+  const KEY = "loanBrainOS.cases.v2";
+  let mem = [], useLS = false;
+  try { localStorage.setItem("__t", "1"); localStorage.removeItem("__t"); useLS = true; } catch (e) { useLS = false; }
 
   function _all() {
-    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
-    catch { return []; }
+    if (!useLS) return mem;
+    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; }
   }
-  function _save(list) { localStorage.setItem(KEY, JSON.stringify(list)); }
+  function _save(list) {
+    if (!useLS) { mem = list; return; }
+    try { localStorage.setItem(KEY, JSON.stringify(list)); } catch { useLS = false; mem = list; }
+  }
 
-  // บันทึกเคส (พร้อมสถานะการอนุมัติของ RM)
-  function saveCase(analysis, status) {
+  function saveCase(a, status) {
     const list = _all();
-    const record = {
-      id: "C" + Date.now(),
-      refNo: analysis.case.refNo,
-      borrowerName: analysis.case.borrowerName,
-      loanAmount: analysis.case.loanAmount,
-      decision: analysis.recommendation.decision,
-      riskScore: analysis.risk.riskScore,
-      status: status || "รอพิจารณา",       // RM approve flow
-      savedAt: new Date().toISOString(),
-      case: analysis.case,                  // เก็บ input เต็มเพื่อ regenerate ได้
+    const rec = {
+      id: "C" + Date.now(), refNo: a.case.refNo, borrowerName: a.case.borrowerName,
+      industry: a.case.industry, loanAmount: a.case.loanAmount,
+      decision: a.recommendation.decision, tier: a.routing.tier,
+      riskCount: a.risk.length, status: status || "รอพิจารณา",
+      savedAt: new Date().toISOString(), case: a.case,
     };
-    list.unshift(record);
-    _save(list);
-    return record;
+    list.unshift(rec); _save(list); return rec;
   }
-
   function list() { return _all(); }
   function remove(id) { _save(_all().filter((x) => x.id !== id)); }
   function clear() { _save([]); }
-
-  // สถิติรวมสำหรับ dashboard
   function stats() {
     const all = _all();
     return {
       total: all.length,
       approved: all.filter((x) => x.status === "อนุมัติแล้ว").length,
       totalAmount: all.reduce((s, x) => s + (x.loanAmount || 0), 0),
-      avgRisk: all.length
-        ? Math.round(all.reduce((s, x) => s + (x.riskScore || 0), 0) / all.length)
-        : 0,
+      industries: new Set(all.map((x) => x.industry)).size,
     };
   }
-
   return { saveCase, list, remove, clear, stats };
 })();
 

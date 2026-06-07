@@ -1,168 +1,200 @@
 /* =============================================================================
- * ENGINE LAYER — "Knowledge → Output Engine"
+ * ENGINE LAYER v2 — Knowledge → Output Engine
  * -----------------------------------------------------------------------------
- * หัวใจของ Loan Brain OS : รับ input ลูกค้า → ประมวลผลผ่าน framework + knowledge
- * → ผลิต analysis แบบ deterministic (Design Principle #1 : Output > Process)
- *
- * Engine ไม่เก็บ logic การให้สินเชื่อเอง — ดึงทุกเกณฑ์จาก KNOWLEDGE (control)
+ * • Scenario Engine    : base drivers ชุดเดียว → 3 กรณี + Assumption Ledger (มีที่มา)
+ * • Risk Disclosure    : กลั่นกรองจำลอง → ประเด็น + คำตอบ + covenant
+ * • DoA Routing        : วงเงิน → ใครทำ/เข้าท่อไหน/เอกสารลึกแค่ไหน
+ * • Compliance Engine  : auto-check มาตรฐาน/ข้อกำกับ
  * =========================================================================== */
 
 const ENGINE = (() => {
-
-  const fmt = (n) => Number(n || 0).toLocaleString("th-TH");
   const round2 = (n) => Math.round(n * 100) / 100;
+  const r0 = (n) => Math.round(n);
 
-  /* ---- 1) คำนวณภาระหนี้รายปี (Annual Debt Service) -------------------- *
-   * สูตร PMT มาตรฐาน : ผ่อนเท่ากันทุกงวด (amortizing)
-   * ------------------------------------------------------------------- */
-  function annualDebtService(loanAmount, annualRatePct, termMonths) {
+  // PMT มาตรฐาน : ภาระหนี้รายปี (amortizing)
+  function annualDebtService(P, annualRatePct, months) {
     const r = (annualRatePct / 100) / 12;
-    const n = termMonths;
-    if (r === 0) return (loanAmount / n) * 12;
-    const pmt = loanAmount * r / (1 - Math.pow(1 + r, -n));
-    return pmt * 12;
+    if (r === 0) return (P / months) * 12;
+    return P * r / (1 - Math.pow(1 + r, -months)) * 12;
   }
 
-  /* ---- 2) Financial Analysis : คำนวณ ratio ทั้งหมด ------------------- */
-  function calculateFinancials(c) {
-    const product = KNOWLEDGE.products[c.product] || KNOWLEDGE.products.farm_expansion;
-
-    const noi = c.annualRevenue - c.annualOpEx;            // Net Operating Income
-    const netProfit = noi - c.existingDebtService;          // กำไรสุทธิหลังหนี้เดิม
-    const newDebtService = annualDebtService(
-      c.loanAmount, product.interestRate, c.termMonths
-    );
-    const totalDebtService = newDebtService + c.existingDebtService;
-    const totalDebt = c.loanAmount + c.existingDebt;
-
+  /* ---- คำนวณ 1 กรณี (case) จากชุด driver ----------------------------- */
+  function computeCase(ind, drivers, ratePct, c) {
+    const rev = ind.revenue(drivers);
+    const cost = ind.cost(drivers, rev);
+    const noi = rev - cost;
+    const newDS = annualDebtService(c.loanAmount, ratePct, c.termMonths);
+    const totalDS = newDS + c.existingDebtService;
     return {
-      noi,
-      netProfit,
-      newDebtService: Math.round(newDebtService),
-      totalDebtService: Math.round(totalDebtService),
-      // --- Key Ratios ---
-      dscr:        round2(noi / totalDebtService),
-      ltv:         round2((c.loanAmount / c.collateralValue) * 100),
-      de:          round2(totalDebt / c.equity),
-      currentRatio:round2(c.currentAssets / c.currentLiabilities),
-      netMargin:   round2((netProfit / c.annualRevenue) * 100),
-      feedCostRatio: c.feedCostRatio,
-      interestRate: product.interestRate,
-      termMonths: c.termMonths,
+      revenue: r0(rev), cost: r0(cost), noi: r0(noi),
+      newDebtService: r0(newDS), totalDebtService: r0(totalDS),
+      dscr: round2(noi / totalDS),
+      netMargin: round2(((noi - totalDS) / rev) * 100),
+      ratePct,
     };
   }
 
-  /* ---- 3) ประเมินแต่ละ ratio เทียบ threshold (pass / warn / fail) ----- */
-  function gradeRatio(value, t, higherIsBetter = true) {
-    if (higherIsBetter) {
-      if (value >= (t.strong ?? t.safe)) return "pass";
-      if (value >= t.min) return "warn";
-      return "fail";
-    } else { // lower is better (LTV, D/E)
-      if (value <= t.safe) return "pass";
-      if (value <= t.max) return "warn";
-      return "fail";
-    }
+  /* ---- SCENARIO ENGINE : base (Customer) → Bank → Conservative -------- *
+   * Customer = ตามที่ RM กรอก (แผนลูกค้า)
+   * Bank     = haircut ด้วย benchmark (KNOWLEDGE)
+   * Conserv. = Bank + stress params (POLICY)  ← กฎมาจากนโยบาย ไม่ใช่ RM
+   * --------------------------------------------------------------------- */
+  function buildScenarios(c) {
+    const ind = KNOWLEDGE.industries[c.industry];
+    const bm = ind.benchmark;
+    const P = KNOWLEDGE.policy;
+    const baseRate = c.interestRate;
+
+    // ----- Customer (as entered) -----
+    const dCustomer = { ...c.drivers };
+
+    // ----- Bank (benchmark haircut) -----
+    const dBank = { ...dCustomer };
+    if (dBank.price != null && bm.price != null) dBank.price = Math.min(dBank.price, bm.price);
+    if (dBank.feedPct != null && bm.feedPct != null) dBank.feedPct = bm.feedPct;
+    if (dBank.yield != null && bm.yieldCap != null) dBank.yield = Math.min(dBank.yield, bm.yieldCap);
+    if (dBank.heads != null && bm.utilization != null) dBank.heads = r0(dBank.heads * bm.utilization);
+    if (dBank.birds != null && bm.utilization != null) dBank.birds = r0(dBank.birds * bm.utilization);
+
+    // ----- Conservative (Bank + policy stress) -----
+    const dCons = { ...dBank };
+    if (dCons.price != null) dCons.price = round2(dCons.price * (1 - P.stress.priceDrop));
+    if (dCons.feedPct != null) dCons.feedPct = dCons.feedPct + P.stress.feedAdd;
+    const consRate = baseRate + P.stress.rateAddBps / 100;
+
+    return {
+      customer:     { drivers: dCustomer, ...computeCase(ind, dCustomer, baseRate, c) },
+      bank:         { drivers: dBank,     ...computeCase(ind, dBank, baseRate, c) },
+      conservative: { drivers: dCons,     ...computeCase(ind, dCons, consRate, c) },
+      ledger: buildLedger(ind, dCustomer, dBank, dCons, baseRate, consRate),
+    };
   }
 
-  function buildRatioReport(r) {
-    const T = KNOWLEDGE.thresholds;
-    return [
-      { key: "DSCR",          value: r.dscr,         unit: "x", grade: gradeRatio(r.dscr, T.dscr, true),
-        target: `≥ ${T.dscr.min}`, desc: "ความสามารถชำระหนี้ (Debt Service Coverage)" },
-      { key: "LTV",           value: r.ltv,          unit: "%", grade: gradeRatio(r.ltv, T.ltv, false),
-        target: `≤ ${T.ltv.max}%`, desc: "วงเงินต่อมูลค่าหลักประกัน (Loan-to-Value)" },
-      { key: "D/E",           value: r.de,           unit: "x", grade: gradeRatio(r.de, T.de, false),
-        target: `≤ ${T.de.max}`, desc: "หนี้สินต่อส่วนของเจ้าของ (Debt-to-Equity)" },
-      { key: "Current Ratio", value: r.currentRatio, unit: "x", grade: gradeRatio(r.currentRatio, T.currentRatio, true),
-        target: `≥ ${T.currentRatio.min}`, desc: "สภาพคล่องระยะสั้น (Liquidity)" },
-      { key: "Net Margin",    value: r.netMargin,    unit: "%", grade: gradeRatio(r.netMargin, T.netMargin, true),
-        target: `≥ ${T.netMargin.min}%`, desc: "อัตรากำไรสุทธิ (Net Profit Margin)" },
-    ];
-  }
-
-  /* ---- 4) Risk Assessment : รัน risk pattern ทั้งหมดอัตโนมัติ --------- *
-   * Risk Control (6.3) : "risk pattern ถูกตรวจอัตโนมัติ" — ไม่พึ่งคนจำ
-   * ------------------------------------------------------------------- */
-  function assessRisk(c, ratios) {
-    const triggered = KNOWLEDGE.riskPatterns.filter((p) => {
-      try { return p.detect(c, ratios); } catch { return false; }
+  /* ---- ASSUMPTION LEDGER : ทุกสมมติฐานมี "ที่มา" (กันนั่งเทียน) ⭐ ----- */
+  function buildLedger(ind, dC, dB, dCons, baseRate, consRate) {
+    const P = KNOWLEDGE.policy;
+    const rows = ind.drivers.map((dr) => {
+      let source = "ตามที่ลูกค้าเสนอ / benchmark กลุ่ม";
+      if (dr.key === "price")   source = ind.benchmark.priceSource + " · Conservative = −" + (P.stress.priceDrop * 100) + "% (Policy " + P.version + ")";
+      else if (dr.key === "feedPct") source = "Bank = ค่าเฉลี่ยกลุ่มอุตสาหกรรม (benchmark)";
+      else if (dr.key === "heads" || dr.key === "birds") source = "Bank = haircut utilization " + (ind.benchmark.utilization * 100) + "%";
+      else if (dr.key === "yield") source = "Bank = เพดานผลผลิต benchmark";
+      else if (dr.key === "weight") source = "benchmark น้ำหนักขายกลุ่ม";
+      return {
+        label: dr.label, unit: dr.unit,
+        customer: dC[dr.key], bank: dB[dr.key], conservative: dCons[dr.key],
+        source,
+      };
     });
-
-    const weight = { high: 25, medium: 12, low: 5 };
-    const rawScore = triggered.reduce((s, p) => s + weight[p.severity], 0);
-    const riskScore = Math.min(100, rawScore);          // 0 = ปลอดภัย, 100 = เสี่ยงสุด
-
-    let level = "ต่ำ (Low)";
-    if (riskScore >= 50) level = "สูง (High)";
-    else if (riskScore >= 25) level = "ปานกลาง (Medium)";
-
-    return { triggered, riskScore, level };
+    rows.push({
+      label: "อัตราดอกเบี้ย", unit: "% ต่อปี",
+      customer: baseRate, bank: baseRate, conservative: consRate,
+      source: "สัญญา · Conservative = +" + P.stress.rateAddBps + "bps (Policy " + P.version + ")",
+    });
+    return rows;
   }
 
-  /* ---- 5) Recommendation : สรุปคำแนะนำ + เงื่อนไข ---------------------- *
-   * รวมผล ratio (กี่ตัวผ่าน) + risk → ตัดสิน decision
-   * Design Principle #4 : AI = draft, RM = approve (นี่คือ "draft")
-   * ------------------------------------------------------------------- */
-  function generateRecommendation(ratioReport, risk) {
-    const fails = ratioReport.filter((x) => x.grade === "fail");
-    const warns = ratioReport.filter((x) => x.grade === "warn");
+  /* ---- RISK DISCLOSURE : กลั่นกรองจำลอง -------------------------------- */
+  function riskDisclosure(c, scen) {
+    const ind = KNOWLEDGE.industries[c.industry];
+    const T = KNOWLEDGE.policy.thresholds;
+    const out = [];
+
+    // 1) Conservative DSCR ต่ำกว่าเกณฑ์
+    if (scen.conservative.dscr < T.dscr.min) {
+      out.push({
+        issue: `Conservative DSCR ${scen.conservative.dscr} < เกณฑ์ ${T.dscr.min}`,
+        why: "เมื่อราคาตก + ดอกเบี้ยขึ้นพร้อมกัน ความสามารถชำระหนี้ตึง",
+        ans: "covenant รักษา DSCR ≥ 1.25 + กันเงินสำรองชำระหนี้ 1 งวด + พิจารณายืดระยะเวลา",
+      });
+    }
+    // 2) ราคาที่ลูกค้าเสนอ > benchmark
+    if (c.drivers.price != null && ind.benchmark.price != null && c.drivers.price > ind.benchmark.price) {
+      out.push({
+        issue: `ราคาที่ลูกค้าเสนอ ${c.drivers.price} สูงกว่า benchmark ${ind.benchmark.price}`,
+        why: "committee จะมองว่าสมมติฐานรายได้ optimistic",
+        ans: "ใช้ราคา benchmark (เฉลี่ย 3 ปี) ในการอนุมัติ + อ้างราคาประกันรายได้เป็น floor",
+      });
+    }
+    // 3) LTV
+    const ltv = round2((c.loanAmount / c.collateralValue) * 100);
+    if (ltv > T.ltv.safe) {
+      out.push({
+        issue: `LTV ${ltv}% สูงกว่าระดับปลอดภัย ${T.ltv.safe}%`,
+        why: "หลักประกันเฉพาะทางอาจขายทอดตลาดยาก",
+        ans: "เสริมหลักประกัน/ค้ำ บสย. + ประเมินราคาใหม่ทุก 2 ปี",
+      });
+    }
+    // 4) ความเสี่ยงเฉพาะอุตสาหกรรม (high severity)
+    ind.risks.filter((r) => r.sev === "high").forEach((r) => {
+      out.push({ issue: r.label + " (ตัวแปรนอกประมาณการ)", why: "กระทบรายได้ทั้งกิจการ", ans: r.mit });
+    });
+    // 5) challenge เฉพาะสาขา
+    ind.challenges.filter((ch) => ch.when(scen)).forEach((ch) =>
+      out.push({ issue: ch.issue, why: ch.why, ans: ch.ans })
+    );
+
+    return out;
+  }
+
+  /* ---- DoA ROUTING : เคสนี้เข้าท่อไหน --------------------------------- */
+  function route(loanAmount) {
+    const tier = KNOWLEDGE.doa.tiers.find((t) => loanAmount <= t.max);
+    return { ...tier, doaVersion: KNOWLEDGE.doa.version };
+  }
+
+  /* ---- COMPLIANCE ENGINE : auto-check มาตรฐาน ------------------------- */
+  function compliance(c) {
+    const ind = KNOWLEDGE.industries[c.industry];
+    const checks = [];
+    checks.push({ label: "ตรวจบุคคลล้มละลาย", pass: !c.flagBankrupt, note: c.flagBankrupt ? "พบรายชื่อ" : "ไม่พบรายชื่อ" });
+    checks.push({ label: "รายงานข้อมูลเครดิต (NCB)", pass: (c.ncbScore ?? 700) >= 600, note: "NCB Score " + (c.ncbScore ?? "-") });
+    checks.push({ label: "AML/CFT", pass: !c.flagAML, note: c.flagAML ? "เข้าข่าย" : "ไม่เข้าข่าย" });
+    checks.push({ label: "กฎกระทรวง (ภาคเกษตร 80% / นอกภาคเกษตร 20%)",
+      pass: ind.sector === "เกษตรกรรม", note: ind.sector === "เกษตรกรรม" ? "ภาคเกษตร ✓" : "นอกภาคเกษตร" });
+    const sllPct = round2((c.loanAmount / (c.bankCapital || 200_000_000_000)) * 100);
+    checks.push({ label: "Single Lending Limit (≤ 15% เงินกองทุน)", pass: sllPct <= 15, note: sllPct + "%" });
+    return { checks, allPass: checks.every((x) => x.pass) };
+  }
+
+  /* ---- RECOMMENDATION (ใช้ Bank case เป็นฐานตัดสิน) ------------------- */
+  function recommend(c, scen, risk) {
+    const T = KNOWLEDGE.policy.thresholds;
+    const ltv = round2((c.loanAmount / c.collateralValue) * 100);
+    const bankOK = scen.bank.dscr >= T.dscr.min && ltv <= T.ltv.max;
+    const consWeak = scen.conservative.dscr < T.dscr.min;
 
     let decision, color, summary;
-    const hasHighRisk = risk.triggered.some(
-      (p) => p.severity === "high" && p.id !== "ASF_DISEASE"
-    );
-
-    if (fails.length === 0 && warns.length <= 1 && risk.riskScore < 50) {
-      decision = "อนุมัติ (Approve)";
-      color = "approve";
-      summary = "เคสผ่านเกณฑ์ทางการเงินครบถ้วน ความเสี่ยงอยู่ในระดับที่บริหารจัดการได้";
-    } else if (fails.length === 0 && !hasHighRisk) {
-      decision = "อนุมัติแบบมีเงื่อนไข (Approve with Conditions)";
-      color = "conditional";
-      summary = "เคสมีศักยภาพชำระหนี้ แต่มีจุดที่ต้องควบคุมด้วยเงื่อนไขก่อนเบิกจ่าย";
+    if (bankOK && !consWeak) {
+      decision = "อนุมัติ (Approve)"; color = "approve";
+      summary = "ผ่านเกณฑ์ทุกกรณี ความเสี่ยงบริหารจัดการได้";
+    } else if (bankOK && consWeak) {
+      decision = "อนุมัติแบบมีเงื่อนไข (Approve with Conditions)"; color = "conditional";
+      summary = "กรณีฐานแข็งแรง แต่กรณี Conservative ตึง — ต้องคุมด้วยเงื่อนไขตาม Risk Disclosure";
     } else {
-      decision = "ทบทวน / ปรับโครงสร้าง (Reconsider)";
-      color = "reject";
-      summary = "มีตัวชี้วัดสำคัญไม่ผ่านเกณฑ์ ควรปรับโครงสร้างวงเงินหรือหลักประกันก่อน";
+      decision = "ทบทวน/ปรับโครงสร้าง (Reconsider)"; color = "reject";
+      summary = "ตัวชี้วัดหลักไม่ผ่านในกรณีฐาน ควรปรับวงเงิน/หลักประกัน";
     }
-
-    // รวมเงื่อนไข : มาจาก mitigation ของ risk ที่ trigger + ratio ที่ warn/fail
-    const conditions = [];
-    risk.triggered.forEach((p) => conditions.push(p.mitigation));
-    [...fails, ...warns].forEach((x) =>
-      conditions.push(`เฝ้าระวัง ${x.key} (ปัจจุบัน ${x.value}${x.unit}, เป้า ${x.target})`)
-    );
-
-    return {
-      decision, color, summary,
-      conditions: [...new Set(conditions)],   // dedupe
-      passCount: ratioReport.length - fails.length - warns.length,
-      totalCount: ratioReport.length,
-    };
+    return { decision, color, summary, ltv,
+      covenants: risk.map((r) => r.ans).filter((v, i, a) => a.indexOf(v) === i) };
   }
 
-  /* ---- 6) MAIN : วิ่งทั้ง pipeline ในครั้งเดียว ----------------------- *
-   * Input → [Financials → Risk → Recommendation] → Analysis object
-   * ------------------------------------------------------------------- */
+  /* ---- MAIN PIPELINE -------------------------------------------------- */
   function run(c) {
-    const ratios = calculateFinancials(c);
-    const ratioReport = buildRatioReport(ratios);
-    const risk = assessRisk(c, ratios);
-    const recommendation = generateRecommendation(ratioReport, risk);
-
+    const scenarios = buildScenarios(c);
+    const risk = riskDisclosure(c, scenarios);
+    const routing = route(c.loanAmount);
+    const comp = compliance(c);
+    const recommendation = recommend(c, scenarios, risk);
     return {
-      case: c,
-      ratios,
-      ratioReport,
-      risk,
-      recommendation,
+      case: c, scenarios, risk, routing, compliance: comp, recommendation,
       generatedAt: new Date().toISOString(),
-      frameworkVersion: KNOWLEDGE.governance.frameworkVersion,
+      policyVersion: KNOWLEDGE.policy.version,
+      doaVersion: KNOWLEDGE.doa.version,
     };
   }
 
-  return { run, annualDebtService, fmt };
+  return { run, route, annualDebtService };
 })();
 
 window.ENGINE = ENGINE;
