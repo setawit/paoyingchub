@@ -1,0 +1,180 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bank Statement Extraction Schema",
+  "description": "โครงสร้างข้อมูลกลางที่ AI ต้องสกัดจาก Statement ทุกครั้ง ใช้เป็นแหล่งข้อมูลเดียว (single source of truth) สำหรับสร้าง raw data (.md), report (.md) และ dashboard (.html) ทุกตัวเลขห้ามเดา ต้องมาจากเอกสารเท่านั้น",
+  "type": "object",
+  "required": ["meta", "summary", "monthly", "channels", "transactions", "red_flags", "verdict"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "description": "ข้อมูลหัวกระดาษ + เมตาดาต้าการสกัด",
+      "required": ["currency", "period_start", "period_end", "anonymized"],
+      "properties": {
+        "statement_id": { "type": "string", "description": "รหัสอ้างอิงภายใน (กำหนดเอง เช่น STM-2026-001) — ห้ามใช้เลขบัญชีจริง" },
+        "bank": { "type": "string", "description": "ชื่อธนาคาร เช่น KBANK, SCB" },
+        "account_type": { "type": "string", "description": "ประเภทบัญชี เช่น ออมทรัพย์/กระแสรายวัน/บัญชีธุรกิจ" },
+        "currency": { "type": "string", "default": "THB" },
+        "period_start": { "type": "string", "description": "วันแรกของ statement (YYYY-MM-DD)" },
+        "period_end": { "type": "string", "description": "วันสุดท้ายของ statement (YYYY-MM-DD)" },
+        "opening_balance": { "type": "number", "description": "ยอดยกมา" },
+        "closing_balance": { "type": "number", "description": "ยอดยกไป (ตามที่ระบุในเอกสาร)" },
+        "extracted_by": { "type": "string", "description": "โมเดล/ผู้สกัด เช่น claude-opus-4-8" },
+        "extraction_date": { "type": "string", "description": "วันที่สกัด (YYYY-MM-DD)" },
+        "anonymized": { "type": "boolean", "description": "true = ผ่านการลบ PII แล้ว (ดู ANONYMIZATION.md)" },
+        "data_quality_notes": { "type": "string", "description": "หมายเหตุคุณภาพข้อมูล เช่น มีหน้าเบลอ/อ่านไม่ออกกี่รายการ" }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "description": "ส่วนที่ 1: Executive Summary Metrics",
+      "required": ["total_inflow", "total_outflow", "lowest_balance", "highest_balance", "reconciliation"],
+      "properties": {
+        "total_inflow": {
+          "type": "object",
+          "properties": {
+            "amount": { "type": "number" },
+            "count": { "type": "integer" }
+          }
+        },
+        "total_outflow": {
+          "type": "object",
+          "properties": {
+            "amount": { "type": "number" },
+            "count": { "type": "integer" }
+          }
+        },
+        "lowest_balance": {
+          "type": "object",
+          "description": "ยอดคงเหลือต่ำสุดของทั้ง statement (No Blind Spots)",
+          "properties": {
+            "amount": { "type": "number" },
+            "date": { "type": "string" }
+          }
+        },
+        "highest_balance": {
+          "type": "object",
+          "properties": {
+            "amount": { "type": "number" },
+            "date": { "type": "string" }
+          }
+        },
+        "swing_value": { "type": "number", "description": "highest - lowest" },
+        "utilization_rate_pct": { "type": "number", "description": "total_outflow / total_inflow * 100" },
+        "avg_daily_balance": { "type": ["number", "null"], "description": "ยอดคงเหลือเฉลี่ยรายวัน (ถ้าคำนวณได้)" },
+        "days_below_threshold": {
+          "type": "object",
+          "description": "จำนวนวันที่ยอดคงเหลือต่ำกว่าเกณฑ์ที่กำหนด",
+          "properties": {
+            "threshold": { "type": "number", "default": 1000 },
+            "days": { "type": ["integer", "null"] }
+          }
+        },
+        "reconciliation": {
+          "type": "object",
+          "description": "ด่านจับเลขตกหล่น: opening + inflow - outflow ต้องเท่ากับ closing",
+          "properties": {
+            "computed_closing": { "type": "number", "description": "opening_balance + total_inflow - total_outflow" },
+            "stated_closing": { "type": "number", "description": "ยอดยกไปตามเอกสาร" },
+            "difference": { "type": "number", "description": "computed - stated (ควรเป็น 0)" },
+            "matched": { "type": "boolean", "description": "true = ตัวเลขครบถ้วน consistent" }
+          }
+        }
+      }
+    },
+    "monthly": {
+      "type": "array",
+      "description": "ส่วนที่ 2: Monthly Breakdown",
+      "items": {
+        "type": "object",
+        "properties": {
+          "month": { "type": "string", "description": "YYYY-MM" },
+          "inflow_amount": { "type": "number" },
+          "inflow_count": { "type": "integer" },
+          "outflow_amount": { "type": "number" },
+          "outflow_count": { "type": "integer" },
+          "min_balance": { "type": "number" },
+          "min_balance_date": { "type": "string" },
+          "end_balance": { "type": "number" }
+        }
+      }
+    },
+    "channels": {
+      "type": "object",
+      "description": "ส่วนที่ 3: Channel & Behavior Analysis",
+      "properties": {
+        "inflow": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "channel": { "type": "string", "description": "เช่น EDC/K SHOP, K PLUS, ฝากเงินสด, โอนเข้า" },
+              "amount": { "type": "number" },
+              "count": { "type": "integer" },
+              "pct": { "type": "number", "description": "% ของ total inflow" },
+              "interpretation": { "type": "string", "description": "เช่น ลูกค้ารายย่อยหน้าร้าน / คู่ค้า B2B" }
+            }
+          }
+        },
+        "outflow": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "channel": { "type": "string" },
+              "amount": { "type": "number" },
+              "count": { "type": "integer" },
+              "pct": { "type": "number" },
+              "interpretation": { "type": "string" }
+            }
+          }
+        },
+        "velocity_note": { "type": "string", "description": "วิเคราะห์ความเร็วหมุนเงิน / pass-through behavior" }
+      }
+    },
+    "transactions": {
+      "type": "array",
+      "description": "ข้อมูลดิบรายรายการ (raw ledger) — ตรวจสอบย้อนหลังได้",
+      "items": {
+        "type": "object",
+        "required": ["date", "direction", "amount", "balance"],
+        "properties": {
+          "date": { "type": "string", "description": "YYYY-MM-DD" },
+          "time": { "type": "string" },
+          "description": { "type": "string", "description": "รายละเอียดรายการ (ลบ PII แล้วถ้า anonymized)" },
+          "channel": { "type": "string" },
+          "direction": { "type": "string", "enum": ["in", "out"] },
+          "amount": { "type": "number" },
+          "balance": { "type": "number", "description": "ยอดคงเหลือหลังรายการ" },
+          "counterparty": { "type": "string", "description": "คู่กรณี — ใส่ [REDACTED] หรือ token เช่น PERSON_01 เมื่อ anonymized" },
+          "flags": { "type": "array", "items": { "type": "string" }, "description": "ป้ายเตือน เช่น round_number, spike, sweep" },
+          "confidence": { "type": "string", "enum": ["high", "low"], "description": "low = ภาพเบลอ/อ่านไม่ชัด" }
+        }
+      }
+    },
+    "red_flags": {
+      "type": "array",
+      "description": "ส่วนที่ 4: Red Flags & Risk",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "description": "Account Sweeping / Abnormal Spike / Heavy Cash Usage / Circular Movement / Round Number / อื่นๆ" },
+          "severity": { "type": "string", "enum": ["high", "medium", "low"] },
+          "date": { "type": "string" },
+          "amount": { "type": ["number", "null"] },
+          "detail": { "type": "string" }
+        }
+      }
+    },
+    "verdict": {
+      "type": "object",
+      "description": "ส่วนที่ 5: Analyst's Verdict",
+      "properties": {
+        "business_guess": { "type": "string" },
+        "liquidity": { "type": "string", "enum": ["Tight", "Moderate", "Healthy Buffer"] },
+        "credit_guidance": { "type": "string", "description": "เช่น OD หมุนเวียนระยะสั้น / Term Loan" },
+        "documents_to_request": { "type": "array", "items": { "type": "string" } },
+        "disclaimer": { "type": "string", "description": "ย้ำว่าต้องดูประกอบกับบัญชีอื่น + งบการเงิน ไม่ตัดสินจากบัญชีเดียว" }
+      }
+    }
+  }
+}

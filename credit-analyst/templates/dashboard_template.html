@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Credit Analysis Dashboard</title>
+<style>
+  :root{
+    --bg:#0f1117; --card:#1a1d27; --line:#2a2f3d; --txt:#e8eaf0; --muted:#9aa3b2;
+    --in:#2a9d8f; --out:#e76f51; --accent:#4895ef; --warnH:#e63946; --warnM:#f4a261; --warnL:#8d99ae;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:"Segoe UI","Kanit",system-ui,sans-serif;background:var(--bg);color:var(--txt);padding:24px;line-height:1.5}
+  h1{font-size:22px;margin-bottom:4px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:20px}
+  .grid{display:grid;gap:16px}
+  .kpis{grid-template-columns:repeat(auto-fit,minmax(180px,1fr))}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+  .kpi .label{color:var(--muted);font-size:12px;margin-bottom:6px}
+  .kpi .val{font-size:22px;font-weight:700}
+  .kpi .meta{color:var(--muted);font-size:11px;margin-top:4px}
+  .cols{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));margin-top:16px}
+  h2{font-size:15px;margin-bottom:14px;border-left:3px solid var(--accent);padding-left:8px}
+  .bar-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:12px}
+  .bar-row .name{width:120px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .bar-track{flex:1;background:#11141c;border-radius:5px;height:16px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:5px}
+  .bar-row .amt{width:90px;text-align:right;font-variant-numeric:tabular-nums}
+  table{width:100%;border-collapse:collapse;font-size:12px}
+  th,td{padding:7px 8px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{color:var(--muted);font-weight:600}
+  .flag{display:flex;gap:10px;padding:10px;border-radius:8px;margin-bottom:8px;background:#11141c;font-size:13px}
+  .sev{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;height:fit-content;white-space:nowrap}
+  .sev.high{background:var(--warnH)}.sev.medium{background:var(--warnM);color:#1a1d27}.sev.low{background:var(--warnL);color:#1a1d27}
+  .verdict p{margin-bottom:8px;font-size:14px}
+  .verdict .tag{display:inline-block;background:#11141c;border:1px solid var(--line);padding:2px 10px;border-radius:20px;font-size:13px}
+  .recon{padding:8px 12px;border-radius:8px;font-size:13px;margin-bottom:16px}
+  .recon.ok{background:rgba(42,157,143,.15);border:1px solid var(--in)}
+  .recon.bad{background:rgba(230,57,70,.15);border:1px solid var(--warnH)}
+  .disc{color:var(--muted);font-size:12px;margin-top:10px;font-style:italic}
+  svg text{fill:var(--muted);font-size:10px}
+  .legend{font-size:11px;color:var(--muted);margin-top:8px}
+  .legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px}
+</style>
+</head>
+<body>
+
+<!-- ========================================================= -->
+<!-- AI: แทนที่อ็อบเจ็กต์ DATA ทั้งก้อนด้วย JSON ตาม schema.json  -->
+<!-- ด้านล่างเป็นข้อมูลตัวอย่าง (anonymized) ไว้ดู layout เฉยๆ    -->
+<!-- ========================================================= -->
+<script>
+const DATA = {
+  "meta":{"statement_id":"STM-2026-001","bank":"KBANK","account_type":"กระแสรายวัน","currency":"THB",
+    "period_start":"2026-01-01","period_end":"2026-03-31","opening_balance":52000,"closing_balance":68450.75,
+    "extracted_by":"sample","extraction_date":"2026-06-08","anonymized":true},
+  "summary":{
+    "total_inflow":{"amount":1284300.50,"count":142},
+    "total_outflow":{"amount":1267849.75,"count":138},
+    "lowest_balance":{"amount":85.20,"date":"2026-02-18"},
+    "highest_balance":{"amount":214300.00,"date":"2026-01-10"},
+    "swing_value":214214.80,"utilization_rate_pct":98.72,"avg_daily_balance":41200.00,
+    "days_below_threshold":{"threshold":1000,"days":7},
+    "reconciliation":{"computed_closing":68450.75,"stated_closing":68450.75,"difference":0,"matched":true}
+  },
+  "monthly":[
+    {"month":"2026-01","inflow_amount":520300.50,"inflow_count":48,"outflow_amount":498200.00,"outflow_count":45,"min_balance":3200.00,"min_balance_date":"2026-01-28","end_balance":74100.50},
+    {"month":"2026-02","inflow_amount":398000.00,"inflow_count":44,"outflow_amount":410649.75,"outflow_count":46,"min_balance":85.20,"min_balance_date":"2026-02-18","end_balance":61450.75},
+    {"month":"2026-03","inflow_amount":366000.00,"inflow_count":50,"outflow_amount":359000.00,"outflow_count":47,"min_balance":5400.00,"min_balance_date":"2026-03-25","end_balance":68450.75}
+  ],
+  "channels":{
+    "inflow":[
+      {"channel":"EDC / K SHOP","amount":640000,"count":98,"pct":49.8,"interpretation":"ลูกค้ารายย่อยหน้าร้าน"},
+      {"channel":"K PLUS โอนเข้า","amount":420300.50,"count":30,"pct":32.7,"interpretation":"คู่ค้า B2B"},
+      {"channel":"ฝากเงินสด","amount":224000,"count":14,"pct":17.4,"interpretation":"เก็บเงินสดหน้าร้าน"}
+    ],
+    "outflow":[
+      {"channel":"K BIZ โอนออก","amount":880000,"count":40,"pct":69.4,"interpretation":"จ่ายซัพพลายเออร์"},
+      {"channel":"ถอนเงินสด","amount":250000,"count":18,"pct":19.7,"interpretation":"เงินสดหมุนเวียน"},
+      {"channel":"รายการย่อย/บิล","amount":137849.75,"count":80,"pct":10.9,"interpretation":"ค่าใช้จ่ายดำเนินงาน"}
+    ],
+    "velocity_note":"เงินก้อนใหญ่จากคู่ค้า B2B มักถูกโอนออกภายใน 1–2 วัน บ่งชี้การหมุนเงินเร็ว (pass-through บางส่วน)"
+  },
+  "red_flags":[
+    {"type":"Account Sweeping","severity":"high","date":"2026-02-18","amount":85.20,"detail":"ยอดคงเหลือเหลือ 85.20 บาท หลังโอนออกก้อนใหญ่"},
+    {"type":"Heavy Cash Usage","severity":"medium","date":null,"amount":250000,"detail":"ถอนเงินสดรวม 250,000 บาท 18 ครั้ง ตรวจร่องรอยต่อยาก"},
+    {"type":"Abnormal Spike","severity":"low","date":"2026-01-10","amount":214300,"detail":"เงินเข้าก้อนใหญ่ผิดปกติเทียบค่าเฉลี่ย"}
+  ],
+  "verdict":{
+    "business_guess":"ร้านค้าปลีกมีหน้าร้าน + ซื้อมาขายไป (มีทั้งรับรายย่อยผ่าน EDC และจ่ายซัพพลายเออร์ก้อนใหญ่)",
+    "liquidity":"Tight",
+    "credit_guidance":"เหมาะกับ OD หมุนเวียนระยะสั้น มากกว่า Term Loan เพราะ Utilization สูงและสภาพคล่องตึง",
+    "documents_to_request":["statement บัญชีอื่นทุกบัญชี","งบการเงิน/ภ.พ.30","รายการสต๊อกสินค้า","สัญญาคู่ค้าหลัก"],
+    "disclaimer":"ประเมินจากบัญชีเดียว ต้องพิจารณาประกอบกับ statement บัญชีอื่น + งบการเงิน ก่อนอนุมัติ"
+  }
+};
+</script>
+
+<h1 id="title"></h1>
+<div class="sub" id="subtitle"></div>
+<div id="recon"></div>
+
+<div class="grid kpis" id="kpis"></div>
+
+<div class="grid cols">
+  <div class="card">
+    <h2>Inflow vs Outflow รายเดือน</h2>
+    <div id="monthlyChart"></div>
+    <div class="legend"><i style="background:var(--in)"></i>เงินเข้า &nbsp; <i style="background:var(--out)"></i>เงินออก</div>
+  </div>
+  <div class="card">
+    <h2>ยอดคงเหลือต่ำสุดรายเดือน</h2>
+    <div id="balanceChart"></div>
+  </div>
+  <div class="card">
+    <h2>ช่องทางรับเงิน</h2>
+    <div id="inflowCh"></div>
+  </div>
+  <div class="card">
+    <h2>ช่องทางจ่ายเงิน</h2>
+    <div id="outflowCh"></div>
+  </div>
+</div>
+
+<div class="grid cols">
+  <div class="card">
+    <h2>Red Flags & Risk</h2>
+    <div id="flags"></div>
+  </div>
+  <div class="card verdict">
+    <h2>Analyst's Verdict</h2>
+    <div id="verdict"></div>
+  </div>
+</div>
+
+<div class="card" style="margin-top:16px">
+  <h2>Monthly Breakdown</h2>
+  <div style="overflow-x:auto"><table id="monthlyTable"></table></div>
+</div>
+
+<script>
+const fmt = n => (n==null||isNaN(n)) ? "[ไม่ชัดเจน]" : Number(n).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const el = (h)=>{const d=document.createElement("div");d.innerHTML=h;return d.firstElementChild;};
+const m=DATA.meta, s=DATA.summary;
+
+document.getElementById("title").textContent = "Credit Analysis Dashboard — " + m.statement_id;
+document.getElementById("subtitle").textContent =
+  `${m.bank} · ${m.account_type} · ${m.period_start} → ${m.period_end} · ${m.currency}` +
+  (m.anonymized ? " · 🔒 anonymized" : "");
+
+// Reconciliation banner
+const r=s.reconciliation;
+document.getElementById("recon").innerHTML =
+  `<div class="recon ${r.matched?'ok':'bad'}">${r.matched?'✅':'⚠️'} Reconciliation: ` +
+  `${r.matched?'ตัวเลขครบถ้วน (ส่วนต่าง 0)':'พบส่วนต่าง '+fmt(r.difference)+' บาท — อาจมีรายการตกหล่น'}</div>`;
+
+// KPI cards
+const kpis=[
+  ["Total Inflow", fmt(s.total_inflow.amount), s.total_inflow.count+" ครั้ง"],
+  ["Total Outflow", fmt(s.total_outflow.amount), s.total_outflow.count+" ครั้ง"],
+  ["🔻 Lowest Balance", fmt(s.lowest_balance.amount), s.lowest_balance.date],
+  ["🔺 Highest Balance", fmt(s.highest_balance.amount), s.highest_balance.date],
+  ["Swing Value", fmt(s.swing_value), "Max − Min"],
+  ["Utilization Rate", (s.utilization_rate_pct??"-")+"%", "Out/In"],
+  ["Avg Daily Balance", fmt(s.avg_daily_balance), "เฉลี่ย/วัน"],
+  ["วันยอดต่ำ", (s.days_below_threshold.days??"-")+" วัน", "< "+fmt(s.days_below_threshold.threshold)]
+];
+document.getElementById("kpis").innerHTML = kpis.map(k=>
+  `<div class="card kpi"><div class="label">${k[0]}</div><div class="val">${k[1]}</div><div class="meta">${k[2]}</div></div>`).join("");
+
+// Monthly grouped bar (SVG)
+(function(){
+  const data=DATA.monthly, W=Math.max(300,data.length*90), H=180, pad=24, bw=22;
+  const max=Math.max(...data.flatMap(d=>[d.inflow_amount,d.outflow_amount]),1);
+  const x=i=>pad+i*((W-pad*2)/data.length)+10;
+  const h=v=>(v/max)*(H-pad*2);
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">`;
+  data.forEach((d,i)=>{
+    const bx=x(i);
+    svg+=`<rect x="${bx}" y="${H-pad-h(d.inflow_amount)}" width="${bw}" height="${h(d.inflow_amount)}" fill="var(--in)" rx="2"/>`;
+    svg+=`<rect x="${bx+bw+3}" y="${H-pad-h(d.outflow_amount)}" width="${bw}" height="${h(d.outflow_amount)}" fill="var(--out)" rx="2"/>`;
+    svg+=`<text x="${bx+bw}" y="${H-8}" text-anchor="middle">${d.month.slice(2)}</text>`;
+  });
+  svg+=`</svg>`;
+  document.getElementById("monthlyChart").innerHTML=svg;
+})();
+
+// Min balance line (SVG)
+(function(){
+  const data=DATA.monthly, W=Math.max(300,data.length*90), H=180, pad=28;
+  const vals=data.map(d=>d.min_balance), max=Math.max(...vals,1);
+  const x=i=>pad+i*((W-pad*2)/Math.max(data.length-1,1));
+  const y=v=>H-pad-(v/max)*(H-pad*2);
+  let pts=data.map((d,i)=>`${x(i)},${y(d.min_balance)}`).join(" ");
+  let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">`;
+  svg+=`<polyline points="${pts}" fill="none" stroke="var(--accent)" stroke-width="2"/>`;
+  data.forEach((d,i)=>{
+    svg+=`<circle cx="${x(i)}" cy="${y(d.min_balance)}" r="4" fill="var(--accent)"/>`;
+    svg+=`<text x="${x(i)}" y="${y(d.min_balance)-8}" text-anchor="middle">${fmt(d.min_balance)}</text>`;
+    svg+=`<text x="${x(i)}" y="${H-8}" text-anchor="middle">${d.month.slice(2)}</text>`;
+  });
+  svg+=`</svg>`;
+  document.getElementById("balanceChart").innerHTML=svg;
+})();
+
+// Channel horizontal bars
+function renderChannels(id,arr,color){
+  const max=Math.max(...arr.map(c=>c.amount),1);
+  document.getElementById(id).innerHTML=arr.map(c=>
+    `<div class="bar-row" title="${c.interpretation||''}">
+       <span class="name">${c.channel}</span>
+       <span class="bar-track"><span class="bar-fill" style="width:${(c.amount/max*100).toFixed(1)}%;background:${color}"></span></span>
+       <span class="amt">${(c.pct??0)}%</span>
+     </div>
+     <div style="font-size:10px;color:var(--muted);margin:-6px 0 8px 128px">${fmt(c.amount)} · ${c.interpretation||''}</div>`).join("");
+}
+renderChannels("inflowCh",DATA.channels.inflow||[],"var(--in)");
+renderChannels("outflowCh",DATA.channels.outflow||[],"var(--out)");
+
+// Red flags
+document.getElementById("flags").innerHTML = (DATA.red_flags||[]).length
+  ? DATA.red_flags.map(f=>
+      `<div class="flag"><span class="sev ${f.severity}">${f.severity.toUpperCase()}</span>
+       <div><b>${f.type}</b> ${f.date?'· '+f.date:''} ${f.amount?'· '+fmt(f.amount)+' บาท':''}<br>
+       <span style="color:var(--muted)">${f.detail||''}</span></div></div>`).join("")
+  : `<div style="color:var(--in)">ไม่พบ Red Flag ที่มีนัยสำคัญ</div>`;
+
+// Verdict
+const v=DATA.verdict;
+document.getElementById("verdict").innerHTML=
+  `<p><b>ธุรกิจ:</b> ${v.business_guess||'-'}</p>
+   <p><b>สภาพคล่อง:</b> <span class="tag">${v.liquidity||'-'}</span></p>
+   <p><b>ความเห็นสินเชื่อ:</b> ${v.credit_guidance||'-'}</p>
+   <p><b>เอกสารที่ควรขอเพิ่ม:</b></p>
+   <ul style="margin-left:18px;font-size:13px">${(v.documents_to_request||[]).map(d=>`<li>${d}</li>`).join("")}</ul>
+   <p class="disc">⚠️ ${v.disclaimer||''}</p>`;
+
+// Monthly table
+const rows=DATA.monthly.map(d=>
+  `<tr><td>${d.month}</td><td>${fmt(d.inflow_amount)} / ${d.inflow_count}</td>
+   <td>${fmt(d.outflow_amount)} / ${d.outflow_count}</td>
+   <td>${fmt(d.min_balance)} (${d.min_balance_date})</td><td>${fmt(d.end_balance)}</td></tr>`).join("");
+document.getElementById("monthlyTable").innerHTML=
+  `<thead><tr><th>เดือน</th><th>Inflow (บาท/ครั้ง)</th><th>Outflow (บาท/ครั้ง)</th><th>Min Balance (วันที่)</th><th>สิ้นเดือน</th></tr></thead><tbody>${rows}</tbody>`;
+</script>
+</body>
+</html>
