@@ -3,95 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>วางแผนฟาร์ม 1 ไร่</title>
+  <title>FarmPlan — วางแผนฟาร์ม 1 ไร่</title>
   <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
 <div id="app">
 
-  <!-- STEP 1: Farm Conditions -->
+  <!-- ════════ STEP 1 : INPUT ════════ -->
   <section id="step-1" class="step active">
+    <header class="hero">
+      <div class="hero-icon">🌾</div>
+      <h1>FarmPlan</h1>
+      <p>ระบบช่วยตัดสินใจวางแผนฟาร์มขนาด 1 ไร่<br>ภายใต้ข้อจำกัดด้านน้ำ แรงงาน เงินสด และตลาด</p>
+    </header>
+
     <div class="card">
-      <div class="step-badge">ขั้นตอนที่ 1/2</div>
-      <h1 class="title">🌾 วางแผนฟาร์ม 1 ไร่</h1>
-      <p class="subtitle">กรอกข้อมูลฟาร์มของคุณเพื่อรับแผนการผลิตที่เหมาะสม</p>
+      <h2 class="card-title">ข้อมูลฟาร์มของคุณ</h2>
 
       <div class="form-grid">
-
         <div class="form-group">
-          <label>📐 ขนาดพื้นที่ (ตร.ม.)</label>
-          <input type="number" id="area" value="1600" min="400" max="6400" step="100">
+          <label for="area">📐 ขนาดพื้นที่ (ตร.ม.)</label>
+          <input type="number" id="area" value="1600" min="100" step="100">
           <span class="hint">1 ไร่ = 1,600 ตร.ม.</span>
         </div>
 
         <div class="form-group">
-          <label>💰 เงินลงทุนเริ่มต้น (บาท)</label>
-          <input type="number" id="capital" value="30000" min="5000" max="200000" step="1000">
+          <label for="capital">💰 เงินลงทุนเริ่มต้น (บาท)</label>
+          <input type="number" id="capital" value="30000" min="1000" step="1000">
+          <span class="hint">เงินที่พร้อมลงทุนในกิจกรรมการผลิต</span>
         </div>
 
         <div class="form-group">
-          <label>🏦 เงินสดสำรอง (บาท)</label>
-          <input type="number" id="cashReserve" value="10000" min="0" max="100000" step="1000">
-          <span class="hint">เงินใช้จ่ายรายวันระหว่างรอผลผลิต</span>
+          <label for="cashReserve">🏦 เงินสดสำรอง (บาท)</label>
+          <input type="number" id="cashReserve" value="10000" min="0" step="1000">
+          <span class="hint">เงินหมุนเวียนระหว่างรอผลผลิต</span>
         </div>
 
         <div class="form-group">
-          <label>👨‍🌾 แรงงานที่มี (ชม./วัน)</label>
-          <input type="number" id="laborHours" value="6" min="2" max="14" step="0.5">
-          <span class="hint">ชั่วโมงที่ทำงานในฟาร์มได้ต่อวัน</span>
+          <label for="laborHours">👨‍🌾 แรงงานที่มี (ชม./วัน)</label>
+          <input type="number" id="laborHours" value="6" min="1" max="16" step="0.5">
+          <span class="hint">รวมทุกคนในครัวเรือน</span>
         </div>
 
         <div class="form-group">
-          <label>💧 แหล่งน้ำ</label>
+          <label for="waterSource">💧 สภาพน้ำ</label>
           <select id="waterSource">
             <option value="good">ดี — มีน้ำตลอดปี (บ่อ/ชลประทาน)</option>
-            <option value="medium" selected>ปานกลาง — น้ำฝนเพียงพอ 8 เดือน</option>
-            <option value="poor">จำกัด — น้ำฝนเท่านั้น หรือแล้งบ่อย</option>
+            <option value="medium" selected>ปานกลาง — พึ่งฝนเป็นหลัก</option>
+            <option value="poor">จำกัด — แล้งบ่อย น้ำไม่แน่นอน</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>🏪 ระยะทางถึงตลาด</label>
+          <label for="marketDistance">🏪 ระยะทางถึงตลาด</label>
           <select id="marketDistance">
-            <option value="near">ใกล้ — ไม่เกิน 5 กม. (ราคาดี)</option>
+            <option value="near">ใกล้ — ไม่เกิน 5 กม. (ขายได้ราคาดี)</option>
             <option value="mid" selected>ปานกลาง — 5–20 กม.</option>
-            <option value="far">ไกล — มากกว่า 20 กม. (ราคาต่ำ)</option>
+            <option value="far">ไกล — เกิน 20 กม. (ราคาถูกกดลง)</option>
           </select>
         </div>
-
       </div>
 
-      <button class="btn-primary" onclick="goToStep2()">วิเคราะห์แผนฟาร์ม →</button>
+      <button class="btn-primary" id="analyzeBtn">วิเคราะห์แผนฟาร์ม →</button>
     </div>
   </section>
 
-  <!-- STEP 2: Results -->
+  <!-- ════════ STEP 2 : RESULTS ════════ -->
   <section id="step-2" class="step">
-    <div class="results-header">
-      <button class="btn-back" onclick="goToStep1()">← แก้ไขข้อมูล</button>
-      <h2>ผลการวิเคราะห์แผนฟาร์ม</h2>
-      <div id="farm-summary-bar"></div>
+
+    <div class="results-top">
+      <button class="btn-back" id="backBtn">← แก้ไขข้อมูล</button>
+      <h2>ผลการวิเคราะห์</h2>
     </div>
 
-    <div class="plans-grid" id="plans-grid">
-      <!-- filled by JS -->
+    <div class="summary-bar" id="farm-summary-bar"></div>
+
+    <div class="plans-grid" id="plans-grid"></div>
+
+    <div class="card compare-card">
+      <h3>📊 เปรียบเทียบ 3 แผน</h3>
+      <div class="compare-table-wrap">
+        <table class="compare-table" id="compare-table"></table>
+      </div>
     </div>
 
-    <div class="card detail-card" id="detail-section" style="display:none">
+    <div class="card detail-card" id="detail-section" hidden>
       <h3 id="detail-title"></h3>
       <div id="detail-body"></div>
     </div>
 
-    <div class="card cashflow-card" id="cashflow-section" style="display:none">
-      <h3>📅 กระแสเงินสดรายเดือน (12 เดือน)</h3>
+    <div class="card cashflow-card" id="cashflow-section" hidden>
+      <h3 id="cashflow-title">📅 กระแสเงินสดรายเดือน</h3>
       <div class="cashflow-chart" id="cashflow-chart"></div>
       <div class="cashflow-legend">
-        <span class="dot green"></span>เงินสดคงเหลือ &nbsp;
-        <span class="dot red"></span>ต่ำกว่าเงินสำรอง
+        <span><i class="dot green"></i> เงินสดคงเหลือปกติ</span>
+        <span><i class="dot orange"></i> ต่ำกว่าเงินสำรอง</span>
+        <span><i class="dot red"></i> ติดลบ (อันตราย)</span>
       </div>
     </div>
+
+    <footer class="model-note">
+      <strong>หมายเหตุ:</strong> โมเดลนี้เป็นเครื่องมือช่วยตัดสินใจเบื้องต้น
+      สมมติว่าฟาร์มเป็นผู้รับราคา (price taker) ยังไม่รวมดอกเบี้ยเงินกู้
+      ต้นทุนโครงสร้างพื้นฐานระบบน้ำ และระดับความเชี่ยวชาญของเกษตรกร
+    </footer>
   </section>
 
 </div>
