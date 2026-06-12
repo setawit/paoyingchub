@@ -17,4 +17,11 @@
 2. Copy `system-prompt.md` ทั้งหมด → วางเป็นข้อความแรก → ส่ง
 3. รอ Co-Pilot ตอบรับ
 4. กรอกข้อมูลเคสใน `input-template.md` → ส่งเป็นข้อความที่สอง
-5. รับผลการวิเคราะห์ 5 ขั้นตอน
+5. รับผลการวิเคราะห์ครบ 7 ส่วน:
+   1. Executive Summary
+   2. Verify Checklist
+   3. Validate Risk Assessment (5Cs + Red Flags)
+   4. Questions From Credit Review
+   5. Suggested Responses
+   6. Credit Readiness Score
+   7. Recommended Next Actions
