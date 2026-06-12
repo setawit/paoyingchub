@@ -61,4 +61,16 @@ description: >
 
 เนื้อหาต้องมีครบ 6 ส่วน: (1) บทบาทและขอบเขต (2) Input ที่ต้องการ (3) ขั้นตอนการทำงาน (4) Output template (5) Guardrails (masking, draft-only) (6) ตัวอย่าง input/output อย่างน้อย 1 ชุด
 
-**สถานะปัจจุบัน:** มีไฟล์เต็มแล้ว 1 ตัว (`credit-orchestrator`) — อีก 8 ตัวต้องเขียนตามมาตรฐานนี้ใน Phase 0 (ดู [[07-Gap-Analysis]])
+**สถานะปัจจุบัน:** ✅ มีไฟล์เต็มครบ 9 ตัว (master 1 + skill ย่อย 8) ใน `skills/` — ขั้นถัดไปตาม lifecycle คือ **Testing** (sandbox กับ dummy data ≥ 20 test cases/skill) และ **Validation** โดย pilot RM
+
+| Skill | ไฟล์ |
+|---|---|
+| credit-orchestrator (master) | `skills/credit-orchestrator/SKILL.md` |
+| call-report-writer | `skills/call-report-writer/SKILL.md` |
+| statement-analyzer | `skills/statement-analyzer/SKILL.md` |
+| collateral-assessor | `skills/collateral-assessor/SKILL.md` |
+| debt-workout-skill | `skills/debt-workout-skill/SKILL.md` |
+| credit-master | `skills/credit-master/SKILL.md` |
+| product-designer-skill | `skills/product-designer-skill/SKILL.md` |
+| agri-economic-navigator | `skills/agri-economic-navigator/SKILL.md` |
+| customer-profiler | `skills/customer-profiler/SKILL.md` |

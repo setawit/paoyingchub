@@ -9,7 +9,7 @@
 | SRD v3.0 (เอกสารแม่) | ✅ สมบูรณ์ | ครบทั้ง roadmap, gate criteria, budget, risk |
 | Prototype Excel | 🟡 ครอบคลุม ~10/34 modules | กลุ่ม RM เกือบครบ, WS/CH/EX ยังบาง — ปกติตาม phase plan |
 | Knowledge vault (`Rm_OS.md`) | ✅ แก้แล้ว | เดิมมีแต่ลิงก์เปล่า 00–06 — สร้างครบในชุดนี้ |
-| Skill library | 🔴 1/9 ตัว | `credit-orchestrator` มีไฟล์เต็มแล้ว — อีก 8 ตัวยังไม่เขียน |
+| Skill library | ✅ 9/9 ตัว (draft) | เขียนครบทุกตัวแล้วใน `skills/` — เหลือ testing/validation ตาม lifecycle |
 
 ## 2. ปัญหาที่พบ (Findings)
 
@@ -18,10 +18,10 @@
 - แต่ไฟล์ `RM04_Lead_Tracker.xlsx` ใช้ชื่อ RM-04 ทั้งที่เป็น **Lead Tracker** (คนละเรื่อง)
 - **ข้อเสนอ:** กำหนด Lead Tracker = **RM-07**, Pipeline Tracker = **RM-08**, Maintenance Tracker = **RM-09** (สะท้อนใน [[02-Modules]] แล้ว) และ rename ไฟล์ใน SRD v3.1
 
-### F-2 🔴 Skill library ยังว่าง (Phase 0 exit criteria เสี่ยงไม่ผ่าน)
-- Exit ของ P0 ต้องมี "skill 8+ ตัวทดสอบใช้จริง" แต่ตอนนี้มีไฟล์เต็มแค่ `credit-orchestrator`
-- Prototype อ้างถึง skill ที่ยังไม่มีไฟล์: `call-report-writer`, `agri-economic-navigator`, `debt-workout-skill`, `warning-brain` ฯลฯ
-- **ข้อเสนอ:** เขียน SKILL.md ตามมาตรฐานใน [[03-Skills]] §5 ให้ครบ 8 ตัว — เริ่มจาก `call-report-writer` (impact สูงสุด: ลดเวลา 80–90%)
+### F-2 ✅ (ปิดแล้ว) Skill library เขียนครบ 9 ตัว
+- เดิม: มีไฟล์เต็มแค่ `credit-orchestrator` — เสี่ยงไม่ผ่าน P0 exit criteria ("skill 8+ ตัวทดสอบใช้จริง")
+- **แก้แล้ว:** เขียน SKILL.md ครบทั้ง 8 ตัวตามมาตรฐาน [[03-Skills]] §5 (บทบาท/input/ขั้นตอน/template/guardrails/ตัวอย่าง)
+- **คงเหลือ:** เกณฑ์ P0 ต้องการ "ทดสอบใช้จริง" — ต้องทำ sandbox testing ≥ 20 test cases/skill + validation โดย RM lead ก่อนนับว่าผ่าน gate
 
 ### F-3 🟡 RM-04 (WCR Calculator) ยังไม่มี prototype
 - เป็น module P2 ที่มี Open Item ผูกอยู่ (O-08: WCR formula standardization — due End of P0)
@@ -58,7 +58,7 @@
 
 | # | งาน | Phase | ปิด Finding |
 |---|---|---|---|
-| 1 | เขียน SKILL.md ครบ 8 ตัว (เริ่ม `call-report-writer`) | P0 | F-2 |
+| 1 | ~~เขียน SKILL.md ครบ 8 ตัว~~ ✅ เสร็จแล้ว → ต่อด้วย sandbox testing ≥ 20 cases/skill | P0 | F-2 |
 | 2 | แก้ Module ID: Lead→RM-07, Pipeline→RM-08, Maintenance→RM-09 ใน SRD v3.1 | P0 | F-1 |
 | 3 | Confirm WCR formula (O-08) + สร้าง WCR Calculator prototype | P0–P1 | F-3 |
 | 4 | เพิ่ม scenario C (ติดตามหนี้) ใน RM-03 | P1 | F-4 |
@@ -66,4 +66,4 @@
 | 6 | AI Helper สำหรับ Credit Memo (CH-05) | P1 | F-6 |
 | 7 | Align เกณฑ์เบี้ยเลี้ยงกับระเบียบจริง | P1 | F-8 |
 
-> เมื่อทำข้อ 1–2 เสร็จ Phase 0 จะผ่าน exit criteria ครบ (skill 8+, prompts 5+, masking guideline ✅ มีใน [[05-Data-Security]], training material — ใช้ vault ชุดนี้เป็นฐาน)
+> สถานะ P0 exit criteria: skill 8+ ✅ (เขียนครบ — รอ testing) · documented prompts 5+ ✅ (อยู่ใน SKILL.md แต่ละตัว + AI Input Helper ใน prototype) · masking guideline ✅ ([[05-Data-Security]]) · training material 🟡 (ใช้ vault ชุดนี้เป็นฐาน workshop deck ได้)
