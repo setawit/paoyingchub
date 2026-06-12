@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>วางแผนฟาร์ม 1 ไร่</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="app">
+
+  <!-- STEP 1: Farm Conditions -->
+  <section id="step-1" class="step active">
+    <div class="card">
+      <div class="step-badge">ขั้นตอนที่ 1/2</div>
+      <h1 class="title">🌾 วางแผนฟาร์ม 1 ไร่</h1>
+      <p class="subtitle">กรอกข้อมูลฟาร์มของคุณเพื่อรับแผนการผลิตที่เหมาะสม</p>
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>📐 ขนาดพื้นที่ (ตร.ม.)</label>
+          <input type="number" id="area" value="1600" min="400" max="6400" step="100">
+          <span class="hint">1 ไร่ = 1,600 ตร.ม.</span>
+        </div>
+
+        <div class="form-group">
+          <label>💰 เงินลงทุนเริ่มต้น (บาท)</label>
+          <input type="number" id="capital" value="30000" min="5000" max="200000" step="1000">
+        </div>
+
+        <div class="form-group">
+          <label>🏦 เงินสดสำรอง (บาท)</label>
+          <input type="number" id="cashReserve" value="10000" min="0" max="100000" step="1000">
+          <span class="hint">เงินใช้จ่ายรายวันระหว่างรอผลผลิต</span>
+        </div>
+
+        <div class="form-group">
+          <label>👨‍🌾 แรงงานที่มี (ชม./วัน)</label>
+          <input type="number" id="laborHours" value="6" min="2" max="14" step="0.5">
+          <span class="hint">ชั่วโมงที่ทำงานในฟาร์มได้ต่อวัน</span>
+        </div>
+
+        <div class="form-group">
+          <label>💧 แหล่งน้ำ</label>
+          <select id="waterSource">
+            <option value="good">ดี — มีน้ำตลอดปี (บ่อ/ชลประทาน)</option>
+            <option value="medium" selected>ปานกลาง — น้ำฝนเพียงพอ 8 เดือน</option>
+            <option value="poor">จำกัด — น้ำฝนเท่านั้น หรือแล้งบ่อย</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>🏪 ระยะทางถึงตลาด</label>
+          <select id="marketDistance">
+            <option value="near">ใกล้ — ไม่เกิน 5 กม. (ราคาดี)</option>
+            <option value="mid" selected>ปานกลาง — 5–20 กม.</option>
+            <option value="far">ไกล — มากกว่า 20 กม. (ราคาต่ำ)</option>
+          </select>
+        </div>
+
+      </div>
+
+      <button class="btn-primary" onclick="goToStep2()">วิเคราะห์แผนฟาร์ม →</button>
+    </div>
+  </section>
+
+  <!-- STEP 2: Results -->
+  <section id="step-2" class="step">
+    <div class="results-header">
+      <button class="btn-back" onclick="goToStep1()">← แก้ไขข้อมูล</button>
+      <h2>ผลการวิเคราะห์แผนฟาร์ม</h2>
+      <div id="farm-summary-bar"></div>
+    </div>
+
+    <div class="plans-grid" id="plans-grid">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="card detail-card" id="detail-section" style="display:none">
+      <h3 id="detail-title"></h3>
+      <div id="detail-body"></div>
+    </div>
+
+    <div class="card cashflow-card" id="cashflow-section" style="display:none">
+      <h3>📅 กระแสเงินสดรายเดือน (12 เดือน)</h3>
+      <div class="cashflow-chart" id="cashflow-chart"></div>
+      <div class="cashflow-legend">
+        <span class="dot green"></span>เงินสดคงเหลือ &nbsp;
+        <span class="dot red"></span>ต่ำกว่าเงินสำรอง
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
