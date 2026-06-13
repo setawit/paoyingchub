@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAAC BIC — โรงสีข้าวหอมมะลิ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --green: #16a34a;
+  --yellow: #ca8a04;
+  --red: #dc2626;
+  --baac: #1a5c38;
+  --baac-light: #e8f5ee;
+  --g50: #f9fafb; --g100: #f3f4f6; --g200: #e5e7eb;
+  --g600: #4b5563; --g900: #111827;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Sarabun', sans-serif;
+  background: var(--g100);
+  color: var(--g900);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* ─── STICKY NAV ─── */
+.nav {
+  position: sticky; top: 0; z-index: 200;
+  background: var(--baac);
+  color: #fff;
+  padding: 8px 16px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.nav-brand { font-weight: 700; font-size: 13px; white-space: nowrap; }
+.search {
+  flex: 1; min-width: 180px; max-width: 360px;
+  padding: 5px 14px; border: none; border-radius: 20px;
+  font-family: inherit; font-size: 13px; outline: none;
+  background: rgba(255,255,255,.15); color: #fff;
+}
+.search::placeholder { color: rgba(255,255,255,.65); }
+.search:focus { background: rgba(255,255,255,.25); }
+.nav-jumps { display: flex; gap: 4px; flex-wrap: wrap; }
+.jmp {
+  font-size: 11px; padding: 2px 6px; border-radius: 4px; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.3); color: rgba(255,255,255,.85);
+  white-space: nowrap;
+}
+.jmp:hover { background: rgba(255,255,255,.15); color: #fff; }
+.nav-btn {
+  font-family: inherit; font-size: 12px; padding: 4px 10px;
+  border-radius: 6px; cursor: pointer; border: 1px solid rgba(255,255,255,.4);
+  background: rgba(255,255,255,.1); color: #fff;
+}
+.nav-btn:hover { background: rgba(255,255,255,.22); }
+
+/* ─── BIC HEADER ─── */
+.bic-header {
+  background: #fff;
+  border-bottom: 3px solid var(--baac);
+  padding: 20px 24px;
+}
+.bic-meta { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; }
+.bic-title-block { flex: 1; min-width: 240px; }
+.bic-badge {
+  display: inline-block; background: var(--baac); color: #fff;
+  font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px;
+  letter-spacing: .6px; margin-bottom: 6px;
+}
+.bic-title { font-size: 21px; font-weight: 700; margin-bottom: 3px; }
+.bic-sub { color: var(--g600); font-size: 13px; }
+
+.bic-stats {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 8px; min-width: 260px;
+}
+.stat {
+  background: var(--g50); border: 1px solid var(--g200);
+  border-radius: 8px; padding: 8px 12px;
+}
+.stat-label {
+  font-size: 10px; color: var(--g600);
+  text-transform: uppercase; letter-spacing: .5px; display: block; margin-bottom: 2px;
+}
+.stat-val { font-weight: 700; font-size: 13px; }
+.risk-med { color: var(--yellow); }
+.risk-ok  { color: var(--green); }
+
+/* ─── CONTAINER ─── */
+.wrap { max-width: 960px; margin: 0 auto; padding: 14px 14px 40px; }
+
+/* ─── ACCORDION ─── */
+.card {
+  background: #fff; border-radius: 10px; margin-bottom: 9px;
+  border: 1px solid var(--g200); overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+.card-head {
+  padding: 13px 18px; cursor: pointer;
+  display: flex; align-items: center; gap: 10px;
+  user-select: none;
+}
+.card-head:hover { background: var(--g50); }
+.snum {
+  font-size: 10px; font-weight: 700; color: var(--baac);
+  background: var(--baac-light); padding: 2px 7px; border-radius: 4px;
+  min-width: 26px; text-align: center;
+}
+.stitle { font-weight: 700; font-size: 15px; flex: 1; }
+.chev { font-size: 11px; color: var(--g600); transition: transform .2s; }
+.card.open .chev { transform: rotate(180deg); }
+.card-body {
+  display: none; padding: 4px 18px 18px;
+  border-top: 1px solid var(--g200);
+}
+.card.open .card-body { display: block; }
+
+/* ─── CONTENT ATOMS ─── */
+ul.bl { list-style: none; padding: 0; margin: 7px 0; }
+ul.bl li { padding: 3px 0 3px 15px; position: relative; font-size: 14px; }
+ul.bl li::before { content: "•"; position: absolute; left: 3px; color: var(--baac); }
+
+.sublabel {
+  display: block; font-weight: 700; font-size: 12px; color: var(--baac);
+  text-transform: uppercase; letter-spacing: .4px;
+  margin-top: 13px; margin-bottom: 4px;
+}
+
+/* Traffic light */
+.tl { display: flex; align-items: flex-start; gap: 8px; padding: 4px 0; font-size: 14px; }
+.dot { width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+.dot-g { background: var(--green); }
+.dot-y { background: var(--yellow); }
+.dot-r { background: var(--red); }
+
+/* Override badges */
+.ob {
+  display: inline-block; font-size: 9px; font-weight: 700;
+  padding: 1px 6px; border-radius: 3px; margin-left: 4px;
+}
+.ob-yes  { background: #dcfce7; color: #166534; }
+.ob-no   { background: #fee2e2; color: #991b1b; }
+.ob-cond { background: #fef3c7; color: #92400e; }
+
+/* Table */
+.btab {
+  width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px;
+}
+.btab th {
+  background: var(--baac); color: #fff; padding: 8px 11px;
+  text-align: left; font-weight: 600;
+}
+.btab td { padding: 7px 11px; border-bottom: 1px solid var(--g200); vertical-align: top; }
+.btab tr:nth-child(even) td { background: var(--g50); }
+.pass { color: var(--green); font-weight: 700; }
+.fail { color: var(--red); font-weight: 700; }
+.cond { color: var(--yellow); font-weight: 700; }
+
+/* Cash flow */
+.cf { display: flex; flex-direction: column; gap: 0; margin: 8px 0; }
+.cf-step { display: flex; align-items: center; gap: 10px; }
+.cf-box {
+  background: var(--baac-light); border: 2px solid var(--baac);
+  border-radius: 6px; padding: 6px 14px; font-size: 13px;
+  font-weight: 600; min-width: 190px;
+}
+.cf-time { font-size: 12px; color: var(--g600); }
+.cf-arr { color: var(--baac); font-size: 16px; margin-left: 16px; line-height: 1; }
+
+/* Environment */
+.env-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 8px; margin: 8px 0; }
+.env { padding: 10px 12px; border-radius: 8px; font-size: 13px; }
+.env-p { background: #dcfce7; border-left: 4px solid var(--green); }
+.env-n2 { background: var(--g100); border-left: 4px solid #9ca3af; }
+.env-n { background: #fee2e2; border-left: 4px solid var(--red); }
+.env-lbl {
+  display: block; font-weight: 700; font-size: 10px;
+  text-transform: uppercase; letter-spacing: .5px; margin-bottom: 4px;
+}
+
+/* Stress case */
+.sc {
+  background: var(--g50); border-radius: 8px; padding: 12px 14px;
+  margin: 8px 0; border-left: 4px solid var(--yellow);
+}
+.sc-title { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+
+/* Highlight box */
+.hbox {
+  background: var(--baac-light); border-left: 4px solid var(--baac);
+  border-radius: 8px; padding: 12px 14px; margin-top: 10px; font-size: 14px; line-height: 1.7;
+}
+
+/* Search highlight */
+mark.hl { background: #fef08a; border-radius: 2px; }
+
+.no-res { text-align: center; padding: 40px; color: var(--g600); font-size: 16px; display: none; }
+
+/* ─── FOOTER ─── */
+.bic-footer {
+  background: var(--g100); border-top: 1px solid var(--g200);
+  padding: 14px 24px; font-size: 11px; color: var(--g600); text-align: center;
+}
+
+/* ─── PRINT ─── */
+@media print {
+  .nav { display: none; }
+  .card { break-inside: avoid; box-shadow: none; }
+  .card-body { display: block !important; }
+  .card-head { cursor: default; }
+  .chev { display: none; }
+  body { font-size: 12px; background: #fff; }
+}
+
+@media (max-width: 560px) {
+  .btab { font-size: 12px; }
+  .btab th, .btab td { padding: 5px 7px; }
+  .bic-title { font-size: 17px; }
+  .cf-box { min-width: 140px; }
+}
+</style>
+</head>
+<body>
+
+<!-- STICKY NAV -->
+<nav class="nav">
+  <span class="nav-brand">BAAC BIC v2.0</span>
+  <input class="search" id="searchBox" type="text" placeholder="ค้นหาในการ์ด..." oninput="doSearch()">
+  <div class="nav-jumps" id="navJumps"></div>
+  <button class="nav-btn" onclick="toggleAll()">ขยาย/ย่อ</button>
+  <button class="nav-btn" onclick="window.print()">🖨 พิมพ์</button>
+</nav>
+
+<!-- BIC HEADER -->
+<div class="bic-header">
+  <div class="bic-meta">
+    <div class="bic-title-block">
+      <div class="bic-badge">BUSINESS INTELLIGENCE CARD</div>
+      <div class="bic-title">ธุรกิจโรงสีข้าวและแปรรูปข้าวหอมมะลิ</div>
+      <div class="bic-sub">BAAC Industry Guide — หมวดอุตสาหกรรมแปรรูปเกษตร | Distiller Agent v2.0 + Validator Agent v1.0</div>
+    </div>
+    <div class="bic-stats">
+      <div class="stat"><span class="stat-label">อัปเดตล่าสุด</span><span class="stat-val">13 มิ.ย. 68</span></div>
+      <div class="stat"><span class="stat-label">ระดับความเสี่ยง</span><span class="stat-val risk-med">● ปานกลาง</span></div>
+      <div class="stat"><span class="stat-label">Validator</span><span class="stat-val risk-ok">✓ ผ่าน</span></div>
+      <div class="stat"><span class="stat-label">Override Items</span><span class="stat-val">3 รายการ</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="wrap" id="mainWrap">
+
+  <!-- S1 -->
+  <div class="card open" id="sec1">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S1</span>
+      <span class="stitle">Business Snapshot — ธุรกิจนี้คืออะไร</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <ul class="bl">
+        <li><strong>ทำอะไร:</strong> รับซื้อข้าวเปลือก → สีและแปรรูป → จำหน่ายข้าวสาร</li>
+        <li><strong>ขายอะไร:</strong> ข้าวหอมมะลิสาร บรรจุถุง 5/10/25 กก. ทั้งแบรนด์ตัวเองและ OEM</li>
+        <li><strong>ลูกค้าคือใคร:</strong> Modern Trade (Makro / Lotus's), ค้าส่งในประเทศ, ผู้ส่งออก</li>
+        <li><strong>สร้างรายได้อย่างไร:</strong> ส่วนต่างราคาข้าวเปลือก-ข้าวสาร + Premium แบรนด์ + ค่าแปรรูป OEM</li>
+        <li><strong>ขนาดทั่วไป:</strong> กำลังผลิต 50–500 ตัน/วัน เงินทุนหมุนเวียนสูง รอบ 30–90 วัน</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S2 -->
+  <div class="card" id="sec2">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S2</span>
+      <span class="stitle">Revenue Engine — รายได้และปัจจัยขับเคลื่อน</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <span class="sublabel">รายได้หลัก</span>
+      <ul class="bl">
+        <li>ขายข้าวสารในประเทศ (~70–80% ของรายได้)</li>
+        <li>รับจ้างสี / แปรรูป OEM (~15–20%)</li>
+      </ul>
+      <span class="sublabel">รายได้รอง</span>
+      <ul class="bl">
+        <li>By-product: รำข้าว, แกลบ, ปลายข้าว (~5–10%)</li>
+        <li>บริการฝากสี (Storage + Milling)</li>
+      </ul>
+      <span class="sublabel">ปัจจัยที่ทำให้รายได้เพิ่ม</span>
+      <ul class="bl">
+        <li>ราคาข้าวสารในตลาดโลกสูง</li>
+        <li>ฤดูเก็บเกี่ยวดี → วัตถุดิบมาก ราคาถูก</li>
+        <li>สัญญาระยะยาวกับ Modern Trade</li>
+        <li>แบรนด์แข็งแกร่ง → ขายได้ราคา Premium</li>
+      </ul>
+      <span class="sublabel">ปัจจัยที่ทำให้รายได้ลด</span>
+      <ul class="bl">
+        <li>ราคาข้าวเปลือกพุ่งเร็วกว่าราคาข้าวสาร (Margin Squeeze)</li>
+        <li>ภัยแล้ง / น้ำท่วม → วัตถุดิบขาด</li>
+        <li>คู่แข่งตัดราคา โดยเฉพาะตลาด OEM</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S3 -->
+  <div class="card" id="sec3">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S3</span>
+      <span class="stitle">Cash Flow Map — เงินสดหมุนอย่างไร</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="cf">
+        <div class="cf-step">
+          <div class="cf-box">รับซื้อข้าวเปลือก (Input)</div>
+          <span class="cf-time">จ่ายสด หรือเครดิต 7–14 วัน</span>
+        </div>
+        <div class="cf-arr">↓</div>
+        <div class="cf-step">
+          <div class="cf-box">แปรรูป / สี (Production)</div>
+          <span class="cf-time">1–3 วัน</span>
+        </div>
+        <div class="cf-arr">↓</div>
+        <div class="cf-step">
+          <div class="cf-box">จัดเก็บ / บรรจุ (Inventory)</div>
+          <span class="cf-time">7–30 วัน</span>
+        </div>
+        <div class="cf-arr">↓</div>
+        <div class="cf-step">
+          <div class="cf-box">ส่งสินค้า (Sales)</div>
+          <span class="cf-time">ตาม Order</span>
+        </div>
+        <div class="cf-arr">↓</div>
+        <div class="cf-step">
+          <div class="cf-box">รับชำระ (Collection)</div>
+          <span class="cf-time">30–60 วัน (Modern Trade)</span>
+        </div>
+      </div>
+      <ul class="bl" style="margin-top:10px">
+        <li><strong>Cash Cycle รวม:</strong> ~45–90 วัน → ต้องการ WC สูง</li>
+        <li><strong>Peak Season:</strong> พ.ย.–ม.ค. (ช่วงรับซื้อข้าวเปลือกหนาแน่น)</li>
+        <li><strong>ความเสี่ยง:</strong> ลูกค้าหลักจ่ายช้า → กดดัน Cash Flow อย่างมาก</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S4 -->
+  <div class="card" id="sec4">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S4</span>
+      <span class="stitle">Success Formula — คนที่ทำได้ดีมีลักษณะอะไร</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <ul class="bl">
+        <li>มีแหล่งวัตถุดิบที่มั่นคง — สัญญากับกลุ่มเกษตรกร / สหกรณ์</li>
+        <li>ควบคุมต้นทุนได้ดี — รู้ราคาข้าวทุกวัน ซื้อได้ราคาดีกว่าตลาด</li>
+        <li>มีลูกค้าประจำ — สัญญาปีต่อปีกับ Modern Trade หรือผู้ส่งออก</li>
+        <li>มีประสิทธิภาพเครื่องจักร — Downtime ต่ำ กำลังผลิตเต็ม</li>
+        <li>บริหารสต็อกเป็น — ไม่ถือข้าวไว้นานเมื่อราคาขาลง</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S5 -->
+  <div class="card" id="sec5">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S5</span>
+      <span class="stitle">Failure Pattern — มักล้มเหลวเพราะอะไร</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="tl"><span class="dot dot-r"></span><span><strong>สูง:</strong> ซื้อข้าวราคาแพงเก็งกำไร แล้วราคาร่วง → ขาดทุนสต็อก</span></div>
+      <div class="tl"><span class="dot dot-r"></span><span><strong>สูง:</strong> WC ไม่พอรองรับ Peak Season → ขาดสภาพคล่อง</span></div>
+      <div class="tl"><span class="dot dot-y"></span><span><strong>กลาง:</strong> ลูกค้าหลักยกเลิกสัญญา / Modern Trade ลดยอดสั่ง</span></div>
+      <div class="tl"><span class="dot dot-y"></span><span><strong>กลาง:</strong> ภัยพิบัติทางธรรมชาติ → วัตถุดิบขาด / โรงสีเสียหาย</span></div>
+      <div class="tl"><span class="dot dot-g"></span><span><strong>ต่ำ:</strong> ปัญหาแรงงานในโรงงาน</span></div>
+      <div class="tl"><span class="dot dot-g"></span><span><strong>ต่ำ:</strong> ปัญหาคุณภาพสินค้า (ถ้ามีระบบ QC ที่ดี)</span></div>
+    </div>
+  </div>
+
+  <!-- S6 -->
+  <div class="card" id="sec6">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S6</span>
+      <span class="stitle">RM Interview Guide — คำถามสำคัญที่ต้องถาม</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <ul class="bl">
+        <li><strong>[1]</strong> "รับซื้อข้าวเปลือกจากใครบ้าง — มีสัญญาหรือซื้อสดหน้าลาน"</li>
+        <li><strong>[2]</strong> "ลูกค้าหลัก 3 อันดับแรกคือใคร คิดเป็นกี่ % ของยอดขาย"</li>
+        <li><strong>[3]</strong> "เทอมชำระเงินของลูกค้ากี่วัน — มีลูกหนี้ค้างนานผิดปกติไหม"</li>
+        <li><strong>[4]</strong> "ช่วงที่ต้องการเงินสดมากที่สุดในรอบปีคือเมื่อไหร่ ปริมาณเท่าไหร่"</li>
+        <li><strong>[5]</strong> "สต็อกข้าวเปลือกตอนนี้มีเท่าไหร่ ซื้อมาในราคาเท่าไหร่"</li>
+        <li><strong>[6]</strong> "กำลังการผลิต vs ปริมาณที่ผลิตจริงต่างกันเท่าไหร่"</li>
+        <li><strong>[7]</strong> "ปีที่ผ่านมา Gross Margin อยู่ที่เท่าไหร่ มีแนวโน้มขึ้นหรือลง"</li>
+        <li><strong>[8]</strong> "มีประกันภัยเครื่องจักร / ไฟ / น้ำท่วมครบถ้วนไหม"</li>
+        <li><strong>[9]</strong> "เคยมีปัญหา NPL หรือ Restructure กับสถาบันการเงินอื่นไหม"</li>
+        <li><strong>[10]</strong> "แผนธุรกิจ 3 ปีข้างหน้าคืออะไร — ขยายหรือ Maintain"</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S7 -->
+  <div class="card" id="sec7">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S7</span>
+      <span class="stitle">Business Metrics — ตัวชี้วัดสำคัญ</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <table class="btab">
+        <thead>
+          <tr><th>ตัวชี้วัด</th><th>ค่าปกติ</th><th>สัญญาณผิดปกติ</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Gross Margin</td><td>5–12%</td><td>&lt;3% → Margin Squeeze</td></tr>
+          <tr><td>Inventory Days</td><td>30–60 วัน</td><td>&gt;90 วัน → เก็งกำไร / ขายไม่ออก</td></tr>
+          <tr><td>AR Days</td><td>30–45 วัน</td><td>&gt;60 วัน → ลูกค้าชักช้า</td></tr>
+          <tr><td>DSCR</td><td>&gt;1.20x</td><td>&lt;1.00x → Cash Flow ไม่พอจ่ายหนี้</td></tr>
+          <tr><td>D/E Ratio</td><td>&lt;3.0x</td><td>&gt;5.0x → ภาระหนี้สูงเกิน</td></tr>
+          <tr><td>ต้นทุนข้าวเปลือก / ราคาขาย</td><td>75–85%</td><td>&gt;90% → แทบไม่มีกำไร</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- S8 -->
+  <div class="card" id="sec8">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S8</span>
+      <span class="stitle">UWS Lens — เกณฑ์ที่มีผลต่อการอนุมัติ</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <span class="sublabel">ผ่าน (MET)</span>
+      <ul class="bl">
+        <li>ดำเนินกิจการมาแล้ว &gt;3 ปี</li>
+        <li>DSCR &gt;1.20x จากกระแสเงินสดการดำเนินงาน</li>
+        <li>มีหลักประกันเพียงพอ (โรงสี + ที่ดิน)</li>
+        <li>ไม่มีประวัติ NPL ในระบบ NCB</li>
+      </ul>
+      <span class="sublabel">ไม่ผ่าน (NOT MET)</span>
+      <ul class="bl">
+        <li>ผลประกอบการขาดทุน 2 ปีติดต่อกัน → ต้องมีแผนฟื้นฟูชัดเจน</li>
+        <li>เจ้าหนี้การค้าค้างเกิน 60 วัน &gt;30% ของ AP ทั้งหมด</li>
+      </ul>
+      <span class="sublabel">เงื่อนไขพิเศษ</span>
+      <ul class="bl">
+        <li>วงเงิน WC สูงกว่าปกติช่วง Peak → ต้องแนบ Cash Flow Projection</li>
+        <li>Concentration Risk &gt;40% → ต้องเสนอระดับผู้บริหาร</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S9 -->
+  <div class="card" id="sec9">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S9</span>
+      <span class="stitle">Criteria Lens — Override Matrix</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <table class="btab">
+        <thead>
+          <tr><th>หัวข้อ</th><th>สถานะ</th><th>Override</th><th>เงื่อนไข</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>DSCR &lt;1.20x</td>
+            <td><span class="fail">NOT MET</span></td>
+            <td><span class="ob ob-cond">มีเงื่อนไข</span></td>
+            <td>หลักประกันเพิ่ม + เสนอระดับ DGM</td>
+          </tr>
+          <tr>
+            <td>ดำเนินงาน &lt;3 ปี</td>
+            <td><span class="fail">NOT MET</span></td>
+            <td><span class="ob ob-no">Override ไม่ได้</span></td>
+            <td>Hard Rule — ปฏิเสธอัตโนมัติ</td>
+          </tr>
+          <tr>
+            <td>ขาดทุนปีล่าสุด</td>
+            <td><span class="fail">NOT MET</span></td>
+            <td><span class="ob ob-cond">มีเงื่อนไข</span></td>
+            <td>แสดง Turnaround Plan + ปีก่อนหน้ากำไร</td>
+          </tr>
+          <tr>
+            <td>D/E &gt;3x</td>
+            <td><span class="cond">CONDITIONAL</span></td>
+            <td><span class="ob ob-yes">Override ได้</span></td>
+            <td>DSCR &gt;1.50x ชดเชยได้</td>
+          </tr>
+          <tr>
+            <td>Concentration &gt;40%</td>
+            <td><span class="cond">CONDITIONAL</span></td>
+            <td><span class="ob ob-cond">มีเงื่อนไข</span></td>
+            <td>เสนอระดับ EVP + มีแผนกระจาย Portfolio</td>
+          </tr>
+          <tr>
+            <td>NPL ประวัติเก่า &gt;5 ปี</td>
+            <td><span class="cond">CONDITIONAL</span></td>
+            <td><span class="ob ob-yes">Override ได้</span></td>
+            <td>ชำระครบ + ผลประกอบการดี 3 ปีต่อเนื่อง</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- S10 -->
+  <div class="card" id="sec10">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S10</span>
+      <span class="stitle">Environment Lens — ปัจจัยภายนอก (มิ.ย. 68)</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="env-grid">
+        <div class="env env-p">
+          <span class="env-lbl">Positive</span>
+          <ul class="bl">
+            <li>ราคาข้าวส่งออกโลกยังสูง</li>
+            <li>นโยบายรัฐสนับสนุนราคาข้าวเปลือก</li>
+            <li>ความต้องการข้าวพรีเมียมเพิ่มขึ้น</li>
+          </ul>
+        </div>
+        <div class="env env-n2">
+          <span class="env-lbl">Neutral</span>
+          <ul class="bl">
+            <li>ค่าบาทอยู่ในระดับทรงตัว</li>
+            <li>ราคาพลังงาน (ค่าไฟ/น้ำมัน) คงที่</li>
+          </ul>
+        </div>
+        <div class="env env-n">
+          <span class="env-lbl">Negative</span>
+          <ul class="bl">
+            <li>เอลนีโญ — ความเสี่ยงภัยแล้งฤดูกาลหน้า</li>
+            <li>อินเดีย/เวียดนามเพิ่มส่งออก → กดราคา</li>
+            <li>ต้นทุนบรรจุภัณฑ์พลาสติกสูงขึ้น</li>
+          </ul>
+        </div>
+      </div>
+      <ul class="bl" style="margin-top:10px">
+        <li><strong>สรุป:</strong> ปัจจัยลบมีน้ำหนักพอสมควร โดยเฉพาะ Supply Disruption จากภัยแล้ง ควรระวังพิเศษสำหรับลูกค้าที่พึ่งวัตถุดิบจากพื้นที่เสี่ยง</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- S11 -->
+  <div class="card" id="sec11">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S11</span>
+      <span class="stitle">Stress Test — วิเคราะห์กรณีวิกฤต</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <div class="sc">
+        <div class="sc-title">Case 1 — ยอดขายลดลง 20%</div>
+        <ul class="bl">
+          <li><strong>ผลกระทบ:</strong> Gross Profit ลดลง ~25–30% (Fixed Cost สูง) → DSCR อาจต่ำกว่า 1.0x</li>
+          <li><strong>RM ต้องถาม:</strong> "ถ้าลูกค้าหลักสั่งลด 20% มีตลาดสำรองรองรับไหม"</li>
+          <li><strong>เฝ้าระวัง:</strong> AR ที่ค้างนาน + สัญญาขายที่กำลังหมดอายุ</li>
+        </ul>
+      </div>
+      <div class="sc">
+        <div class="sc-title">Case 2 — ต้นทุนเพิ่ม 20% (ราคาข้าวเปลือกพุ่ง)</div>
+        <ul class="bl">
+          <li><strong>ผลกระทบ:</strong> ข้าวเปลือกคิดเป็น 75–85% ของต้นทุน → Gross Margin อาจ Negative ชั่วคราว</li>
+          <li><strong>RM ต้องถาม:</strong> "ราคาขายมีสัญญาคงที่ หรือปรับตามตลาดได้ทันที"</li>
+          <li><strong>เฝ้าระวัง:</strong> สต็อกที่ซื้อมาก่อนราคาขึ้น vs ราคาขายที่ตกลงไว้แล้ว</li>
+        </ul>
+      </div>
+      <div class="sc">
+        <div class="sc-title">Case 3 — ลูกค้าหลักหายไป (Modern Trade ยกเลิก)</div>
+        <ul class="bl">
+          <li><strong>ผลกระทบ:</strong> ถ้าลูกค้ารายนั้น &gt;30% รายได้ → Cash Flow ขาดทันที</li>
+          <li><strong>RM ต้องถาม:</strong> "ลูกค้าอันดับ 1 คิดเป็นกี่ % มีสัญญาระยะยาวไหม"</li>
+          <li><strong>เฝ้าระวัง:</strong> Concentration &gt;40% → ต้องเสนอระดับ EVP</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- S12 -->
+  <div class="card" id="sec12">
+    <div class="card-head" onclick="tog(this)">
+      <span class="snum">S12</span>
+      <span class="stitle">Executive Summary — สรุปสำหรับผู้บริหาร</span>
+      <span class="chev">▼</span>
+    </div>
+    <div class="card-body">
+      <ul class="bl">
+        <li><strong>เข้าใจยากไหม:</strong> ไม่ยาก — โมเดลธุรกิจชัดเจน แต่ต้องเข้าใจ Commodity Price Risk</li>
+        <li><strong>จุดแข็งสุด:</strong> สินทรัพย์ถาวร (โรงสี + ที่ดิน) เป็นหลักประกันแน่นหนา + ความต้องการข้าวสม่ำเสมอ</li>
+        <li><strong>ความเสี่ยงสุด:</strong> ราคาวัตถุดิบผันผวน + Concentration Risk + ขึ้นกับสภาพอากาศ</li>
+        <li><strong>สิ่งที่ RM มักมองข้าม:</strong> สต็อกเก็งกำไร (ซื้อเกินความต้องการ) → NPL ที่ซ่อนอยู่</li>
+        <li><strong>สิ่งที่กลั่นกรองมักถาม:</strong> "ลูกค้าหลักกี่ % มีสัญญาระยะยาวไหม" และ "สต็อกซื้อมาราคาเท่าไหร่ เทียบตลาดตอนนี้"</li>
+      </ul>
+      <div class="hbox">
+        <span class="sublabel" style="margin-top:0">พูดให้ผู้บริหารฟังใน 1 นาที:</span>
+        โรงสีข้าวหอมมะลิรายนี้มีโมเดลชัดเจน — รับซื้อข้าวเปลือก แปรรูป แล้วขายให้ Modern Trade เป็นหลัก จุดแข็งคือสินทรัพย์แข็งแกร่งและมีตลาดแน่นอน ความเสี่ยงหลักคือ Commodity Price ที่ผันผวนและพึ่งลูกค้าไม่กี่ราย ถ้า DSCR ผ่าน 1.20x และ Concentration &lt;40% ธุรกิจนี้น่าสนับสนุน แต่ต้องติดตาม Inventory Level และ Margin ทุกไตรมาส
+      </div>
+    </div>
+  </div>
+
+  <div id="noRes" class="no-res">ไม่พบข้อมูลที่ค้นหา</div>
+
+</div><!-- /wrap -->
+
+<div class="bic-footer">
+  BAAC Business Intelligence Card v2.0 &nbsp;|&nbsp; Distiller Agent v2.0 + Validator Agent v1.0
+  &nbsp;|&nbsp; <strong>อัปเดตล่าสุด:</strong> 13 มิถุนายน 2568
+  &nbsp;|&nbsp; ใช้สำหรับอ้างอิงภายใน ไม่ใช่เอกสารทางการ
+</div>
+
+<script>
+// Build nav jumps
+const cards = document.querySelectorAll('.card');
+const navJumps = document.getElementById('navJumps');
+for (let i = 1; i <= 12; i++) {
+  const s = document.createElement('span');
+  s.className = 'jmp'; s.textContent = 'S' + i;
+  s.onclick = () => {
+    const el = document.getElementById('sec' + i);
+    el.classList.add('open');
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+  navJumps.appendChild(s);
+}
+
+// Accordion toggle
+function tog(head) {
+  head.parentElement.classList.toggle('open');
+}
+
+// Toggle all
+let allOpen = true;
+function toggleAll() {
+  allOpen = !allOpen;
+  cards.forEach(c => allOpen ? c.classList.add('open') : c.classList.remove('open'));
+}
+
+// Search
+let origHTML = {};
+cards.forEach(c => { origHTML[c.id] = c.querySelector('.card-body').innerHTML; });
+
+function doSearch() {
+  const q = document.getElementById('searchBox').value.trim();
+  const noRes = document.getElementById('noRes');
+  let found = 0;
+
+  cards.forEach(c => {
+    const body = c.querySelector('.card-body');
+    // Restore original HTML
+    body.innerHTML = origHTML[c.id];
+
+    if (!q) {
+      c.style.display = '';
+      found++;
+      return;
+    }
+    const text = c.textContent.toLowerCase();
+    if (text.includes(q.toLowerCase())) {
+      c.style.display = '';
+      c.classList.add('open');
+      hlNode(body, q);
+      found++;
+    } else {
+      c.style.display = 'none';
+    }
+  });
+
+  noRes.style.display = (q && found === 0) ? 'block' : 'none';
+}
+
+function hlNode(el, q) {
+  const lq = q.toLowerCase();
+  const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(n => {
+    const val = n.nodeValue;
+    const idx = val.toLowerCase().indexOf(lq);
+    if (idx === -1 || n.parentNode.tagName === 'SCRIPT') return;
+    const wrap = document.createElement('span');
+    wrap.innerHTML =
+      esc(val.slice(0, idx)) +
+      '<mark class="hl">' + esc(val.slice(idx, idx + q.length)) + '</mark>' +
+      esc(val.slice(idx + q.length));
+    n.parentNode.replaceChild(wrap, n);
+  });
+}
+
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
