@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BAAC Customer Development AI Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="baac-ai-dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="header-left">
+        <div class="header-logo">ธ.ก.ส.</div>
+        <div class="header-titles">
+          <div class="header-title">BAAC Customer Development AI Suite</div>
+          <div class="header-subtitle">ระบบวิเคราะห์และพัฒนาลูกค้าเกษตรกรด้วยปัญญาประดิษฐ์</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="demo-badge">DEMO</span>
+        <span class="header-date">14 มิถุนายน 2569</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== TAB NAV ===== -->
+  <nav class="tab-nav">
+    <div class="tab-nav-inner">
+      <button class="tab-btn active" data-tab="overview">ภาพรวม</button>
+      <button class="tab-btn" data-tab="recovery">Recovery Navigator</button>
+      <button class="tab-btn" data-tab="warning">Early Warning</button>
+      <button class="tab-btn" data-tab="product">ผลิตภัณฑ์ชุมชน</button>
+    </div>
+  </nav>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <main class="content">
+
+    <!-- ── TAB: ภาพรวม ── -->
+    <section id="tab-overview" class="tab-panel active">
+
+      <!-- KPI Row -->
+      <div id="kpi-row" class="kpi-row"></div>
+
+      <!-- Two columns: chart + alert summary -->
+      <div class="two-col">
+
+        <!-- Recovery Distribution Chart -->
+        <div class="card">
+          <div class="card-head">Recovery Navigator — การกระจายกลุ่มลูกค้า</div>
+          <div class="chart-wrap">
+            <canvas id="recoveryChart" width="260" height="260"></canvas>
+          </div>
+          <div id="chart-legend" class="chart-legend"></div>
+        </div>
+
+        <!-- Alert Summary -->
+        <div class="card">
+          <div class="card-head">Rural Early Warning — สรุปการแจ้งเตือน</div>
+          <div id="alert-summary"></div>
+        </div>
+
+      </div>
+
+      <!-- Red Customer Table -->
+      <div class="card mt-1">
+        <div class="card-head">ลูกค้ากลุ่ม RED — ต้องดำเนินการด่วน</div>
+        <div class="table-wrap">
+          <table class="data-table" id="red-table">
+            <thead>
+              <tr>
+                <th>รหัส</th>
+                <th>ชื่อ-สกุล</th>
+                <th>จังหวัด</th>
+                <th>พืช</th>
+                <th>คะแนน</th>
+                <th>ปัญหาหลัก</th>
+                <th>แผนดำเนินการ</th>
+                <th>กำหนด</th>
+              </tr>
+            </thead>
+            <tbody id="red-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ── TAB: Recovery Navigator ── -->
+    <section id="tab-recovery" class="tab-panel">
+      <div class="card">
+        <div class="card-head">Recovery Navigator — รายชื่อลูกค้าทั้งหมด (248 ราย | ตัวอย่าง 10 ราย)</div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>รหัส</th>
+                <th>ชื่อ-สกุล</th>
+                <th>อายุ</th>
+                <th>จังหวัด</th>
+                <th>พืช</th>
+                <th>คะแนน</th>
+                <th>กลุ่ม</th>
+                <th>ปัญหาหลัก</th>
+                <th>แผนดำเนินการ</th>
+                <th>กำหนดติดตาม</th>
+              </tr>
+            </thead>
+            <tbody id="recovery-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TAB: Early Warning ── -->
+    <section id="tab-warning" class="tab-panel">
+      <div class="card-head" style="padding:0 0 1rem 0; font-size:1.05rem; font-weight:700;">
+        Rural Early Warning — แจ้งเตือนความเสี่ยงพื้นที่
+      </div>
+      <div id="warning-cards" class="alert-grid"></div>
+    </section>
+
+    <!-- ── TAB: ผลิตภัณฑ์ชุมชน ── -->
+    <section id="tab-product" class="tab-panel">
+      <div class="card-head" style="padding:0 0 1rem 0; font-size:1.05rem; font-weight:700;">
+        Community Product Designer — ผลิตภัณฑ์ชุมชนที่ออกแบบแล้ว
+      </div>
+      <div id="product-cards" class="product-grid"></div>
+    </section>
+
+  </main>
+
+  <script src="baac-ai-dashboard.js"></script>
+</body>
+</html>
