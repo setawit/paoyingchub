@@ -205,6 +205,9 @@ mark.hl { background: #fef08a; border-radius: 2px; }
   padding: 14px 24px; font-size: 11px; color: var(--g600); text-align: center;
 }
 
+/* Table scroll wrapper */
+.tscroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
 /* ─── PRINT ─── */
 @media print {
   .nav { display: none; }
@@ -228,9 +231,9 @@ mark.hl { background: #fef08a; border-radius: 2px; }
 <!-- STICKY NAV -->
 <nav class="nav">
   <span class="nav-brand">BAAC BIC v2.0</span>
-  <input class="search" id="searchBox" type="text" placeholder="ค้นหาในการ์ด..." oninput="doSearch()">
+  <input class="search" id="searchBox" type="text" placeholder="ค้นหาในการ์ด...">
   <div class="nav-jumps" id="navJumps"></div>
-  <button class="nav-btn" onclick="toggleAll()">ขยาย/ย่อ</button>
+  <button class="nav-btn" id="toggleBtn" onclick="toggleAll()">ขยายทั้งหมด</button>
   <button class="nav-btn" onclick="window.print()">🖨 พิมพ์</button>
 </nav>
 
@@ -414,7 +417,7 @@ mark.hl { background: #fef08a; border-radius: 2px; }
       <span class="chev">▼</span>
     </div>
     <div class="card-body">
-      <table class="btab">
+      <div class="tscroll"><table class="btab">
         <thead>
           <tr><th>ตัวชี้วัด</th><th>ค่าปกติ</th><th>สัญญาณผิดปกติ</th></tr>
         </thead>
@@ -426,7 +429,7 @@ mark.hl { background: #fef08a; border-radius: 2px; }
           <tr><td>D/E Ratio</td><td>&lt;3.0x</td><td>&gt;5.0x → ภาระหนี้สูงเกิน</td></tr>
           <tr><td>ต้นทุนข้าวเปลือก / ราคาขาย</td><td>75–85%</td><td>&gt;90% → แทบไม่มีกำไร</td></tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
   </div>
 
@@ -466,7 +469,7 @@ mark.hl { background: #fef08a; border-radius: 2px; }
       <span class="chev">▼</span>
     </div>
     <div class="card-body">
-      <table class="btab">
+      <div class="tscroll"><table class="btab">
         <thead>
           <tr><th>หัวข้อ</th><th>สถานะ</th><th>Override</th><th>เงื่อนไข</th></tr>
         </thead>
@@ -508,7 +511,7 @@ mark.hl { background: #fef08a; border-radius: 2px; }
             <td>ชำระครบ + ผลประกอบการดี 3 ปีต่อเนื่อง</td>
           </tr>
         </tbody>
-      </table>
+      </table></div>
     </div>
   </div>
 
@@ -619,17 +622,22 @@ mark.hl { background: #fef08a; border-radius: 2px; }
 </div>
 
 <script>
-// Build nav jumps
 const cards = document.querySelectorAll('.card');
 const navJumps = document.getElementById('navJumps');
+const toggleBtn = document.getElementById('toggleBtn');
+
+// Build nav jumps
 for (let i = 1; i <= 12; i++) {
   const s = document.createElement('span');
   s.className = 'jmp'; s.textContent = 'S' + i;
-  s.onclick = () => {
+  s.setAttribute('role', 'button'); s.setAttribute('tabindex', '0');
+  const jump = () => {
     const el = document.getElementById('sec' + i);
     el.classList.add('open');
     el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
+  s.onclick = jump;
+  s.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); jump(); } };
   navJumps.appendChild(s);
 }
 
@@ -638,34 +646,48 @@ function tog(head) {
   head.parentElement.classList.toggle('open');
 }
 
-// Toggle all
-let allOpen = true;
+// Toggle all — derive actual state from DOM, don't rely on a flag
 function toggleAll() {
-  allOpen = !allOpen;
-  cards.forEach(c => allOpen ? c.classList.add('open') : c.classList.remove('open'));
+  const openCount = [...cards].filter(c => c.classList.contains('open')).length;
+  const shouldOpen = openCount < cards.length; // if not all open → open all; else close all
+  cards.forEach(c => shouldOpen ? c.classList.add('open') : c.classList.remove('open'));
+  toggleBtn.textContent = shouldOpen ? 'ย่อทั้งหมด' : 'ขยายทั้งหมด';
 }
 
-// Search
-let origHTML = {};
-cards.forEach(c => { origHTML[c.id] = c.querySelector('.card-body').innerHTML; });
+// Wire up search input
+document.getElementById('searchBox').addEventListener('input', () => doSearch());
 
-function doSearch() {
+// Snapshot original HTML and open-state before any search
+const origHTML = {};
+const origOpen = {};
+cards.forEach(c => {
+  origHTML[c.id] = c.querySelector('.card-body').innerHTML;
+  origOpen[c.id] = c.classList.contains('open');
+});
+
+// Debounce helper
+function debounce(fn, ms) {
+  let t; return (...args) => { clearTimeout(t); t = setTimeout(() => fn(...args), ms); };
+}
+
+const doSearch = debounce(() => {
   const q = document.getElementById('searchBox').value.trim();
   const noRes = document.getElementById('noRes');
   let found = 0;
 
   cards.forEach(c => {
     const body = c.querySelector('.card-body');
-    // Restore original HTML
-    body.innerHTML = origHTML[c.id];
+    body.innerHTML = origHTML[c.id]; // restore HTML before each search pass
 
     if (!q) {
       c.style.display = '';
+      // restore original open state
+      origOpen[c.id] ? c.classList.add('open') : c.classList.remove('open');
       found++;
       return;
     }
-    const text = c.textContent.toLowerCase();
-    if (text.includes(q.toLowerCase())) {
+
+    if (c.textContent.toLowerCase().includes(q.toLowerCase())) {
       c.style.display = '';
       c.classList.add('open');
       hlNode(body, q);
@@ -676,7 +698,7 @@ function doSearch() {
   });
 
   noRes.style.display = (q && found === 0) ? 'block' : 'none';
-}
+}, 150);
 
 function hlNode(el, q) {
   const lq = q.toLowerCase();

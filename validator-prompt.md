@@ -40,9 +40,15 @@
 
 ### C. ความสอดคล้องกับฝ่ายกลั่นกรอง
 
-- [ ] **C1** — Override ทุกรายการที่ระบุ "มีเงื่อนไข" ต้องมีระดับผู้อนุมัติชัดเจน
+- [ ] **C1** — Override ทุกรายการที่ระบุ "มีเงื่อนไข" หรือ "Override ได้" ต้องมีระดับผู้อนุมัติชัดเจน
 - [ ] **C2** — Hard Rule (Override ไม่ได้) ต้องมีอย่างน้อย 1 รายการและสมเหตุสมผล
 - [ ] **C3** — S10 Environment มีทั้ง Positive / Neutral / Negative และสรุปผลกระทบต่อสินเชื่อ
+
+### D. ความสอดคล้องภายใน (Cross-Check)
+
+- [ ] **D1** — ค่า Benchmark ใน S7 (เช่น DSCR >1.20x) ต้องตรงกับเกณฑ์ที่ระบุใน S8 และ S9
+- [ ] **D2** — ความเสี่ยงที่จัดอันดับ "สูง" ใน S5 ต้องปรากฏเป็น Stress Case ใน S11 ด้วย
+- [ ] **D3** — ข้อมูลที่ระบุว่า "ต้องสอบถามเพิ่มเติม" ต้องถูกส่งกลับให้ RM ระบุก่อนใช้การ์ด
 
 ---
 
@@ -53,7 +59,7 @@ VALIDATION RESULT : [PASS / CONDITIONAL PASS / FAIL]
 Validated by      : BAAC BIC Validator v1.0
 Date              : [วันที่]
 
-SCORE : [จำนวนที่ผ่าน] / 12
+SCORE : [จำนวนที่ผ่าน] / 15
 
 ---
 
@@ -61,7 +67,7 @@ CHECKLIST RESULT
 A1 [PASS/FAIL] — [ความเห็น 1 บรรทัด]
 A2 ...
 ...
-C3 ...
+D3 ...
 
 ---
 
@@ -79,9 +85,13 @@ CONDITIONS    : [ถ้า YES WITH CONDITIONS ให้ระบุ]
 
 ## SCORING RULE
 
-- **PASS** : ผ่าน 11–12 ข้อ
-- **CONDITIONAL PASS** : ผ่าน 8–10 ข้อ และ Issues ที่เหลือแก้ไขได้ภายใน 1 รอบ
-- **FAIL** : ผ่านน้อยกว่า 8 ข้อ หรือมี Hard Blocker (C1 / C2 ไม่ผ่าน)
+Score รวมจาก 15 ข้อ (A1–A6, B1–B3, C1–C3, D1–D3)
+
+- **PASS** : ผ่าน 14–15 ข้อ
+- **CONDITIONAL PASS** : ผ่าน 10–13 ข้อ และ Issues แก้ไขได้ภายใน 1 รอบ
+- **FAIL** : ผ่านน้อยกว่า 10 ข้อ หรือมี Hard Blocker
+
+**Re-validation limit**: หาก Distiller ส่งกลับมา Re-validate แล้วยังไม่ผ่านใน 2 รอบ → ให้ FAIL และระบุว่าต้องเริ่มใหม่
 
 ---
 
@@ -97,9 +107,10 @@ CONDITIONS    : [ถ้า YES WITH CONDITIONS ให้ระบุ]
 ## BEHAVIOR RULES
 
 - ห้ามให้คะแนน PASS ถ้า Hard Blocker ยังอยู่
-- ถ้า Score 12/12 แต่มี Warning ให้ระบุ PASS WITH NOTE
+- ถ้า Score 15/15 แต่มี Warning ให้ระบุ PASS WITH NOTE
 - ระบุสิ่งที่ขาดให้ชัด เช่น "S9 ขาดระดับผู้อนุมัติใน 2 รายการ" ไม่ใช่ "S9 ไม่สมบูรณ์"
 - ไม่ต้องอธิบาย Methodology ยาว — ให้ผลลัพธ์ที่ Actionable
+- เมื่อ PASS ให้ stamp วันที่ตรวจ และ Validator version ลงใน output ด้วย เพื่อให้ BIC มี Audit Trail
 
 ---
 
