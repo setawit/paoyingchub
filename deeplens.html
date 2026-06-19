@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepLens 5C+1 Credit Framework</title>
+    <link rel="stylesheet" href="deeplens.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-wrapper">
+
+    <!-- Sidebar -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo-icon">🔍</div>
+            <div>
+                <div class="logo-title">DeepLens</div>
+                <div class="logo-sub">5C+1 Credit Framework</div>
+            </div>
+        </div>
+
+        <ul class="nav-list">
+            <li class="nav-item active" data-section="customer">
+                <span class="nav-icon">👤</span>
+                <span>ข้อมูลลูกค้า</span>
+            </li>
+            <li class="nav-item" data-section="lens1">
+                <span class="nav-icon">🏢</span>
+                <span>Lens 1: ธุรกิจ</span>
+                <span class="nav-badge" id="badge-lens1"></span>
+            </li>
+            <li class="nav-item" data-section="lens2">
+                <span class="nav-icon">📊</span>
+                <span>Lens 2: การเงิน</span>
+                <span class="nav-badge" id="badge-lens2"></span>
+            </li>
+            <li class="nav-item" data-section="lens3">
+                <span class="nav-icon">💸</span>
+                <span>Lens 3: Cash Flow</span>
+                <span class="nav-badge" id="badge-lens3"></span>
+            </li>
+            <li class="nav-item" data-section="lens4">
+                <span class="nav-icon">🧱</span>
+                <span>Lens 4: หลักประกัน</span>
+                <span class="nav-badge" id="badge-lens4"></span>
+            </li>
+            <li class="nav-item" data-section="lens5">
+                <span class="nav-icon">📜</span>
+                <span>Lens 5: เงื่อนไข</span>
+                <span class="nav-badge" id="badge-lens5"></span>
+            </li>
+            <li class="nav-item" data-section="lens6">
+                <span class="nav-icon">🚨</span>
+                <span>+1: NPL View</span>
+                <span class="nav-badge" id="badge-lens6"></span>
+            </li>
+            <li class="nav-item" data-section="memo">
+                <span class="nav-icon">📝</span>
+                <span>สรุป / Memo</span>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <button class="btn-reset" onclick="resetAll()">🗑️ เริ่มใหม่</button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- ข้อมูลลูกค้า -->
+        <section id="section-customer" class="section active">
+            <div class="section-header">
+                <h1>👤 ข้อมูลลูกค้า</h1>
+                <p class="section-desc">กรอกข้อมูลพื้นฐานของลูกค้าและคำขอสินเชื่อ</p>
+            </div>
+            <div class="card">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ชื่อลูกค้า / บริษัท <span class="req">*</span></label>
+                        <input type="text" id="customerName" placeholder="เช่น บริษัท ABC จำกัด">
+                    </div>
+                    <div class="form-group">
+                        <label>RM ผู้รับผิดชอบ <span class="req">*</span></label>
+                        <input type="text" id="rmName" placeholder="ชื่อ RM">
+                    </div>
+                    <div class="form-group">
+                        <label>วันที่วิเคราะห์</label>
+                        <input type="date" id="analysisDate">
+                    </div>
+                    <div class="form-group">
+                        <label>ประเภทสินเชื่อที่ขอ</label>
+                        <select id="loanType">
+                            <option value="">-- เลือก --</option>
+                            <option value="long_term">Long Term Loan (เงินกู้ระยะยาว)</option>
+                            <option value="working_cap">Working Capital (OD/PN)</option>
+                            <option value="mixed">ผสม (LTL + Working Cap)</option>
+                            <option value="other">อื่นๆ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>วงเงินที่ขอ (ล้านบาท) <span class="req">*</span></label>
+                        <input type="number" id="loanAmount" placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label>วัตถุประสงค์ของเงินกู้</label>
+                        <input type="text" id="loanPurpose" placeholder="เช่น ลงทุนสร้างโรงงาน, เป็นทุนหมุนเวียน">
+                    </div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn-primary" onclick="goToSection('lens1')">ถัดไป: Lens 1 ธุรกิจ →</button>
+            </div>
+        </section>
+
+        <!-- Lens 1: Business -->
+        <section id="section-lens1" class="section">
+            <div class="section-header">
+                <div class="lens-badge">Lens 1</div>
+                <h1>🏢 ธุรกิจและความจริง (Business Realities)</h1>
+                <p class="section-desc">มองข้ามตัวเลขบัญชี ไปดูที่ "ที่มาของเงิน"</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Business Model</h3>
+                <div class="form-grid">
+                    <div class="form-group full-width">
+                        <label>ธุรกิจหลักที่ทำ (ขายอะไร ให้ใคร)</label>
+                        <textarea id="l1_business" rows="2" placeholder="เช่น ผลิตและจำหน่ายอาหารแปรรูป ขายให้ Modern Trade รายใหญ่..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>รูปแบบลูกค้า</label>
+                        <select id="l1_btype">
+                            <option value="">-- เลือก --</option>
+                            <option value="b2b">B2B (ขายให้ธุรกิจ)</option>
+                            <option value="b2c">B2C (ขายให้ผู้บริโภค)</option>
+                            <option value="b2g">B2G (ขายให้รัฐ)</option>
+                            <option value="mixed">ผสม</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>รูปแบบการรับชำระเงิน</label>
+                        <select id="l1_payment">
+                            <option value="">-- เลือก --</option>
+                            <option value="cash">เงินสด/โอนทันที</option>
+                            <option value="credit_short">เครดิต &lt; 30 วัน</option>
+                            <option value="credit_mid">เครดิต 30-90 วัน</option>
+                            <option value="credit_long">เครดิต &gt; 90 วัน</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Market Position & Risks</h3>
+                <div class="checklist">
+                    <div class="check-item">
+                        <label class="check-label">ตำแหน่งตลาด</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="l1_position" value="leader"> เบอร์ 1-3 มีอำนาจต่อรองสูง</label>
+                            <label><input type="radio" name="l1_position" value="mid"> กลาง พอมีอำนาจต่อรอง</label>
+                            <label><input type="radio" name="l1_position" value="follower"> รายเล็ก ไม่มีอำนาจต่อรอง</label>
+                        </div>
+                    </div>
+
+                    <div class="check-item">
+                        <label class="check-label">Concentration Risk (ลูกค้ารายใหญ่รายเดียว)</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="l1_concentration" value="low"> ต่ำ (ไม่มีรายใดเกิน 20%)</label>
+                            <label><input type="radio" name="l1_concentration" value="mid"> ปานกลาง (มีรายนึง 20-50%)</label>
+                            <label><input type="radio" name="l1_concentration" value="high"> สูง (มีรายเดียวเกิน 50%)</label>
+                        </div>
+                    </div>
+
+                    <div class="check-item">
+                        <label class="check-label">ความเสี่ยงซัพพลายเออร์</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="l1_supplier" value="low"> หลายรายทดแทนกันได้</label>
+                            <label><input type="radio" name="l1_supplier" value="mid"> มีตัวเลือกแต่น้อย</label>
+                            <label><input type="radio" name="l1_supplier" value="high"> ผูกขาดรายเดียว</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:1rem">
+                    <label>ความเห็นรวม Lens 1 — จุดแข็ง/จุดอ่อนสำคัญ</label>
+                    <textarea id="l1_comment" rows="2" placeholder="เช่น ธุรกิจอยู่ในอุตสาหกรรมปัจจัย 4 ความต้องการคงที่ แต่มี Concentration Risk สูงจากลูกค้ารายใหญ่รายเดียว..."></textarea>
+                </div>
+            </div>
+
+            <div class="status-bar" id="status-lens1"></div>
+            <div class="nav-buttons">
+                <button class="btn-secondary" onclick="goToSection('customer')">← ย้อนกลับ</button>
+                <button class="btn-primary" onclick="saveLens1(); goToSection('lens2')">บันทึก & ถัดไป →</button>
+            </div>
+        </section>
+
+        <!-- Lens 2: Financial Quality -->
+        <section id="section-lens2" class="section">
+            <div class="section-header">
+                <div class="lens-badge">Lens 2</div>
+                <h1>📊 งบการเงินและคุณภาพตัวเลข (Financial Quality)</h1>
+                <p class="section-desc">มอง "สุขภาพในอดีต" และ "ความน่าเชื่อถือของตัวเลข"</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Trend Analysis — ยอดขาย 3 ปี (ล้านบาท)</h3>
+                <div class="year-table">
+                    <div class="year-row header-row">
+                        <div>รายการ</div>
+                        <div>ปี Y-2</div>
+                        <div>ปี Y-1</div>
+                        <div>ปี Y (ล่าสุด)</div>
+                        <div>แนวโน้ม</div>
+                    </div>
+                    <div class="year-row">
+                        <div>ยอดขายรวม</div>
+                        <div><input type="number" id="rev_y2" placeholder="0" min="0" oninput="calcTrend()"></div>
+                        <div><input type="number" id="rev_y1" placeholder="0" min="0" oninput="calcTrend()"></div>
+                        <div><input type="number" id="rev_y0" placeholder="0" min="0" oninput="calcTrend()"></div>
+                        <div id="rev_trend" class="trend-cell">-</div>
+                    </div>
+                    <div class="year-row">
+                        <div>กำไรสุทธิ</div>
+                        <div><input type="number" id="profit_y2" placeholder="0" oninput="calcTrend()"></div>
+                        <div><input type="number" id="profit_y1" placeholder="0" oninput="calcTrend()"></div>
+                        <div><input type="number" id="profit_y0" placeholder="0" oninput="calcTrend()"></div>
+                        <div id="profit_trend" class="trend-cell">-</div>
+                    </div>
+                    <div class="year-row">
+                        <div>ลูกหนี้การค้า (AR)</div>
+                        <div><input type="number" id="ar_y2" placeholder="0" min="0" oninput="calcTrend()"></div>
+                        <div><input type="number" id="ar_y1" placeholder="0" min="0" oninput="calcTrend()"></div>
+                        <div><input type="number" id="ar_y0" placeholder="0" min="0" oninput="calcTrend()"></div>
+                        <div id="ar_trend" class="trend-cell">-</div>
+                    </div>
+                </div>
+                <div class="alert-box" id="ar_alert" style="display:none"></div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Quality of Earnings & Leverage</h3>
+                <div class="checklist">
+                    <div class="check-item">
+                        <label class="check-label">คุณภาพกำไร (ที่มาของกำไร)</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="l2_profit_q" value="core"> มาจากธุรกิจหลักล้วนๆ (ดีที่สุด)</label>
+                            <label><input type="radio" name="l2_profit_q" value="mixed"> ผสม — บางส่วนมาจาก One-time gain</label>
+                            <label><input type="radio" name="l2_profit_q" value="oneoff"> ส่วนใหญ่มาจาก One-time gain (ระวัง)</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid" style="margin-top:1rem">
+                    <div class="form-group">
+                        <label>Total Debt (ล้านบาท)</label>
+                        <input type="number" id="l2_debt" placeholder="0" min="0" oninput="calcDE()">
+                    </div>
+                    <div class="form-group">
+                        <label>Total Equity (ล้านบาท)</label>
+                        <input type="number" id="l2_equity" placeholder="0" oninput="calcDE()">
+                    </div>
+                    <div class="form-group">
+                        <label>D/E Ratio (คำนวณอัตโนมัติ)</label>
+                        <div class="calc-display" id="de_ratio">-</div>
+                    </div>
+                    <div class="form-group">
+                        <label>D/E มาตรฐานอุตสาหกรรม</label>
+                        <input type="number" id="l2_de_bench" placeholder="เช่น 2.0" step="0.1" min="0">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>ความน่าเชื่อถือของงบ — ข้อสังเกต</label>
+                    <textarea id="l2_comment" rows="2" placeholder="เช่น งบตรวจสอบโดย CPA ค่าย Big 4 ตรงกับ Bank Statement และ VAT ภ.พ.30 ไม่พบความผิดปกติ..."></textarea>
+                </div>
+            </div>
+
+            <div class="status-bar" id="status-lens2"></div>
+            <div class="nav-buttons">
+                <button class="btn-secondary" onclick="goToSection('lens1')">← ย้อนกลับ</button>
+                <button class="btn-primary" onclick="saveLens2(); goToSection('lens3')">บันทึก & ถัดไป →</button>
+            </div>
+        </section>
+
+        <!-- Lens 3: Cash Flow -->
+        <section id="section-lens3" class="section">
+            <div class="section-header">
+                <div class="lens-badge">Lens 3</div>
+                <h1>💸 กระแสเงินสด (Cashflow & Debt Service)</h1>
+                <p class="section-desc">"กำไรทางบัญชีเอามาคืนแบงก์ไม่ได้ ต้องใช้เงินสดคืน"</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">คำนวณ DSCR (Debt Service Coverage Ratio)</h3>
+                <div class="dscr-formula">DSCR = EBITDA ÷ Annual Debt Service (P+I)</div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>EBITDA ปัจจุบัน (ล้านบาท/ปี)</label>
+                        <input type="number" id="ebitda" placeholder="0" step="0.01" oninput="calcDSCR()">
+                    </div>
+                    <div class="form-group">
+                        <label>เงินต้นที่ต้องชำระ/ปี (ล้านบาท)</label>
+                        <input type="number" id="annual_principal" placeholder="0" step="0.01" min="0" oninput="calcDSCR()">
+                    </div>
+                    <div class="form-group">
+                        <label>ดอกเบี้ยที่ต้องชำระ/ปี (ล้านบาท)</label>
+                        <input type="number" id="annual_interest" placeholder="0" step="0.01" min="0" oninput="calcDSCR()">
+                    </div>
+                    <div class="form-group">
+                        <label>Operating Cash Flow (OCF) (ล้านบาท)</label>
+                        <input type="number" id="ocf" placeholder="0" step="0.01" oninput="calcDSCR()">
+                    </div>
+                </div>
+
+                <div class="dscr-results">
+                    <div class="dscr-card" id="dscr-base">
+                        <div class="dscr-label">DSCR ปัจจุบัน</div>
+                        <div class="dscr-value" id="dscr_base_val">-</div>
+                        <div class="dscr-status" id="dscr_base_status"></div>
+                    </div>
+                    <div class="dscr-card" id="dscr-stress10">
+                        <div class="dscr-label">DSCR Stress -10%</div>
+                        <div class="dscr-value" id="dscr_10_val">-</div>
+                        <div class="dscr-status" id="dscr_10_status"></div>
+                    </div>
+                    <div class="dscr-card" id="dscr-stress20">
+                        <div class="dscr-label">DSCR Stress -20%</div>
+                        <div class="dscr-value" id="dscr_20_val">-</div>
+                        <div class="dscr-status" id="dscr_20_status"></div>
+                    </div>
+                </div>
+
+                <div class="alert-box info-box">
+                    <strong>เกณฑ์ตัดสิน:</strong> DSCR ≥ 1.5x = ดีมาก &nbsp;|&nbsp; 1.2x–1.5x = ผ่าน &nbsp;|&nbsp; &lt; 1.2x = ระวัง &nbsp;|&nbsp; &lt; 1.0x = ไม่ผ่าน
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Sensitivity Analysis — อัตราดอกเบี้ยขึ้น</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>อัตราดอกเบี้ยปัจจุบัน (%)</label>
+                        <input type="number" id="rate_current" placeholder="เช่น 5.5" step="0.1" min="0" oninput="calcRateStress()">
+                    </div>
+                    <div class="form-group">
+                        <label>DSCR หากดอกเบี้ยขึ้น +2%</label>
+                        <div class="calc-display" id="dscr_rate_stress">-</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ความเห็น Cashflow</label>
+                    <textarea id="l3_comment" rows="2" placeholder="เช่น DSCR อยู่ที่ 1.5x แม้ทำ Stress Test ยอดขาย -20% DSCR ยังอยู่ที่ 1.1x เพียงพอชำระหนี้..."></textarea>
+                </div>
+            </div>
+
+            <div class="status-bar" id="status-lens3"></div>
+            <div class="nav-buttons">
+                <button class="btn-secondary" onclick="goToSection('lens2')">← ย้อนกลับ</button>
+                <button class="btn-primary" onclick="saveLens3(); goToSection('lens4')">บันทึก & ถัดไป →</button>
+            </div>
+        </section>
+
+        <!-- Lens 4: Collateral & Structure -->
+        <section id="section-lens4" class="section">
+            <div class="section-header">
+                <div class="lens-badge">Lens 4</div>
+                <h1>🧱 หลักประกันและโครงสร้าง (Collateral & Structure)</h1>
+                <p class="section-desc">ทางหนีทีไล่ และ ความถูกต้องของการใช้วงเงิน</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Collateral (หลักประกัน)</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>ประเภทหลักประกัน</label>
+                        <select id="l4_collateral_type">
+                            <option value="">-- เลือก --</option>
+                            <option value="land_building">ที่ดินพร้อมสิ่งปลูกสร้าง</option>
+                            <option value="land_only">ที่ดินเปล่า</option>
+                            <option value="condo_building">ห้องชุด/ตึกแถว</option>
+                            <option value="machine">เครื่องจักร</option>
+                            <option value="stock">สินค้าคงคลัง</option>
+                            <option value="guarantee">ค้ำประกันส่วนตัว</option>
+                            <option value="mixed">ผสมหลายประเภท</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>มูลค่าหลักประกันรวม (ล้านบาท)</label>
+                        <input type="number" id="l4_collateral_val" placeholder="0" step="0.01" min="0" oninput="calcLTV()">
+                    </div>
+                    <div class="form-group">
+                        <label>LTV ที่ธนาคารอนุญาต (%)</label>
+                        <input type="number" id="l4_ltv_allowed" placeholder="เช่น 80" min="0" max="100" oninput="calcLTV()">
+                    </div>
+                    <div class="form-group">
+                        <label>วงเงินสูงสุดจากหลักประกัน</label>
+                        <div class="calc-display" id="ltv_max_loan">-</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>สภาพคล่องของหลักประกัน</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="l4_liquidity" value="high"> สูง (ขายง่าย เช่น ตึกแถวทำเล A)</label>
+                        <label><input type="radio" name="l4_liquidity" value="mid"> ปานกลาง</label>
+                        <label><input type="radio" name="l4_liquidity" value="low"> ต่ำ (ขายยาก เช่น ที่ดินเปล่านอกเมือง)</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Loan Structure — ตรวจสอบความถูกต้อง</h3>
+                <div class="structure-check">
+                    <div class="struct-item">
+                        <div class="struct-icon">🏗️</div>
+                        <div>
+                            <strong>Long Term Loan</strong>
+                            <p>ใช้ลงทุนสินทรัพย์ถาวรเท่านั้น (สร้างตึก, ซื้อเครื่องจักร)</p>
+                        </div>
+                        <select id="l4_ltl_ok">
+                            <option value="">-</option>
+                            <option value="ok">✅ ถูกต้อง</option>
+                            <option value="na">ไม่มี LTL</option>
+                            <option value="issue">⚠️ มีปัญหา</option>
+                        </select>
+                    </div>
+                    <div class="struct-item">
+                        <div class="struct-icon">🔄</div>
+                        <div>
+                            <strong>Working Capital (OD/PN)</strong>
+                            <p>ใช้หมุนเวียนซื้อของ/สต็อกสินค้าเท่านั้น ห้ามเอาไปลงทุน</p>
+                        </div>
+                        <select id="l4_wc_ok">
+                            <option value="">-</option>
+                            <option value="ok">✅ ถูกต้อง</option>
+                            <option value="na">ไม่มี Working Cap</option>
+                            <option value="issue">⚠️ มีปัญหา</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:1rem">
+                    <label>ความเห็น Collateral & Structure</label>
+                    <textarea id="l4_comment" rows="2" placeholder="เช่น หลักประกันเป็นที่ดินพร้อมโรงงานในนิคมอุตสาหกรรม LTV 70% คุ้มครองวงเงิน โครงสร้างสินเชื่อถูกต้องตามวัตถุประสงค์..."></textarea>
+                </div>
+            </div>
+
+            <div class="status-bar" id="status-lens4"></div>
+            <div class="nav-buttons">
+                <button class="btn-secondary" onclick="goToSection('lens3')">← ย้อนกลับ</button>
+                <button class="btn-primary" onclick="saveLens4(); goToSection('lens5')">บันทึก & ถัดไป →</button>
+            </div>
+        </section>
+
+        <!-- Lens 5: Conditions & UWS -->
+        <section id="section-lens5" class="section">
+            <div class="section-header">
+                <div class="lens-badge">Lens 5</div>
+                <h1>📜 เงื่อนไขและนโยบาย (Conditions & UWS)</h1>
+                <p class="section-desc">กฎเกณฑ์และข้อผูกมัดที่ต้องระบุในสัญญา</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">UWS (Underwriting Standard) — เกณฑ์ธนาคาร</h3>
+                <div class="checklist">
+                    <div class="check-item">
+                        <label class="check-label">ประสบการณ์ธุรกิจ</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="l5_exp" value="pass"> ≥ 3 ปี (ผ่าน)</label>
+                            <label><input type="radio" name="l5_exp" value="warn"> 1-3 ปี (ระวัง)</label>
+                            <label><input type="radio" name="l5_exp" value="fail"> &lt; 1 ปี (ไม่ผ่าน)</label>
+                        </div>
+                    </div>
+                    <div class="check-item">
+                        <label class="check-label">D/E vs เกณฑ์</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="l5_de" value="pass"> ต่ำกว่าเกณฑ์ (ผ่าน)</label>
+                            <label><input type="radio" name="l5_de" value="warn"> ใกล้เกณฑ์ (ระวัง)</label>
+                            <label><input type="radio" name="l5_de" value="fail"> เกินเกณฑ์ (ไม่ผ่าน)</label>
+                        </div>
+                    </div>
+                    <div class="check-item">
+                        <label class="check-label">ประวัติเครดิต (NCB)</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="l5_ncb" value="pass"> ดี — ไม่มี NPL/ค้างชำระ</label>
+                            <label><input type="radio" name="l5_ncb" value="warn"> มีบ้าง แต่ผ่านมานาน</label>
+                            <label><input type="radio" name="l5_ncb" value="fail"> มีประวัติ NPL ล่าสุด</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Covenants — เงื่อนไขในสัญญา</h3>
+                <div class="covenant-list" id="covenant-list">
+                    <div class="covenant-item">
+                        <input type="text" placeholder="เช่น ดำรง DSCR ≥ 1.2x ตลอดอายุสัญญา" class="covenant-input">
+                        <button class="btn-del-covenant" onclick="removeCovenant(this)">✕</button>
+                    </div>
+                    <div class="covenant-item">
+                        <input type="text" placeholder="เช่น ห้ามกู้เพิ่มที่สถาบันการเงินอื่นโดยไม่แจ้ง" class="covenant-input">
+                        <button class="btn-del-covenant" onclick="removeCovenant(this)">✕</button>
+                    </div>
+                    <div class="covenant-item">
+                        <input type="text" placeholder="เช่น ดำรง D/E ไม่เกิน 2.0x" class="covenant-input">
+                        <button class="btn-del-covenant" onclick="removeCovenant(this)">✕</button>
+                    </div>
+                </div>
+                <button class="btn-add-covenant" onclick="addCovenant()">+ เพิ่มเงื่อนไข</button>
+
+                <div class="form-group" style="margin-top:1rem">
+                    <label>ความเห็น Conditions</label>
+                    <textarea id="l5_comment" rows="2" placeholder="เช่น ลูกค้าผ่านเกณฑ์ UWS ทุกข้อ กำหนด Covenant ดำรง DSCR และ D/E เพื่อควบคุมวินัยการเงิน..."></textarea>
+                </div>
+            </div>
+
+            <div class="status-bar" id="status-lens5"></div>
+            <div class="nav-buttons">
+                <button class="btn-secondary" onclick="goToSection('lens4')">← ย้อนกลับ</button>
+                <button class="btn-primary" onclick="saveLens5(); goToSection('lens6')">บันทึก & ถัดไป →</button>
+            </div>
+        </section>
+
+        <!-- +1: NPL View -->
+        <section id="section-lens6" class="section">
+            <div class="section-header">
+                <div class="lens-badge plus1">+1</div>
+                <h1>🚨 Worst-Case / NPL View</h1>
+                <p class="section-desc">จินตนาการว่า "วันนี้อนุมัติไปแล้ว อีก 2 ปีลูกค้ากลายเป็น NPL — เราพร้อมรับมือแค่ไหน?"</p>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">ระบุความเสี่ยงที่อาจทำให้ลูกค้าเป็น NPL</h3>
+                <div class="risk-list" id="risk-list">
+                    <div class="risk-item">
+                        <div class="risk-row">
+                            <div class="form-group flex-1">
+                                <label>สาเหตุ (Cause)</label>
+                                <input type="text" placeholder="เช่น ราคาวัตถุดิบพุ่งสูง 50%">
+                            </div>
+                            <div class="form-group flex-1">
+                                <label>มาตรการป้องกัน (Defense)</label>
+                                <input type="text" placeholder="เช่น มีสัญญาล็อคราคาล่วงหน้า 6 เดือน">
+                            </div>
+                            <div class="form-group" style="width:140px">
+                                <label>ระดับความเสี่ยง</label>
+                                <select>
+                                    <option value="low">ต่ำ</option>
+                                    <option value="mid" selected>ปานกลาง</option>
+                                    <option value="high">สูง</option>
+                                </select>
+                            </div>
+                            <button class="btn-del-covenant" onclick="removeRisk(this)" style="margin-top:1.8rem">✕</button>
+                        </div>
+                    </div>
+                    <div class="risk-item">
+                        <div class="risk-row">
+                            <div class="form-group flex-1">
+                                <input type="text" placeholder="เช่น ลูกค้าหลักยกเลิกสัญญา">
+                            </div>
+                            <div class="form-group flex-1">
+                                <input type="text" placeholder="เช่น Concentration Risk ต่ำ มีลูกค้า 10+ ราย">
+                            </div>
+                            <div class="form-group" style="width:140px">
+                                <select>
+                                    <option value="low">ต่ำ</option>
+                                    <option value="mid" selected>ปานกลาง</option>
+                                    <option value="high">สูง</option>
+                                </select>
+                            </div>
+                            <button class="btn-del-covenant" onclick="removeRisk(this)">✕</button>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn-add-covenant" onclick="addRisk()">+ เพิ่มความเสี่ยง</button>
+            </div>
+
+            <div class="card">
+                <h3 class="card-title">Defense Checklist</h3>
+                <div class="defense-checks">
+                    <label class="defense-item">
+                        <input type="checkbox" id="def_insurance"> ประกันภัยทรัพย์สิน/โรงงานครบถ้วน
+                    </label>
+                    <label class="defense-item">
+                        <input type="checkbox" id="def_hedge"> มีการทำ Hedging / สัญญาซื้อขายล่วงหน้า
+                    </label>
+                    <label class="defense-item">
+                        <input type="checkbox" id="def_collateral_cover"> หลักประกันครอบคลุมรวมดอกเบี้ยค้างชำระ
+                    </label>
+                    <label class="defense-item">
+                        <input type="checkbox" id="def_monitoring"> มีแผน Monitoring รายไตรมาส
+                    </label>
+                    <label class="defense-item">
+                        <input type="checkbox" id="def_covenant_trip"> มี Covenant Tripwire ที่จะแจ้งเตือนก่อนเป็น NPL
+                    </label>
+                </div>
+                <div class="form-group" style="margin-top:1rem">
+                    <label>Rationale — เหตุผลที่ตัดสินใจดีที่สุดแล้ว</label>
+                    <textarea id="l6_comment" rows="3" placeholder="เช่น แม้มีความเสี่ยงด้านราคาวัตถุดิบ แต่ลูกค้ามีสัญญาล็อคราคา ประกันภัยครบ และธนาคารกำหนด Covenant ดำรง DSCR ≥ 1.2x เป็นสัญญาณเตือนล่วงหน้า การอนุมัติครั้งนี้จึงมีมาตรการป้องกันเพียงพอ..."></textarea>
+                </div>
+            </div>
+
+            <div class="status-bar" id="status-lens6"></div>
+            <div class="nav-buttons">
+                <button class="btn-secondary" onclick="goToSection('lens5')">← ย้อนกลับ</button>
+                <button class="btn-primary" onclick="saveLens6(); goToSection('memo')">สร้าง Memo →</button>
+            </div>
+        </section>
+
+        <!-- Memo -->
+        <section id="section-memo" class="section">
+            <div class="section-header">
+                <h1>📝 สรุปผลการวิเคราะห์ / Credit Memo</h1>
+                <p class="section-desc">สรุปผลตาม DeepLens 5C+1 Framework</p>
+            </div>
+
+            <div class="card">
+                <div class="memo-actions">
+                    <button class="btn-primary" onclick="generateMemo()">🔄 สร้าง Memo ใหม่</button>
+                    <button class="btn-secondary" onclick="printMemo()">🖨️ Print / PDF</button>
+                    <button class="btn-secondary" onclick="copyMemo()">📋 Copy Text</button>
+                </div>
+
+                <div id="memo-output" class="memo-output">
+                    <p class="memo-placeholder">กดปุ่ม "สร้าง Memo ใหม่" เพื่อสร้างสรุป หรือกรอกข้อมูลในแต่ละ Lens ให้ครบก่อนค่ะ</p>
+                </div>
+            </div>
+
+            <div class="nav-buttons">
+                <button class="btn-secondary" onclick="goToSection('lens6')">← ย้อนกลับ</button>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script src="deeplens.js"></script>
+</body>
+</html>
