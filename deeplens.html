@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DeepLens 5C+1 Credit Framework</title>
     <link rel="stylesheet" href="deeplens.css">
+    <link rel="stylesheet" href="copilot.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -638,6 +639,78 @@
     </main>
 </div>
 
+<!-- ============== AI Copilot ============== -->
+
+<!-- Floating toggle button -->
+<button class="copilot-toggle" id="copilot-toggle" aria-label="เปิด AI Copilot">
+    <span class="copilot-toggle-icon">🤖</span>
+    <span class="copilot-toggle-label">AI Copilot</span>
+</button>
+
+<!-- Chat panel -->
+<aside class="copilot-panel" id="copilot-panel" aria-label="AI Copilot Panel">
+    <div class="copilot-header">
+        <span class="copilot-header-logo">🤖</span>
+        <div class="copilot-header-title">
+            <h3>DeepLens Copilot</h3>
+            <p>ผู้ช่วยวิเคราะห์สินเชื่อ 5C+1</p>
+        </div>
+        <button class="copilot-header-btn" id="copilot-key-btn" title="ตั้งค่า API Key">🔑</button>
+        <button class="copilot-header-btn" id="copilot-clear-btn" title="ล้างการสนทนา">🗑️</button>
+        <button class="copilot-header-btn" id="copilot-close" title="ปิด">✕</button>
+    </div>
+
+    <div class="copilot-quick">
+        <button class="copilot-quick-btn" data-action="analyze">🔎 วิเคราะห์ข้อมูล</button>
+        <button class="copilot-quick-btn" data-action="premortem">⚠️ Pre-mortem</button>
+        <button class="copilot-quick-btn" data-action="memo">📝 เขียน Memo</button>
+        <button class="copilot-quick-btn" data-action="extract">🔢 Extract ตัวเลข</button>
+    </div>
+
+    <div class="copilot-messages" id="copilot-messages">
+        <div class="copilot-welcome">
+            <div class="copilot-welcome-icon">🔍</div>
+            <h4>DeepLens Copilot</h4>
+            <p>เริ่มต้นด้วยปุ่มด้านบน หรือพิมพ์คำถามเกี่ยวกับเคสนี้ได้เลยค่ะ</p>
+        </div>
+    </div>
+
+    <div class="copilot-composer">
+        <textarea class="copilot-input" id="copilot-input" rows="1"
+            placeholder="พิมพ์คำถามเกี่ยวกับเคสนี้..."></textarea>
+        <button class="copilot-send" id="copilot-send" title="ส่ง">➤</button>
+    </div>
+    <div class="copilot-footer-note">
+        ขับเคลื่อนด้วย Anthropic API · API Key เก็บไว้ในเบราว์เซอร์ของคุณเท่านั้น
+    </div>
+</aside>
+
+<!-- API key modal -->
+<div class="copilot-modal-backdrop" id="copilot-modal">
+    <div class="copilot-modal">
+        <h3>🔑 ตั้งค่า Anthropic API Key</h3>
+        <p class="copilot-modal-desc">
+            Copilot เรียกใช้ Anthropic API โดยตรงจากเบราว์เซอร์ของคุณ
+            กรุณาใส่ API Key ของคุณ — ระบบจะเก็บไว้ใน localStorage ของเครื่องนี้เท่านั้น
+            ไม่ถูกส่งไปที่เซิร์ฟเวอร์อื่นใด
+        </p>
+        <label for="copilot-key-input">Anthropic API Key</label>
+        <input type="password" id="copilot-key-input" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+        <p class="copilot-modal-status" id="copilot-key-status"></p>
+        <div class="copilot-modal-actions">
+            <button class="copilot-btn-ghost" id="copilot-key-clear">ลบ Key</button>
+            <button class="copilot-btn-ghost" id="copilot-key-cancel">ยกเลิก</button>
+            <button class="copilot-btn-primary" id="copilot-key-save">บันทึก</button>
+        </div>
+        <p class="copilot-modal-hint">
+            ยังไม่มี API Key? สร้างได้ที่
+            <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>
+            · Key ของคุณถูกใช้เพื่อเรียก API โดยตรงเท่านั้น และไม่มีการบันทึกไว้ที่ใด
+        </p>
+    </div>
+</div>
+
 <script src="deeplens.js"></script>
+<script src="copilot.js"></script>
 </body>
 </html>
