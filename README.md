@@ -39,6 +39,19 @@ python scraper/scrape.py               # อัปเดต data/deposits.json
 python scraper/test_salak_math.py      # ทดสอบสูตรสลาก
 ```
 
+## เปิดแบบดับเบิลคลิก (ไม่ต้องมี server)
+
+ถ้าไม่อยากรัน server ใช้เวอร์ชัน **standalone** ในโฟลเดอร์ `standalone/` ที่รวม CSS + JS + ข้อมูล
+ไว้ในไฟล์เดียว เปิดด้วยดับเบิลคลิกได้เลย (`standalone/index.html`)
+
+สร้าง/อัปเดตไฟล์ standalone จาก source หลัก (หลังแก้ `data/*.json` หรือ JS):
+
+```bash
+python3 build_standalone.py
+```
+
+> เวอร์ชันใต้ `assets/` + `data/` ยังเป็น source of truth — `standalone/` เป็นไฟล์ที่ build ออกมา
+
 ## ⚠️ ข้อจำกัด
 
 ข้อมูลในสแน็ปช็อตปัจจุบันเป็น **ค่าตัวอย่าง/ประมาณการ** (`verified: false`) เพื่อสาธิตระบบ

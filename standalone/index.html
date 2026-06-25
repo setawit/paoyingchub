@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เทียบดอกเบี้ยเงินฝาก | Deposit Intelligence</title>
+  <meta name="description" content="เปรียบเทียบดอกเบี้ยเงินฝากประจำธนาคารไทย 1/3/5/10 ปี และคำนวณผลตอบแทนสลากออมทรัพย์">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+/* ===== Thailand Deposit Intelligence Platform — shared styles =====
+   Visual language reused/extended from the original Kanit card aesthetic. */
+
+:root {
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --ink: #22223b;
+  --ink-soft: #4a4e69;
+  --muted: #8d99ae;
+  --accent: #fca311;
+  --accent-strong: #e76f00;
+  --good: #2a9d8f;
+  --bad: #e76f51;
+  --line: #e6e8ec;
+  --commercial: #4361ee;
+  --state: #2a9d8f;
+  --radius: 14px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Kanit', sans-serif;
+  background-color: var(--bg);
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.5;
+}
+
+a { color: var(--ink-soft); }
+
+/* ===== Top nav ===== */
+.nav {
+  background: var(--ink);
+  color: #fff;
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.nav .brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #fff;
+  text-decoration: none;
+  margin-right: auto;
+}
+.nav .brand span { color: var(--accent); }
+.nav a.navlink {
+  color: #d7dae0;
+  text-decoration: none;
+  font-weight: 400;
+  padding: 0.3rem 0.65rem;
+  border-radius: 8px;
+}
+.nav a.navlink:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.nav a.navlink.active { background: var(--accent); color: var(--ink); font-weight: 700; }
+
+/* ===== Layout ===== */
+.wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+.hero { text-align: center; padding: 1.5rem 0 0.5rem; }
+.hero h1 { color: var(--ink-soft); margin: 0 0 0.35rem; font-size: 1.9rem; }
+.hero p { color: var(--muted); margin: 0 auto; max-width: 640px; }
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-top: 1.25rem;
+}
+
+/* ===== Disclaimer / badges ===== */
+.disclaimer {
+  background: #fff7e6;
+  border: 1px solid #ffe0a3;
+  color: #7a5b00;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.badge.commercial { background: #e7ecff; color: var(--commercial); }
+.badge.state { background: #e3f5f1; color: var(--state); }
+.updated { color: var(--muted); font-size: 0.85rem; }
+
+/* ===== Controls ===== */
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.controls label { font-size: 0.9rem; color: var(--ink-soft); font-weight: 700; }
+.seg { display: inline-flex; border: 2px solid var(--line); border-radius: 10px; overflow: hidden; }
+.seg button {
+  border: none;
+  background: #fff;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.seg button.active { background: var(--ink-soft); color: #fff; }
+
+input[type="number"], input[type="text"], select {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.6rem 0.7rem;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  width: 100%;
+  background: #fff;
+  color: var(--ink);
+}
+input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+/* ===== Table ===== */
+.table-scroll { overflow-x: auto; }
+table.compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  min-width: 720px;
+}
+table.compare th, table.compare td {
+  padding: 0.7rem 0.65rem;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+table.compare th:first-child, table.compare td:first-child,
+table.compare th.left, table.compare td.left { text-align: left; }
+table.compare thead th {
+  color: var(--ink-soft);
+  cursor: pointer;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  background: #fff;
+}
+table.compare thead th.sortable:hover { color: var(--accent-strong); }
+table.compare thead th .arrow { font-size: 0.75rem; color: var(--accent-strong); }
+table.compare tbody tr:hover { background: #fafbfc; }
+td.rate { font-variant-numeric: tabular-nums; font-weight: 700; }
+td.rate.best { color: var(--good); }
+td.rate.best::after { content: " ★"; color: var(--accent); font-size: 0.8rem; }
+td.muted, .muted { color: var(--muted); }
+
+/* ===== Calculator ===== */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-weight: 700; color: var(--ink-soft); margin-bottom: 0.35rem; font-size: 0.95rem; }
+.hint { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+.results { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-top: 0.5rem; }
+.stat {
+  background: #f8f9fb;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+.stat .num { font-size: 1.7rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.stat .num.accent { color: var(--accent-strong); }
+.stat .label { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+
+.compare-line {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+.compare-line.win { background: #e3f5f1; color: #1d6f63; }
+.compare-line.lose { background: #fdece8; color: #b23a22; }
+
+.prize-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.9rem; }
+.prize-table th, .prize-table td { padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--line); text-align: right; }
+.prize-table th:first-child, .prize-table td:first-child { text-align: left; }
+
+footer.site { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 2rem 1rem; }
+
+@media (max-width: 600px) {
+  .grid2 { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 1.5rem; }
+}
+
+</style>
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html">เงินอยู่ไหน<span>?</span></a>
+    <a class="navlink active" href="index.html">เทียบดอกเบี้ย</a>
+    <a class="navlink" href="salak.html">คำนวณสลาก</a>
+  </nav>
+
+  <div class="wrap">
+    <div class="hero">
+      <h1>เทียบดอกเบี้ยเงินฝากประจำ</h1>
+      <p>“ทำให้คนไทยรู้ว่าเงินของตัวเองควรอยู่ที่ไหน” — เปรียบเทียบดอกเบี้ยจากธนาคารพาณิชย์และธนาคารรัฐ ในที่เดียว</p>
+    </div>
+
+    <div class="card">
+      <div class="controls">
+        <label>ประเภทธนาคาร:</label>
+        <div class="seg" id="typeFilter">
+          <button data-type="all" class="active">ทั้งหมด</button>
+          <button data-type="commercial">พาณิชย์</button>
+          <button data-type="state">รัฐ</button>
+        </div>
+        <span class="updated" id="updated"></span>
+      </div>
+
+      <div class="table-scroll">
+        <table class="compare" id="table">
+          <thead>
+            <tr>
+              <th class="left sortable" data-key="bank">ธนาคาร <span class="arrow"></span></th>
+              <th class="left">ผลิตภัณฑ์</th>
+              <th class="sortable" data-key="12">1 ปี <span class="arrow"></span></th>
+              <th class="sortable" data-key="36">3 ปี <span class="arrow"></span></th>
+              <th class="sortable" data-key="60">5 ปี <span class="arrow"></span></th>
+              <th class="sortable" data-key="120">10 ปี <span class="arrow"></span></th>
+              <th class="sortable" data-key="min">ขั้นต่ำ <span class="arrow"></span></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <p class="hint" style="margin-top:0.75rem">★ = ดอกเบี้ยสูงสุดในคอลัมน์นั้น • คลิกหัวคอลัมน์เพื่อเรียงลำดับ</p>
+
+      <div class="disclaimer" id="disclaimer">
+        ⚠️ ข้อมูลในระบบนี้เป็น <b>ค่าประมาณ/ตัวอย่าง</b> เพื่อสาธิตการทำงาน อาจมีความล่าช้าหรือไม่ตรงกับประกาศจริง
+        และ <b>ไม่ใช่คำแนะนำการลงทุน</b> โปรดตรวจสอบอัตราและเงื่อนไขกับธนาคารโดยตรงก่อนตัดสินใจ
+      </div>
+    </div>
+  </div>
+
+  <footer class="site">Thailand Deposit Intelligence — MVP • Phase 1</footer>
+
+  <script>
+window.__DEPOSITS__ = {
+  "updated_at": "2026-06-25",
+  "source_note": "ข้อมูลตัวอย่าง/ประมาณการ (indicative sample). ใช้สำหรับสาธิตระบบเท่านั้น ไม่ใช่อัตราที่ประกาศจริง กรุณาตรวจสอบกับธนาคารก่อนตัดสินใจ. Scraper จะอัปเดตค่าเหล่านี้เมื่อรันสำเร็จ.",
+  "rate_terms_months": [3, 6, 12, 24, 36, 60, 120],
+  "banks": [
+    { "id": "scb", "name": "Siam Commercial Bank", "name_th": "ไทยพาณิชย์", "type": "commercial", "logo": "", "website": "https://www.scb.co.th" },
+    { "id": "kbank", "name": "Kasikornbank", "name_th": "กสิกรไทย", "type": "commercial", "logo": "", "website": "https://www.kasikornbank.com" },
+    { "id": "krungsri", "name": "Bank of Ayudhya", "name_th": "กรุงศรีอยุธยา", "type": "commercial", "logo": "", "website": "https://www.krungsri.com" },
+    { "id": "bbl", "name": "Bangkok Bank", "name_th": "กรุงเทพ", "type": "commercial", "logo": "", "website": "https://www.bangkokbank.com" },
+    { "id": "ttb", "name": "TMBThanachart Bank", "name_th": "ทหารไทยธนชาต", "type": "commercial", "logo": "", "website": "https://www.ttbbank.com" },
+    { "id": "kkp", "name": "Kiatnakin Phatra Bank", "name_th": "เกียรตินาคินภัทร", "type": "commercial", "logo": "", "website": "https://bank.kkpfg.com" },
+    { "id": "uob", "name": "United Overseas Bank (Thai)", "name_th": "ยูโอบี", "type": "commercial", "logo": "", "website": "https://www.uob.co.th" },
+    { "id": "cimb", "name": "CIMB Thai Bank", "name_th": "ซีไอเอ็มบี ไทย", "type": "commercial", "logo": "", "website": "https://www.cimbthai.com" },
+    { "id": "lhbank", "name": "Land and Houses Bank", "name_th": "แลนด์ แอนด์ เฮ้าส์", "type": "commercial", "logo": "", "website": "https://www.lhbank.co.th" },
+    { "id": "gsb", "name": "Government Savings Bank", "name_th": "ออมสิน", "type": "state", "logo": "", "website": "https://www.gsb.or.th" },
+    { "id": "baac", "name": "Bank for Agriculture and Agricultural Co-operatives", "name_th": "ธ.ก.ส.", "type": "state", "logo": "", "website": "https://www.baac.or.th" },
+    { "id": "ghb", "name": "Government Housing Bank", "name_th": "ธอส.", "type": "state", "logo": "", "website": "https://www.ghbank.co.th" },
+    { "id": "exim", "name": "Export-Import Bank of Thailand", "name_th": "EXIM", "type": "state", "logo": "", "website": "https://www.exim.go.th" },
+    { "id": "ibank", "name": "Islamic Bank of Thailand", "name_th": "ธนาคารอิสลาม", "type": "state", "logo": "", "website": "https://www.ibank.co.th" }
+  ],
+  "products": [
+    { "id": "scb-fixed", "bank_id": "scb", "product_name": "ฝากประจำ SCB", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.05, "6": 1.10, "12": 1.30, "24": 1.40, "36": 1.55, "60": 1.65, "120": 1.75 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "kbank-fixed", "bank_id": "kbank", "product_name": "ฝากประจำ K-Bank", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.00, "6": 1.10, "12": 1.35, "24": 1.45, "36": 1.55, "60": 1.70, "120": 1.80 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "krungsri-fixed", "bank_id": "krungsri", "product_name": "ฝากประจำกรุงศรี", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.10, "6": 1.20, "12": 1.40, "24": 1.50, "36": 1.60, "60": 1.70, "120": 1.80 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "bbl-fixed", "bank_id": "bbl", "product_name": "ฝากประจำกรุงเทพ", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 0.95, "6": 1.05, "12": 1.25, "24": 1.40, "36": 1.50, "60": 1.60, "120": 1.70 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "ttb-fixed", "bank_id": "ttb", "product_name": "ฝากประจำ ttb", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.05, "6": 1.15, "12": 1.40, "24": 1.50, "36": 1.65, "60": 1.75, "120": 1.85 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "kkp-fixed", "bank_id": "kkp", "product_name": "ฝากประจำ KKP", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.30, "6": 1.45, "12": 1.55, "24": 1.70, "36": 1.85, "60": 2.00, "120": 2.10 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "uob-fixed", "bank_id": "uob", "product_name": "ฝากประจำ UOB", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.15, "6": 1.25, "12": 1.45, "24": 1.55, "36": 1.65, "60": 1.75, "120": 1.85 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "cimb-fixed", "bank_id": "cimb", "product_name": "ฝากประจำ CIMB", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.40, "6": 1.55, "12": 1.70, "24": 1.85, "36": 2.00, "60": 2.10, "120": 2.20 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "lhbank-fixed", "bank_id": "lhbank", "product_name": "ฝากประจำ LH Bank", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.25, "6": 1.40, "12": 1.55, "24": 1.65, "36": 1.80, "60": 1.90, "120": 2.00 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "gsb-fixed", "bank_id": "gsb", "product_name": "เงินฝากเผื่อเรียกพิเศษ ออมสิน", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.20, "6": 1.30, "12": 1.50, "24": 1.60, "36": 1.75, "60": 1.85, "120": 1.95 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "baac-fixed", "bank_id": "baac", "product_name": "ฝากประจำ ธ.ก.ส.", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.15, "6": 1.30, "12": 1.45, "24": 1.55, "36": 1.70, "60": 1.80, "120": 1.90 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "ghb-fixed", "bank_id": "ghb", "product_name": "ฝากประจำ ธอส.", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.10, "6": 1.25, "12": 1.45, "24": 1.55, "36": 1.65, "60": 1.75, "120": 1.85 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "exim-fixed", "bank_id": "exim", "product_name": "ฝากประจำ EXIM", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.30, "6": 1.45, "12": 1.60, "24": 1.70, "36": 1.85, "60": 1.95, "120": 2.05 }, "conditions": "บุคคลธรรมดา", "updated_at": "2026-06-25", "verified": false },
+    { "id": "ibank-fixed", "bank_id": "ibank", "product_name": "เงินฝากประจำ (ตามหลักชะรีอะฮ์)", "product_type": "fixed", "minimum_amount": 1000, "max_amount": null,
+      "rates": { "3": 1.20, "6": 1.35, "12": 1.50, "24": 1.60, "36": 1.75, "60": 1.85, "120": 1.95 }, "conditions": "ผลตอบแทนคาดการณ์ตามหลักชะรีอะฮ์", "updated_at": "2026-06-25", "verified": false }
+  ]
+}
+;
+window.__SALAK__ = {
+  "updated_at": "2026-06-25",
+  "source_note": "ข้อมูลตัวอย่าง/ประมาณการ (indicative sample). โครงสร้างรางวัลและจำนวนหน่วยเป็นค่าสมมติเพื่อสาธิตการคำนวณ ไม่ใช่เงื่อนไขจริงของแต่ละงวด กรุณาตรวจสอบกับธนาคารผู้ออกสลาก.",
+  "products": [
+    {
+      "id": "baac-salak-3y",
+      "bank_id": "baac",
+      "product_name": "สลากออมทรัพย์ ธ.ก.ส. (ชุดตัวอย่าง 3 ปี)",
+      "unit_price": 100,
+      "term_months": 36,
+      "draw_frequency": "monthly",
+      "redeem_interest_rate": 0.20,
+      "units_in_pool": 100000000,
+      "prize_tiers": [
+        { "name": "รางวัลที่ 1", "amount": 10000000, "count_per_draw": 1 },
+        { "name": "รางวัลที่ 2", "amount": 1000000, "count_per_draw": 2 },
+        { "name": "รางวัลที่ 3", "amount": 100000, "count_per_draw": 10 },
+        { "name": "รางวัลที่ 4", "amount": 10000, "count_per_draw": 100 },
+        { "name": "รางวัลที่ 5", "amount": 1000, "count_per_draw": 2000 },
+        { "name": "รางวัลเลขท้าย 3 ตัว", "amount": 100, "count_per_draw": 100000 }
+      ]
+    },
+    {
+      "id": "gsb-salak-1y",
+      "bank_id": "gsb",
+      "product_name": "สลากออมสิน (ชุดตัวอย่าง 1 ปี)",
+      "unit_price": 100,
+      "term_months": 12,
+      "draw_frequency": "monthly",
+      "redeem_interest_rate": 0.05,
+      "units_in_pool": 50000000,
+      "prize_tiers": [
+        { "name": "รางวัลที่ 1", "amount": 5000000, "count_per_draw": 1 },
+        { "name": "รางวัลที่ 2", "amount": 500000, "count_per_draw": 2 },
+        { "name": "รางวัลที่ 3", "amount": 50000, "count_per_draw": 10 },
+        { "name": "รางวัลที่ 4", "amount": 5000, "count_per_draw": 100 },
+        { "name": "รางวัลที่ 5", "amount": 500, "count_per_draw": 2000 },
+        { "name": "รางวัลเลขท้าย 4 ตัว", "amount": 50, "count_per_draw": 50000 }
+      ]
+    },
+    {
+      "id": "ghb-salak-3y",
+      "bank_id": "ghb",
+      "product_name": "สลากออมทรัพย์ ธอส. (ชุดตัวอย่าง 3 ปี)",
+      "unit_price": 500,
+      "term_months": 36,
+      "draw_frequency": "monthly",
+      "redeem_interest_rate": 0.25,
+      "units_in_pool": 20000000,
+      "prize_tiers": [
+        { "name": "รางวัลที่ 1", "amount": 10000000, "count_per_draw": 1 },
+        { "name": "รางวัลที่ 2", "amount": 1000000, "count_per_draw": 2 },
+        { "name": "รางวัลที่ 3", "amount": 100000, "count_per_draw": 8 },
+        { "name": "รางวัลที่ 4", "amount": 10000, "count_per_draw": 80 },
+        { "name": "รางวัลที่ 5", "amount": 2000, "count_per_draw": 800 },
+        { "name": "รางวัลเลขท้าย 3 ตัว", "amount": 200, "count_per_draw": 20000 }
+      ]
+    }
+  ]
+}
+;
+// Shared data-loading + formatting helpers for the static site.
+// No build step / no dependencies — plain ES modules loaded via <script type="module">.
+
+const _cache = new Map();
+
+/** Fetch and cache a JSON file under /data. Works over http(s) (use a local server). */
+async function loadJSON(path) {
+  if (_cache.has(path)) return _cache.get(path);
+  const res = await fetch(path, { cache: 'no-cache' });
+  if (!res.ok) throw new Error(`โหลดข้อมูลไม่สำเร็จ: ${path} (${res.status})`);
+  const data = await res.json();
+  _cache.set(path, data);
+  return data;
+}
+
+const loadDeposits = () => Promise.resolve(window.__DEPOSITS__);
+const loadSalak = () => Promise.resolve(window.__SALAK__);
+
+/** Format a number with thousands separators and optional decimals. */
+function fmt(n, decimals = 0) {
+  if (n === null || n === undefined || Number.isNaN(n)) return '—';
+  return n.toLocaleString('th-TH', {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  });
+}
+
+/** Format a percentage value (already in %, e.g. 1.55 -> "1.55%"). */
+function pct(n, decimals = 2) {
+  if (n === null || n === undefined || Number.isNaN(n)) return '—';
+  return `${n.toFixed(decimals)}%`;
+}
+
+/** Render a small commercial/state badge for a bank type. */
+function bankTypeBadge(type) {
+  if (type === 'state') return '<span class="badge state">รัฐ</span>';
+  return '<span class="badge commercial">พาณิชย์</span>';
+}
+
+/** Show a non-fatal error message inside an element. */
+function showError(el, err) {
+  console.error(err);
+  el.innerHTML = `<div class="disclaimer">เกิดข้อผิดพลาด: ${err.message || err}<br>
+    หากเปิดไฟล์โดยตรง (file://) กรุณารันผ่านเซิร์ฟเวอร์ เช่น <code>python3 -m http.server</code></div>`;
+}
+
+
+const TERMS = ['12', '36', '60', '120']; // months shown as 1/3/5/10y columns
+
+const state = {
+  banks: {},      // id -> bank
+  rows: [],       // flattened product rows
+  filterType: 'all',
+  sortKey: '12',
+  sortDir: 'desc', // best rate first by default
+};
+
+const tbody = document.getElementById('tbody');
+
+init();
+
+async function init() {
+  try {
+    const data = await loadDeposits();
+    state.banks = Object.fromEntries(data.banks.map((b) => [b.id, b]));
+    state.rows = data.products.map((p) => ({
+      bank: state.banks[p.bank_id],
+      product: p,
+    }));
+    document.getElementById('updated').textContent = `อัปเดต: ${data.updated_at}`;
+    wireControls();
+    render();
+  } catch (err) {
+    showError(document.getElementById('disclaimer'), err);
+  }
+}
+
+function wireControls() {
+  document.getElementById('typeFilter').addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    state.filterType = btn.dataset.type;
+    document.querySelectorAll('#typeFilter button').forEach((b) => b.classList.toggle('active', b === btn));
+    render();
+  });
+
+  document.querySelectorAll('th.sortable').forEach((th) => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.key;
+      if (state.sortKey === key) {
+        state.sortDir = state.sortDir === 'desc' ? 'asc' : 'desc';
+      } else {
+        state.sortKey = key;
+        state.sortDir = key === 'bank' ? 'asc' : 'desc';
+      }
+      render();
+    });
+  });
+}
+
+function sortValue(row, key) {
+  if (key === 'bank') return row.bank?.name_th || '';
+  if (key === 'min') return row.product.minimum_amount ?? Infinity;
+  const r = row.product.rates?.[key];
+  return r === undefined || r === null ? -Infinity : r;
+}
+
+function render() {
+  // filter
+  let rows = state.rows.filter((r) =>
+    state.filterType === 'all' ? true : r.bank?.type === state.filterType
+  );
+
+  // best rate per term column (within filtered set)
+  const best = {};
+  for (const t of TERMS) {
+    best[t] = Math.max(...rows.map((r) => r.product.rates?.[t] ?? -Infinity));
+  }
+
+  // sort
+  const dir = state.sortDir === 'asc' ? 1 : -1;
+  rows = rows.slice().sort((a, b) => {
+    const va = sortValue(a, state.sortKey);
+    const vb = sortValue(b, state.sortKey);
+    if (typeof va === 'string') return va.localeCompare(vb, 'th') * dir;
+    return (va - vb) * dir;
+  });
+
+  // sort arrows
+  document.querySelectorAll('th.sortable').forEach((th) => {
+    const arrow = th.querySelector('.arrow');
+    arrow.textContent = th.dataset.key === state.sortKey ? (state.sortDir === 'desc' ? '▼' : '▲') : '';
+  });
+
+  // render rows
+  tbody.innerHTML = rows.map((r) => {
+    const b = r.bank || {};
+    const p = r.product;
+    const cells = TERMS.map((t) => {
+      const v = p.rates?.[t];
+      const isBest = v !== undefined && v === best[t] && Number.isFinite(v);
+      return `<td class="rate${isBest ? ' best' : ''}">${v === undefined ? '—' : pct(v)}</td>`;
+    }).join('');
+    return `<tr>
+      <td class="left">${b.name_th || b.name || p.bank_id} ${bankTypeBadge(b.type)}</td>
+      <td class="left muted">${p.product_name}</td>
+      ${cells}
+      <td>${p.minimum_amount ? fmt(p.minimum_amount) + ' ฿' : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7" class="muted left">ไม่พบข้อมูลตามเงื่อนไข</td></tr>';
+  }
+}
+
+</script>
+</body>
+</html>
