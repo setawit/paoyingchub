@@ -1,0 +1,201 @@
+/* ===== Thailand Deposit Intelligence Platform — shared styles =====
+   Visual language reused/extended from the original Kanit card aesthetic. */
+
+:root {
+  --bg: #f0f2f5;
+  --card: #ffffff;
+  --ink: #22223b;
+  --ink-soft: #4a4e69;
+  --muted: #8d99ae;
+  --accent: #fca311;
+  --accent-strong: #e76f00;
+  --good: #2a9d8f;
+  --bad: #e76f51;
+  --line: #e6e8ec;
+  --commercial: #4361ee;
+  --state: #2a9d8f;
+  --radius: 14px;
+  --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: 'Kanit', sans-serif;
+  background-color: var(--bg);
+  color: var(--ink);
+  margin: 0;
+  line-height: 1.5;
+}
+
+a { color: var(--ink-soft); }
+
+/* ===== Top nav ===== */
+.nav {
+  background: var(--ink);
+  color: #fff;
+  padding: 0.85rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.nav .brand {
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: #fff;
+  text-decoration: none;
+  margin-right: auto;
+}
+.nav .brand span { color: var(--accent); }
+.nav a.navlink {
+  color: #d7dae0;
+  text-decoration: none;
+  font-weight: 400;
+  padding: 0.3rem 0.65rem;
+  border-radius: 8px;
+}
+.nav a.navlink:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+.nav a.navlink.active { background: var(--accent); color: var(--ink); font-weight: 700; }
+
+/* ===== Layout ===== */
+.wrap { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.25rem 3rem; }
+.hero { text-align: center; padding: 1.5rem 0 0.5rem; }
+.hero h1 { color: var(--ink-soft); margin: 0 0 0.35rem; font-size: 1.9rem; }
+.hero p { color: var(--muted); margin: 0 auto; max-width: 640px; }
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.5rem;
+  margin-top: 1.25rem;
+}
+
+/* ===== Disclaimer / badges ===== */
+.disclaimer {
+  background: #fff7e6;
+  border: 1px solid #ffe0a3;
+  color: #7a5b00;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+.badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.badge.commercial { background: #e7ecff; color: var(--commercial); }
+.badge.state { background: #e3f5f1; color: var(--state); }
+.updated { color: var(--muted); font-size: 0.85rem; }
+
+/* ===== Controls ===== */
+.controls {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.controls label { font-size: 0.9rem; color: var(--ink-soft); font-weight: 700; }
+.seg { display: inline-flex; border: 2px solid var(--line); border-radius: 10px; overflow: hidden; }
+.seg button {
+  border: none;
+  background: #fff;
+  padding: 0.45rem 0.9rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+.seg button.active { background: var(--ink-soft); color: #fff; }
+
+input[type="number"], input[type="text"], select {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.6rem 0.7rem;
+  border: 2px solid var(--line);
+  border-radius: 10px;
+  width: 100%;
+  background: #fff;
+  color: var(--ink);
+}
+input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+/* ===== Table ===== */
+.table-scroll { overflow-x: auto; }
+table.compare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+  min-width: 720px;
+}
+table.compare th, table.compare td {
+  padding: 0.7rem 0.65rem;
+  text-align: right;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+table.compare th:first-child, table.compare td:first-child,
+table.compare th.left, table.compare td.left { text-align: left; }
+table.compare thead th {
+  color: var(--ink-soft);
+  cursor: pointer;
+  user-select: none;
+  position: sticky;
+  top: 0;
+  background: #fff;
+}
+table.compare thead th.sortable:hover { color: var(--accent-strong); }
+table.compare thead th .arrow { font-size: 0.75rem; color: var(--accent-strong); }
+table.compare tbody tr:hover { background: #fafbfc; }
+td.rate { font-variant-numeric: tabular-nums; font-weight: 700; }
+td.rate.best { color: var(--good); }
+td.rate.best::after { content: " ★"; color: var(--accent); font-size: 0.8rem; }
+td.muted, .muted { color: var(--muted); }
+
+/* ===== Calculator ===== */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.field { margin-bottom: 1rem; }
+.field label { display: block; font-weight: 700; color: var(--ink-soft); margin-bottom: 0.35rem; font-size: 0.95rem; }
+.hint { font-size: 0.8rem; color: var(--muted); margin-top: 0.25rem; }
+
+.results { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-top: 0.5rem; }
+.stat {
+  background: #f8f9fb;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+}
+.stat .num { font-size: 1.7rem; font-weight: 700; color: var(--ink); font-variant-numeric: tabular-nums; }
+.stat .num.accent { color: var(--accent-strong); }
+.stat .label { font-size: 0.85rem; color: var(--muted); margin-top: 0.25rem; }
+
+.compare-line {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+.compare-line.win { background: #e3f5f1; color: #1d6f63; }
+.compare-line.lose { background: #fdece8; color: #b23a22; }
+
+.prize-table { width: 100%; border-collapse: collapse; margin-top: 0.75rem; font-size: 0.9rem; }
+.prize-table th, .prize-table td { padding: 0.45rem 0.5rem; border-bottom: 1px solid var(--line); text-align: right; }
+.prize-table th:first-child, .prize-table td:first-child { text-align: left; }
+
+footer.site { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 2rem 1rem; }
+
+@media (max-width: 600px) {
+  .grid2 { grid-template-columns: 1fr; }
+  .hero h1 { font-size: 1.5rem; }
+}

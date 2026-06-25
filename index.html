@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>เทียบดอกเบี้ยเงินฝาก | Deposit Intelligence</title>
+  <meta name="description" content="เปรียบเทียบดอกเบี้ยเงินฝากประจำธนาคารไทย 1/3/5/10 ปี และคำนวณผลตอบแทนสลากออมทรัพย์">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html">เงินอยู่ไหน<span>?</span></a>
+    <a class="navlink active" href="index.html">เทียบดอกเบี้ย</a>
+    <a class="navlink" href="salak.html">คำนวณสลาก</a>
+  </nav>
+
+  <div class="wrap">
+    <div class="hero">
+      <h1>เทียบดอกเบี้ยเงินฝากประจำ</h1>
+      <p>“ทำให้คนไทยรู้ว่าเงินของตัวเองควรอยู่ที่ไหน” — เปรียบเทียบดอกเบี้ยจากธนาคารพาณิชย์และธนาคารรัฐ ในที่เดียว</p>
+    </div>
+
+    <div class="card">
+      <div class="controls">
+        <label>ประเภทธนาคาร:</label>
+        <div class="seg" id="typeFilter">
+          <button data-type="all" class="active">ทั้งหมด</button>
+          <button data-type="commercial">พาณิชย์</button>
+          <button data-type="state">รัฐ</button>
+        </div>
+        <span class="updated" id="updated"></span>
+      </div>
+
+      <div class="table-scroll">
+        <table class="compare" id="table">
+          <thead>
+            <tr>
+              <th class="left sortable" data-key="bank">ธนาคาร <span class="arrow"></span></th>
+              <th class="left">ผลิตภัณฑ์</th>
+              <th class="sortable" data-key="12">1 ปี <span class="arrow"></span></th>
+              <th class="sortable" data-key="36">3 ปี <span class="arrow"></span></th>
+              <th class="sortable" data-key="60">5 ปี <span class="arrow"></span></th>
+              <th class="sortable" data-key="120">10 ปี <span class="arrow"></span></th>
+              <th class="sortable" data-key="min">ขั้นต่ำ <span class="arrow"></span></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <p class="hint" style="margin-top:0.75rem">★ = ดอกเบี้ยสูงสุดในคอลัมน์นั้น • คลิกหัวคอลัมน์เพื่อเรียงลำดับ</p>
+
+      <div class="disclaimer" id="disclaimer">
+        ⚠️ ข้อมูลในระบบนี้เป็น <b>ค่าประมาณ/ตัวอย่าง</b> เพื่อสาธิตการทำงาน อาจมีความล่าช้าหรือไม่ตรงกับประกาศจริง
+        และ <b>ไม่ใช่คำแนะนำการลงทุน</b> โปรดตรวจสอบอัตราและเงื่อนไขกับธนาคารโดยตรงก่อนตัดสินใจ
+      </div>
+    </div>
+  </div>
+
+  <footer class="site">Thailand Deposit Intelligence — MVP • Phase 1</footer>
+
+  <script type="module" src="assets/js/compare.js"></script>
+</body>
+</html>

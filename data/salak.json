@@ -1,0 +1,60 @@
+{
+  "updated_at": "2026-06-25",
+  "source_note": "ข้อมูลตัวอย่าง/ประมาณการ (indicative sample). โครงสร้างรางวัลและจำนวนหน่วยเป็นค่าสมมติเพื่อสาธิตการคำนวณ ไม่ใช่เงื่อนไขจริงของแต่ละงวด กรุณาตรวจสอบกับธนาคารผู้ออกสลาก.",
+  "products": [
+    {
+      "id": "baac-salak-3y",
+      "bank_id": "baac",
+      "product_name": "สลากออมทรัพย์ ธ.ก.ส. (ชุดตัวอย่าง 3 ปี)",
+      "unit_price": 100,
+      "term_months": 36,
+      "draw_frequency": "monthly",
+      "redeem_interest_rate": 0.20,
+      "units_in_pool": 100000000,
+      "prize_tiers": [
+        { "name": "รางวัลที่ 1", "amount": 10000000, "count_per_draw": 1 },
+        { "name": "รางวัลที่ 2", "amount": 1000000, "count_per_draw": 2 },
+        { "name": "รางวัลที่ 3", "amount": 100000, "count_per_draw": 10 },
+        { "name": "รางวัลที่ 4", "amount": 10000, "count_per_draw": 100 },
+        { "name": "รางวัลที่ 5", "amount": 1000, "count_per_draw": 2000 },
+        { "name": "รางวัลเลขท้าย 3 ตัว", "amount": 100, "count_per_draw": 100000 }
+      ]
+    },
+    {
+      "id": "gsb-salak-1y",
+      "bank_id": "gsb",
+      "product_name": "สลากออมสิน (ชุดตัวอย่าง 1 ปี)",
+      "unit_price": 100,
+      "term_months": 12,
+      "draw_frequency": "monthly",
+      "redeem_interest_rate": 0.05,
+      "units_in_pool": 50000000,
+      "prize_tiers": [
+        { "name": "รางวัลที่ 1", "amount": 5000000, "count_per_draw": 1 },
+        { "name": "รางวัลที่ 2", "amount": 500000, "count_per_draw": 2 },
+        { "name": "รางวัลที่ 3", "amount": 50000, "count_per_draw": 10 },
+        { "name": "รางวัลที่ 4", "amount": 5000, "count_per_draw": 100 },
+        { "name": "รางวัลที่ 5", "amount": 500, "count_per_draw": 2000 },
+        { "name": "รางวัลเลขท้าย 4 ตัว", "amount": 50, "count_per_draw": 50000 }
+      ]
+    },
+    {
+      "id": "ghb-salak-3y",
+      "bank_id": "ghb",
+      "product_name": "สลากออมทรัพย์ ธอส. (ชุดตัวอย่าง 3 ปี)",
+      "unit_price": 500,
+      "term_months": 36,
+      "draw_frequency": "monthly",
+      "redeem_interest_rate": 0.25,
+      "units_in_pool": 20000000,
+      "prize_tiers": [
+        { "name": "รางวัลที่ 1", "amount": 10000000, "count_per_draw": 1 },
+        { "name": "รางวัลที่ 2", "amount": 1000000, "count_per_draw": 2 },
+        { "name": "รางวัลที่ 3", "amount": 100000, "count_per_draw": 8 },
+        { "name": "รางวัลที่ 4", "amount": 10000, "count_per_draw": 80 },
+        { "name": "รางวัลที่ 5", "amount": 2000, "count_per_draw": 800 },
+        { "name": "รางวัลเลขท้าย 3 ตัว", "amount": 200, "count_per_draw": 20000 }
+      ]
+    }
+  ]
+}

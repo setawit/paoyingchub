@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คำนวณสลากออมทรัพย์ | Deposit Intelligence</title>
+  <meta name="description" content="คำนวณผลตอบแทนเฉลี่ยและโอกาสถูกรางวัลของสลากออมทรัพย์ ธ.ก.ส. / ออมสิน / ธอส.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <nav class="nav">
+    <a class="brand" href="index.html">เงินอยู่ไหน<span>?</span></a>
+    <a class="navlink" href="index.html">เทียบดอกเบี้ย</a>
+    <a class="navlink active" href="salak.html">คำนวณสลาก</a>
+  </nav>
+
+  <div class="wrap">
+    <div class="hero">
+      <h1>คำนวณสลากออมทรัพย์</h1>
+      <p>ใส่เงินลงทุนและระยะเวลา เพื่อประมาณผลตอบแทนเฉลี่ยต่อปีและโอกาสถูกรางวัล</p>
+    </div>
+
+    <div class="card">
+      <div class="grid2">
+        <div class="field">
+          <label for="product">เลือกสลาก</label>
+          <select id="product"></select>
+        </div>
+        <div class="field">
+          <label for="amount">เงินลงทุน (บาท)</label>
+          <input type="number" id="amount" min="0" step="100" value="100000">
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label for="months">ระยะเวลาถือครอง (เดือน)</label>
+          <input type="number" id="months" min="1" step="1" value="36">
+          <div class="hint" id="termHint"></div>
+        </div>
+        <div class="field">
+          <label for="refRate">เทียบกับฝากประจำ (% ต่อปี)</label>
+          <input type="number" id="refRate" min="0" step="0.05" value="1.55">
+          <div class="hint">ใช้เปรียบเทียบว่าผลตอบแทนคาดหวังคุ้มกว่าฝากประจำหรือไม่</div>
+        </div>
+      </div>
+
+      <div class="results" id="results"></div>
+      <div id="compareLine"></div>
+
+      <h3 style="margin:1.5rem 0 0.25rem; color:var(--ink-soft)">โครงสร้างรางวัล (ต่อ 1 งวด)</h3>
+      <div class="table-scroll">
+        <table class="prize-table" id="prizeTable"></table>
+      </div>
+
+      <div class="disclaimer">
+        ⚠️ ตัวเลขเป็น <b>ค่าคาดหวังเชิงสถิติ (ประมาณการ)</b> จากข้อมูลตัวอย่าง ผลจริงของแต่ละคนผันผวนสูง —
+        ผู้ฝากส่วนใหญ่จะได้รับเพียงเงินต้นคืนพร้อมดอกเบี้ยไถ่ถอน การถูกรางวัลใหญ่มีโอกาสต่ำมาก
+        ระบบนี้ <b>ไม่ใช่คำแนะนำการลงทุน</b> และไม่รับประกันผลตอบแทน
+      </div>
+    </div>
+  </div>
+
+  <footer class="site">Thailand Deposit Intelligence — MVP • Phase 2 (สลาก)</footer>
+
+  <script type="module" src="assets/js/salak.js"></script>
+</body>
+</html>

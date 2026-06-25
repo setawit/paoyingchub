@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node (scraper-free; only used for local browser checks)
+node_modules/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
