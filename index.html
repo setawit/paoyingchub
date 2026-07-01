@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ตำราแต่งเพลงด้วย AI — ฉบับโปรดิวเซอร์</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</head>
+<body>
+
+<button id="menu-toggle">☰</button>
+
+<div id="app">
+
+  <!-- Sidebar -->
+  <nav id="sidebar">
+    <div id="sidebar-logo">
+      <h1>ตำราแต่งเพลงด้วย AI<br>ฉบับโปรดิวเซอร์</h1>
+      <p>Producer's Guide to AI Songwriting</p>
+    </div>
+    <div class="sidebar-item" id="nav-home" onclick="navigate('home')">หน้าหลัก / สารบัญ</div>
+  </nav>
+
+  <!-- Main -->
+  <main id="main">
+    <div id="topbar">
+      <span id="chapter-title">ตำราแต่งเพลงด้วย AI — ฉบับโปรดิวเซอร์</span>
+    </div>
+
+    <!-- Home / TOC -->
+    <div id="home">
+      <div class="home-hero">
+        <h1>ตำราแต่งเพลงด้วย AI<br>ฉบับโปรดิวเซอร์</h1>
+        <p class="subtitle">คู่มือฉบับปฏิบัติ สำหรับนักสร้างสรรค์งานในองค์กรและโปรดิวเซอร์มืออาชีพ</p>
+      </div>
+      <div id="toc"></div>
+    </div>
+
+    <!-- Chapter Content -->
+    <div id="content" style="display:none"></div>
+
+  </main>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
