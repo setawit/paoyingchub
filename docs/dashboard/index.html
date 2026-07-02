@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard ราคาสินค้าเกษตร - ธ.ก.ส.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="viz-root wrap">
+  <h1>Dashboard ราคาสินค้าเกษตร &amp; อัตราแลกเปลี่ยน</h1>
+  <p class="subtitle">สำหรับ RM ธ.ก.ส. และเจ้าของธุรกิจ SME เกษตร — ข้อมูลราคาอ้างอิงจาก Google Finance ผ่าน Google Sheets</p>
+
+  <div class="card">
+    <h2>เชื่อมต่อข้อมูลจาก Google Sheets ของคุณ</h2>
+    <div class="help">
+      หน้านี้ไม่ได้เรียก Google Finance โดยตรง (เว็บทั่วไปเรียกไม่ได้) แต่จะดึงค่าที่ Google Sheets คำนวณไว้แล้ว ผ่านลิงก์ CSV ที่เผยแพร่จากชีตของคุณ
+      <ol>
+        <li>เปิด Google Sheets ที่มีสูตร <code>GOOGLEFINANCE</code> (ดูตัวอย่างสูตรและสัญลักษณ์ได้ในเอกสารแผนงาน <code>docs/google-finance-sme-advisory-plan.md</code>)</li>
+        <li>เมนู <b>ไฟล์ → แชร์ → เผยแพร่ไปยังเว็บ</b> (File → Share → Publish to web)</li>
+        <li>เลือกแท็บที่ต้องการ และรูปแบบเป็น <b>CSV</b> แล้วกด "เผยแพร่"</li>
+        <li>คัดลอกลิงก์ที่ได้มาวางในช่องด้านล่าง</li>
+      </ol>
+      คอลัมน์ที่ต้องมี (เรียงตามลำดับ): สัญลักษณ์, ความหมาย, ราคาล่าสุด, เปลี่ยนแปลงวันนี้ %
+    </div>
+    <div class="row">
+      <input type="text" id="csvUrl" placeholder="วางลิงก์ CSV ที่เผยแพร่จาก Google Sheets ที่นี่...">
+      <button id="loadBtn">โหลดข้อมูล</button>
+      <button id="demoBtn" class="secondary">ใช้ข้อมูลตัวอย่าง</button>
+    </div>
+    <div class="status-line" id="statusLine">ยังไม่ได้โหลดข้อมูล — กำลังแสดงข้อมูลตัวอย่าง</div>
+  </div>
+
+  <div class="card">
+    <h2>แนวโน้มเปลี่ยนแปลงวันนี้ (%) <span class="demo-tag" id="chartTag">ตัวอย่าง</span></h2>
+    <div class="legend">
+      <span><i class="swatch" style="background:var(--up)"></i>ราคาขึ้น</span>
+      <span><i class="swatch" style="background:var(--down)"></i>ราคาลง</span>
+    </div>
+    <div class="bar-list" id="barList"></div>
+  </div>
+
+  <div class="card">
+    <h2>ตารางรายละเอียด <span class="demo-tag" id="tableTag">ตัวอย่าง</span></h2>
+    <table>
+      <thead>
+        <tr><th>สัญลักษณ์</th><th>ความหมาย/ธุรกิจที่เกี่ยวข้อง</th><th style="text-align:right">ราคาล่าสุด</th><th style="text-align:right">เปลี่ยนแปลง</th></tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
