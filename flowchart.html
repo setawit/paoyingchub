@@ -1,0 +1,303 @@
+<title>ผังงานเกมเป่ายิ้งฉุบ VS AI</title>
+<style>
+  :root {
+    --bg: #eef0f6;
+    --panel: #ffffff;
+    --ink: #22223b;
+    --ink-soft: #4a4e69;
+    --muted: #6b7089;
+    --line: #cdd2e3;
+    --primary: #4a4e69;
+    --amber: #fca311;
+    --win: #2a9d8f;
+    --lose: #e76f51;
+    --draw: #8d99ae;
+    --start: #4a4e69;
+    --node-bg: #f6f7fb;
+    --node-border: #d8dced;
+    --shadow: 0 10px 30px rgba(34,34,59,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14152a;
+      --panel: #1d1f38;
+      --ink: #eceeffe0;
+      --ink-soft: #c3c7e6;
+      --muted: #9297bb;
+      --line: #3a3d63;
+      --primary: #8b90c4;
+      --node-bg: #23264280;
+      --node-border: #383c63;
+      --shadow: 0 10px 34px rgba(0,0,0,.4);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14152a; --panel: #1d1f38; --ink: #eceeffe0; --ink-soft: #c3c7e6;
+    --muted: #9297bb; --line: #3a3d63; --primary: #8b90c4;
+    --node-bg: #23264280; --node-border: #383c63; --shadow: 0 10px 34px rgba(0,0,0,.4);
+  }
+  :root[data-theme="light"] {
+    --bg: #eef0f6; --panel: #ffffff; --ink: #22223b; --ink-soft: #4a4e69;
+    --muted: #6b7089; --line: #cdd2e3; --primary: #4a4e69;
+    --node-bg: #f6f7fb; --node-border: #d8dced; --shadow: 0 10px 30px rgba(34,34,59,.08);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, color-mix(in srgb, var(--amber) 10%, transparent), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: "Kanit", "Sarabun", "Noto Sans Thai", "Segoe UI", system-ui, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 3rem 1.25rem 4rem; }
+
+  header { text-align: center; margin-bottom: 2.75rem; }
+  .eyebrow {
+    display: inline-block;
+    font-size: .72rem; letter-spacing: .22em; text-transform: uppercase;
+    color: var(--amber); font-weight: 700; margin-bottom: .6rem;
+  }
+  h1 { font-size: clamp(1.7rem, 5vw, 2.5rem); margin: 0 0 .5rem; font-weight: 700; text-wrap: balance; }
+  header p { color: var(--muted); margin: 0; font-size: 1rem; }
+
+  /* flow spine */
+  .flow { display: flex; flex-direction: column; align-items: center; }
+
+  .node {
+    width: 100%; max-width: 460px;
+    background: var(--panel);
+    border: 1px solid var(--node-border);
+    border-radius: 16px;
+    padding: 1rem 1.25rem;
+    box-shadow: var(--shadow);
+    position: relative;
+    display: flex; gap: .85rem; align-items: center;
+  }
+  .node .ic {
+    flex: 0 0 auto; width: 42px; height: 42px; border-radius: 12px;
+    display: grid; place-items: center; font-size: 1.35rem;
+    background: color-mix(in srgb, var(--primary) 14%, transparent);
+  }
+  .node .tx { min-width: 0; }
+  .node .tt { font-weight: 700; font-size: 1.02rem; }
+  .node .sub { color: var(--muted); font-size: .84rem; margin-top: .1rem; }
+  .node code {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: .78rem; background: var(--node-bg); padding: .05rem .35rem;
+    border-radius: 5px; color: var(--ink-soft);
+  }
+
+  .node.start, .node.end {
+    max-width: 300px; border-radius: 999px; justify-content: center;
+    text-align: center; background: var(--primary); color: #fff; border-color: transparent;
+  }
+  .node.start .tt, .node.end .tt { color: #fff; font-size: 1.1rem; }
+  .node.end { background: var(--amber); }
+
+  .node.decision { border-left: 5px solid var(--amber); }
+  .node.decision .ic { background: color-mix(in srgb, var(--amber) 20%, transparent); }
+
+  /* connectors */
+  .conn { width: 2px; height: 34px; background: var(--line); position: relative; }
+  .conn::after {
+    content: ""; position: absolute; left: 50%; bottom: -1px; transform: translateX(-50%);
+    border-left: 6px solid transparent; border-right: 6px solid transparent;
+    border-top: 8px solid var(--line);
+  }
+  .conn.short { height: 22px; }
+  .conn .lbl {
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    background: var(--bg); padding: .05rem .5rem; font-size: .74rem; font-weight: 700;
+    color: var(--muted); white-space: nowrap; border-radius: 999px;
+  }
+
+  /* No-branch loopback pill */
+  .branch-no {
+    align-self: center; display: flex; align-items: center; gap: .5rem;
+    background: color-mix(in srgb, var(--lose) 12%, var(--panel));
+    border: 1px dashed color-mix(in srgb, var(--lose) 55%, transparent);
+    color: color-mix(in srgb, var(--lose) 92%, var(--ink));
+    padding: .45rem .85rem; border-radius: 999px; font-size: .82rem; font-weight: 600;
+    margin: .5rem 0;
+  }
+
+  /* 3-way outcome row */
+  .outcomes {
+    width: 100%; max-width: 620px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: .75rem;
+  }
+  @media (max-width: 560px){ .outcomes { grid-template-columns: 1fr; } }
+  .oc {
+    background: var(--panel); border: 1px solid var(--node-border);
+    border-radius: 14px; padding: .9rem; text-align: center; box-shadow: var(--shadow);
+    border-top: 4px solid var(--c);
+  }
+  .oc .emo { font-size: 1.5rem; }
+  .oc .oct { font-weight: 700; margin-top: .2rem; color: var(--c); }
+  .oc .ocs { font-size: .78rem; color: var(--muted); margin-top: .2rem; }
+  .oc.win { --c: var(--win); }
+  .oc.lose { --c: var(--lose); }
+  .oc.draw { --c: var(--draw); }
+
+  .fan { width: 100%; max-width: 620px; height: 26px; position: relative; }
+  .fan svg { width: 100%; height: 100%; display: block; }
+  .fan path, .fan line { stroke: var(--line); stroke-width: 2; fill: none; }
+
+  /* loop-back note */
+  .loopnote {
+    margin-top: .4rem; display: flex; align-items: center; gap: .5rem;
+    color: var(--muted); font-size: .84rem; font-weight: 600;
+  }
+  .loopnote .arw { color: var(--amber); font-size: 1.1rem; }
+
+  /* review footer */
+  .review {
+    margin-top: 3rem; background: var(--panel); border: 1px solid var(--node-border);
+    border-radius: 18px; padding: 1.5rem 1.6rem; box-shadow: var(--shadow);
+  }
+  .review h2 { margin: 0 0 1rem; font-size: 1.15rem; display: flex; align-items: center; gap: .5rem; }
+  .review ul { margin: 0; padding: 0; list-style: none; display: grid; gap: .7rem; }
+  .review li { display: flex; gap: .6rem; align-items: flex-start; font-size: .92rem; }
+  .review li .b { flex: 0 0 auto; margin-top: .15rem; }
+  .review .ok { color: var(--win); }
+  .review .tip { color: var(--amber); }
+  .review .sub { color: var(--muted); font-size: .85rem; }
+
+  footer.legend {
+    margin-top: 2rem; display: flex; flex-wrap: wrap; gap: 1rem 1.4rem;
+    justify-content: center; color: var(--muted); font-size: .8rem;
+  }
+  .legend .k { display: inline-flex; align-items: center; gap: .4rem; }
+  .legend .sw { width: 14px; height: 14px; border-radius: 4px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Flowchart · ผังงาน</span>
+    <h1>เกมเป่ายิ้งฉุบ VS AI</h1>
+    <p>ลำดับการทำงานของโปรแกรม ตั้งแต่ตั้งชื่อผู้เล่นจนจบแต่ละตา</p>
+  </header>
+
+  <div class="flow">
+
+    <div class="node start"><div class="tt">▶ เริ่มโปรแกรม</div></div>
+    <div class="conn short"></div>
+
+    <div class="node">
+      <div class="ic">🧍</div>
+      <div class="tx">
+        <div class="tt">ตั้งชื่อผู้เล่น</div>
+        <div class="sub">พิมพ์ชื่อในช่อง แล้วกดปุ่ม “เริ่มเกม”</div>
+      </div>
+    </div>
+    <div class="conn"></div>
+
+    <div class="node decision">
+      <div class="ic">❓</div>
+      <div class="tx">
+        <div class="tt">ป้อนชื่อหรือยัง?</div>
+        <div class="sub">ตรวจว่าช่องชื่อ <code>ไม่ว่าง</code> หลังตัดช่องว่าง</div>
+      </div>
+    </div>
+
+    <div class="conn short"></div>
+    <div class="branch-no">✗ ยังไม่ป้อน → แจ้งเตือน <code>alert</code> แล้ววนกลับไปตั้งชื่อ</div>
+    <div class="conn short"><span class="lbl">✓ ป้อนแล้ว</span></div>
+
+    <div class="node">
+      <div class="ic">🎮</div>
+      <div class="tx">
+        <div class="tt">เข้าสู่หน้าเกม</div>
+        <div class="sub">ซ่อนหน้าตั้งค่า · แสดงกระดานคะแนนและปุ่มอาวุธ</div>
+      </div>
+    </div>
+    <div class="conn"></div>
+
+    <div class="node">
+      <div class="ic">👉</div>
+      <div class="tx">
+        <div class="tt">ผู้เล่นเลือกอาวุธ</div>
+        <div class="sub">✊ ค้อน &nbsp;·&nbsp; ✋ กระดาษ &nbsp;·&nbsp; ✌️ กรรไกร</div>
+      </div>
+    </div>
+    <div class="conn"></div>
+
+    <div class="node">
+      <div class="ic">🤖</div>
+      <div class="tx">
+        <div class="tt">AI สุ่มอาวุธ</div>
+        <div class="sub">สุ่ม 1 ใน 3 ด้วย <code>Math.random()</code></div>
+      </div>
+    </div>
+    <div class="conn"></div>
+
+    <div class="node decision">
+      <div class="ic">⚖️</div>
+      <div class="tx">
+        <div class="tt">เปรียบเทียบผล</div>
+        <div class="sub">เทียบอาวุธผู้เล่นกับ AI ตามกติกาเป่ายิ้งฉุบ</div>
+      </div>
+    </div>
+
+    <div class="fan" aria-hidden="true">
+      <svg viewBox="0 0 620 26" preserveAspectRatio="none">
+        <path d="M310 0 V8 M310 8 H103 V26 M310 8 H310 V26 M310 8 H517 V26" />
+      </svg>
+    </div>
+
+    <div class="outcomes">
+      <div class="oc win">
+        <div class="emo">🏆</div>
+        <div class="oct">ผู้เล่นชนะ</div>
+        <div class="ocs">คะแนนผู้เล่น +1</div>
+      </div>
+      <div class="oc draw">
+        <div class="emo">🤝</div>
+        <div class="oct">เสมอ</div>
+        <div class="ocs">คะแนนเท่าเดิม</div>
+      </div>
+      <div class="oc lose">
+        <div class="emo">💥</div>
+        <div class="oct">ผู้เล่นแพ้</div>
+        <div class="ocs">คะแนน AI +1</div>
+      </div>
+    </div>
+
+    <div class="conn"></div>
+
+    <div class="node">
+      <div class="ic">📊</div>
+      <div class="tx">
+        <div class="tt">อัปเดตคะแนน & แสดงผล</div>
+        <div class="sub">โชว์ข้อความชนะ/แพ้/เสมอ พร้อมสีประจำผล</div>
+      </div>
+    </div>
+    <div class="conn short"></div>
+
+    <div class="node end"><div class="tt">จบตา — เล่นต่อได้เลย</div></div>
+
+    <div class="loopnote"><span class="arw">↺</span> เลือกอาวุธใหม่เพื่อเล่นตาถัดไป หรือกด “เล่นใหม่” เพื่อรีเซ็ตคะแนนเป็น 0–0</div>
+  </div>
+
+  <section class="review">
+    <h2>✅ ผลการตรวจโค้ด</h2>
+    <ul>
+      <li><span class="b ok">●</span><div><b>ตรรกะเกมถูกต้อง</b><div class="sub">กติกา ค้อน&gt;กรรไกร, กระดาษ&gt;ค้อน, กรรไกร&gt;กระดาษ และการนับคะแนน/แสดงผลครบถ้วน</div></div></li>
+      <li><span class="b ok">●</span><div><b>โครงสร้างไฟล์ชัดเจน</b><div class="sub">แยก HTML / CSS / JS และผูก Event Listener ครบทุกปุ่ม</div></div></li>
+      <li><span class="b tip">●</span><div><b>ข้อเสนอเล็กน้อย</b><div class="sub">ปุ่ม “เล่นใหม่” รีเซ็ตแค่คะแนน อาจเพิ่มปิดปุ่มอาวุธชั่วคราวหรือใส่ระบบ “ถึงกี่แต้มจึงชนะ” เพื่อเพิ่มความสนุก</div></div></li>
+      <li><span class="b tip">●</span><div><b>ชื่อไฟล์</b><div class="sub">ตอนนี้เป็น <code>.txt</code> ทั้งสามไฟล์ — เปลี่ยนเป็น <code>.html</code>/<code>.css</code>/<code>.js</code> ก่อนนำไปรันจริง</div></div></li>
+    </ul>
+  </section>
+
+  <footer class="legend">
+    <span class="k"><span class="sw" style="background:#4a4e69"></span> ขั้นตอนทั่วไป</span>
+    <span class="k"><span class="sw" style="background:#fca311"></span> จุดตัดสินใจ / จบ</span>
+    <span class="k"><span class="sw" style="background:#2a9d8f"></span> ชนะ</span>
+    <span class="k"><span class="sw" style="background:#8d99ae"></span> เสมอ</span>
+    <span class="k"><span class="sw" style="background:#e76f51"></span> แพ้</span>
+  </footer>
+</div>
