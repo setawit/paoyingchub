@@ -1,0 +1,1391 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FarmPlan v3 — ระบบวางแผนฟาร์ม (Live Preview)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    /* ==========================================
+       v3.css — สไตล์ชีตหลักของระบบ
+       ========================================== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green-900: #14532d; --green-800: #166534; --green-700: #15803d; --green-600: #16a34a; --green-500: #22c55e;
+      --green-100: #dcfce7; --green-50:  #f0fdf4; --gold-700: #a16207; --gold-600: #ca8a04; --gold-500: #eab308;
+      --gold-100: #fef9c3; --gold-50:  #fefce8; --white:    #ffffff; --gray-900: #111827; --gray-700: #374151;
+      --gray-600: #4b5563; --gray-500: #6b7280; --gray-400: #9ca3af; --gray-200: #e5e7eb; --gray-100: #f3f4f6;
+      --gray-50:  #f9fafb; --red-600:   #dc2626; --red-100:   #fee2e2; --amber-600: #d97706; --amber-100: #fef3c7;
+      --radius-sm: 8px; --radius: 14px; --radius-lg: 18px; --shadow-sm: 0 1px 2px rgba(0,0,0,.05);
+      --shadow: 0 1px 3px rgba(0,0,0,.07), 0 4px 16px rgba(20,83,45,.06); --shadow-lg: 0 4px 6px rgba(0,0,0,.05), 0 10px 30px rgba(20,83,45,.10);
+      --transition: .2s ease;
+    }
+    body {
+      font-family: 'Sarabun', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(160deg, var(--green-50) 0%, var(--gold-50) 60%, #f8fafc 100%);
+      color: var(--gray-900); line-height: 1.5; min-height: 100vh; -webkit-font-smoothing: antialiased;
+    }
+    #app { max-width: 1200px; margin: 0 auto; padding: 1.2rem 1rem 3rem; display: flex; flex-direction: column; min-height: 100vh; }
+    .app-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: var(--white);
+      border-radius: var(--radius-lg); padding: 1.2rem 1.6rem; box-shadow: var(--shadow); margin-bottom: 1rem; border-top: 4px solid var(--green-700);
+    }
+    .brand { display: flex; align-items: center; gap: .9rem; }
+    .brand-icon { font-size: 2.4rem; background: var(--green-50); padding: .4rem .6rem; border-radius: var(--radius); border: 1.5px solid var(--green-100); }
+    .brand h1 { font-size: 1.6rem; font-weight: 800; color: var(--green-900); letter-spacing: -.5px; }
+    .brand h1 .ver {
+      display: inline-block; font-size: .7rem; font-weight: 700; color: var(--gold-700); background: var(--gold-100);
+      padding: .1rem .5rem; border-radius: 20px; vertical-align: middle; margin-left: .3rem;
+    }
+    .tagline { font-size: .82rem; color: var(--gray-500); margin-top: .1rem; }
+    .btn-primary, .btn-secondary, .btn-danger {
+      display: inline-flex; align-items: center; justify-content: center; gap: .4rem; padding: .7rem 1.2rem;
+      border: none; border-radius: var(--radius-sm); font: inherit; font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: background var(--transition), transform .1s, box-shadow var(--transition); white-space: nowrap;
+    }
+    .btn-primary { background: var(--green-700); color: var(--white); box-shadow: 0 2px 6px rgba(21,128,61,.25); }
+    .btn-primary:hover { background: var(--green-800); box-shadow: 0 4px 10px rgba(21,128,61,.35); }
+    .btn-primary:active { transform: scale(.98); }
+    .btn-secondary { background: var(--white); color: var(--green-700); border: 1.5px solid var(--green-100); }
+    .btn-secondary:hover { background: var(--green-50); border-color: var(--green-600); }
+    .btn-danger { background: var(--white); color: var(--red-600); border: 1.5px solid var(--red-100); }
+    .btn-danger:hover { background: var(--red-100); }
+    .tabs { display: flex; gap: .3rem; background: var(--white); border-radius: var(--radius); padding: .35rem; box-shadow: var(--shadow-sm); margin-bottom: 1rem; overflow-x: auto; }
+    .tab-btn {
+      flex: 1; min-width: 110px; background: transparent; border: none; padding: .7rem 1rem; font: inherit;
+      font-size: .92rem; font-weight: 600; color: var(--gray-600); cursor: pointer; border-radius: var(--radius-sm); transition: all var(--transition); white-space: nowrap;
+    }
+    .tab-btn:hover { background: var(--green-50); color: var(--green-700); }
+    .tab-btn.active { background: var(--green-700); color: var(--white); box-shadow: 0 2px 6px rgba(21,128,61,.25); }
+    .tab-panels { flex: 1; }
+    .tab-panel { display: none; animation: fadeIn .2s ease; }
+    .tab-panel.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .panel-loading { text-align: center; padding: 3rem 1rem; color: var(--gray-400); font-size: .95rem; }
+    .empty-state { background: var(--white); border-radius: var(--radius-lg); padding: 3rem 1.5rem; text-align: center; box-shadow: var(--shadow); border: 2px dashed var(--green-100); }
+    .empty-icon { font-size: 3.5rem; margin-bottom: .6rem; }
+    .empty-state h2 { font-size: 1.3rem; font-weight: 800; color: var(--green-900); margin-bottom: .5rem; }
+    .empty-state p { color: var(--gray-500); font-size: .9rem; line-height: 1.7; }
+    .card { background: var(--white); border-radius: var(--radius); padding: 1.5rem; box-shadow: var(--shadow); margin-bottom: 1rem; }
+    .card-title { font-size: 1.1rem; font-weight: 800; color: var(--green-900); margin-bottom: 1rem; padding-bottom: .6rem; border-bottom: 2px solid var(--green-50); }
+    .card h3 { font-size: 1rem; font-weight: 700; color: var(--green-900); margin-bottom: .8rem; }
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.1rem; margin-bottom: 1.2rem; }
+    .form-group { display: flex; flex-direction: column; gap: .35rem; }
+    .form-group label { font-weight: 600; font-size: .88rem; color: var(--gray-700); }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: .6rem .8rem; border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm); font: inherit; font-size: .95rem; background: var(--white); outline: none; transition: border-color var(--transition), box-shadow var(--transition);
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--green-600); box-shadow: 0 0 0 3px rgba(22,163,74,.15); }
+    .form-group textarea { resize: vertical; min-height: 70px; }
+    .hint { font-size: .75rem; color: var(--gray-400); }
+    .table-wrap { overflow-x: auto; }
+    table.data-table, table.compare-table, table.activity-table { width: 100%; border-collapse: collapse; font-size: .9rem; min-width: 480px; }
+    .data-table th, .compare-table th, .activity-table th { background: var(--green-50); color: var(--green-900); font-weight: 700; padding: .6rem .8rem; text-align: left; white-space: nowrap; border-bottom: 2px solid var(--green-100); }
+    .data-table td, .compare-table td, .activity-table td { padding: .6rem .8rem; border-bottom: 1px solid var(--gray-100); text-align: center; vertical-align: middle; }
+    .data-table tr:last-child td, .compare-table tr:last-child td, .activity-table tr:last-child td { border-bottom: none; }
+    .data-table tbody tr:hover { background: var(--green-50); }
+    .pos { color: var(--green-700); font-weight: 700; }
+    .neg { color: var(--red-600);   font-weight: 700; }
+    .warn{ color: var(--amber-600); font-weight: 700; }
+    .badge, .tag { display: inline-block; font-size: .72rem; font-weight: 700; padding: .2rem .55rem; border-radius: 20px; letter-spacing: .2px; }
+    .badge          { background: var(--green-100); color: var(--green-800); }
+    .badge-gold     { background: var(--gold-100);  color: var(--gold-700);  }
+    .badge-warn     { background: var(--amber-100); color: var(--amber-600); }
+    .badge-danger   { background: var(--red-100);   color: var(--red-600);   }
+    .badge-neutral  { background: var(--gray-100);  color: var(--gray-600);  }
+    .app-footer { margin-top: 1.2rem; padding: .8rem 1rem; display: flex; justify-content: space-between; align-items: center; font-size: .78rem; color: var(--gray-400); border-top: 1px dashed var(--gray-200); }
+    .save-status { color: var(--green-700); font-weight: 600; }
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--gray-900); color: var(--white);
+      padding: .8rem 1.4rem; border-radius: var(--radius-sm); font-size: .9rem; font-weight: 600; box-shadow: var(--shadow-lg); opacity: 0; transition: opacity var(--transition), transform var(--transition); z-index: 1000; max-width: 90vw;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .toast.success { background: var(--green-700); }
+    .toast.error   { background: var(--red-600);   }
+    .toast.warn    { background: var(--amber-600); }
+    @media (max-width: 760px) {
+      #app { padding: .8rem .7rem 2rem; }
+      .app-header { flex-direction: column; align-items: flex-start; gap: .8rem; padding: 1rem 1.1rem; }
+      .app-header .btn-primary { width: 100%; }
+      .brand h1 { font-size: 1.35rem; }
+      .tagline  { font-size: .78rem; }
+      .tabs { padding: .25rem; }
+      .tab-btn { min-width: auto; padding: .55rem .6rem; font-size: .82rem; }
+      .card { padding: 1.1rem; }
+      .card-title { font-size: 1rem; }
+      .form-grid { grid-template-columns: 1fr; gap: .9rem; }
+      .empty-state { padding: 2rem 1rem; }
+      .empty-icon  { font-size: 2.8rem; }
+      .empty-state h2 { font-size: 1.1rem; }
+      .app-footer { flex-direction: column; gap: .3rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <!-- HEADER -->
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-icon">🌾</span>
+      <div>
+        <h1>FarmPlan <span class="ver">v3</span></h1>
+        <p class="tagline">ระบบช่วยตัดสินใจวางแผนฟาร์ม — พื้นที่ ทุน แรงงาน น้ำ ตลาด</p>
+      </div>
+    </div>
+    <button id="analyzeBtn" class="btn-primary">⚡ วิเคราะห์แผน</button>
+  </header>
+
+  <!-- TABS -->
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" data-tab="farm"    role="tab">🏡 ฟาร์ม</button>
+    <button class="tab-btn"        data-tab="catalog" role="tab">📖 แคตตาล็อก</button>
+    <button class="tab-btn"        data-tab="zones"   role="tab">🗺️ แปลงดิน</button>
+    <button class="tab-btn"        data-tab="markets" role="tab">🏪 ตลาด</button>
+    <button class="tab-btn"        data-tab="results" role="tab">📊 ผลวิเคราะห์</button>
+  </nav>
+
+  <!-- TAB PANELS -->
+  <main class="tab-panels">
+    <section id="tab-farm" class="tab-panel active" role="tabpanel"></section>
+    <section id="tab-catalog" class="tab-panel" role="tabpanel"></section>
+    <section id="tab-zones" class="tab-panel" role="tabpanel"></section>
+    <section id="tab-markets" class="tab-panel" role="tabpanel"></section>
+    <section id="tab-results" class="tab-panel" role="tabpanel">
+      <div class="empty-state">
+        <div class="empty-icon">📊</div>
+        <h2>ยังไม่มีผลวิเคราะห์</h2>
+        <p>กรอกข้อมูลฟาร์ม แปลงดิน ตลาด และเลือกกิจกรรมจากแคตตาล็อก<br>
+           แล้วกดปุ่ม <strong>⚡ วิเคราะห์แผน</strong> เพื่อดูแผน 3 ระดับ</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="app-footer">
+    <span>FarmPlan DSS v3 · Live Preview Bundle</span>
+    <span id="save-status" class="save-status">💾 บันทึกอัตโนมัติ (LocalStorage)</span>
+  </footer>
+</div>
+
+<div id="toast" class="toast" hidden></div>
+
+<!-- ==========================================
+     INTEGRATED SCRIPTS (No CORS Issue)
+     ========================================== -->
+<script>
+  /* --- 1. SEED DATA & CONSTANTS --- */
+  const DEFAULT_CATALOG = [
+    { id: 'veggie-kale', name: 'ผักคะน้า', icon: '🥬', category: 'vegetable', unitDesc: 'แปลง 100 ตร.ม.', areaPerUnit: 100, investmentPerUnit: 1500, laborPerUnitPerDay: 1.2, waterNeed: 'high', soilPreference: { loam: 1.1, clay: 0.8, sandy: 0.5 }, weeklyCostPerUnit: 120, revenue: { model: 'recurring', grossPerUnitPerCycle: 400, cycleWeeks: 1, firstIncomeWeek: 6 }, maxUnits: 5, perishable: true },
+    { id: 'veggie-morning-glory', name: 'ผักบุ้งจีน', icon: '🌱', category: 'vegetable', unitDesc: 'แปลง 100 ตร.ม.', areaPerUnit: 100, investmentPerUnit: 1000, laborPerUnitPerDay: 0.8, waterNeed: 'high', soilPreference: { loam: 1.0, clay: 0.9, sandy: 0.6 }, weeklyCostPerUnit: 80, revenue: { model: 'recurring', grossPerUnitPerCycle: 300, cycleWeeks: 1, firstIncomeWeek: 4 }, maxUnits: 5, perishable: true },
+    { id: 'field-sweetcorn', name: 'ข้าวโพดหวาน', icon: '🌽', category: 'field-crop', unitDesc: 'พื้นที่ 400 ตร.ม.', areaPerUnit: 400, investmentPerUnit: 3000, laborPerUnitPerDay: 1.0, waterNeed: 'medium', soilPreference: { loam: 1.1, clay: 0.7, sandy: 0.8 }, weeklyCostPerUnit: 150, revenue: { model: 'lump', grossPerUnitPerCycle: 7000, cycleWeeks: 12, firstIncomeWeek: 12 }, maxUnits: 4, perishable: false },
+    { id: 'field-cassava', name: 'มันสำปะหลัง', icon: '🪵', category: 'field-crop', unitDesc: 'พื้นที่ 400 ตร.ม.', areaPerUnit: 400, investmentPerUnit: 2500, laborPerUnitPerDay: 0.5, waterNeed: 'low', soilPreference: { loam: 1.0, clay: 0.5, sandy: 1.1 }, weeklyCostPerUnit: 50, revenue: { model: 'lump', grossPerUnitPerCycle: 12000, cycleWeeks: 40, firstIncomeWeek: 40 }, maxUnits: 3, perishable: false },
+    { id: 'fruit-banana', name: 'กล้วยน้ำว้า', icon: '🍌', category: 'fruit-tree', unitDesc: 'พื้นที่ 200 ตร.ม. (20 ต้น)', areaPerUnit: 200, investmentPerUnit: 3500, laborPerUnitPerDay: 0.4, waterNeed: 'medium', soilPreference: { loam: 1.2, clay: 0.9, sandy: 0.6 }, weeklyCostPerUnit: 60, revenue: { model: 'recurring', grossPerUnitPerCycle: 800, cycleWeeks: 2, firstIncomeWeek: 35 }, maxUnits: 4, perishable: false },
+    { id: 'fruit-lime', name: 'มะนาวแป้น', icon: '🍋', category: 'fruit-tree', unitDesc: 'พื้นที่ 200 ตร.ม. (15 ต้น)', areaPerUnit: 200, investmentPerUnit: 5000, laborPerUnitPerDay: 0.8, waterNeed: 'medium', soilPreference: { loam: 1.1, clay: 0.7, sandy: 0.8 }, weeklyCostPerUnit: 100, revenue: { model: 'recurring', grossPerUnitPerCycle: 1200, cycleWeeks: 4, firstIncomeWeek: 26 }, maxUnits: 3, perishable: true },
+    { id: 'livestock-hen', name: 'ไก่ไข่', icon: '🐔', category: 'livestock', unitDesc: 'โรงเรือน 50 ตัว', areaPerUnit: 80, investmentPerUnit: 8000, laborPerUnitPerDay: 1.5, waterNeed: 'medium', soilPreference: { loam: 1.0, clay: 1.0, sandy: 1.0 }, weeklyCostPerUnit: 350, revenue: { model: 'recurring', grossPerUnitPerCycle: 900, cycleWeeks: 1, firstIncomeWeek: 3 }, maxUnits: 2, perishable: true },
+    { id: 'livestock-pig', name: 'หมูขุน', icon: '🐷', category: 'livestock', unitDesc: 'คอก 5 ตัว', areaPerUnit: 50, investmentPerUnit: 12000, laborPerUnitPerDay: 1.2, waterNeed: 'medium', soilPreference: { loam: 1.0, clay: 1.0, sandy: 1.0 }, weeklyCostPerUnit: 450, revenue: { model: 'lump', grossPerUnitPerCycle: 28000, cycleWeeks: 20, firstIncomeWeek: 20 }, maxUnits: 2, perishable: false },
+    { id: 'aqua-tilapia', name: 'ปลานิล', icon: '🐟', category: 'aquaculture', unitDesc: 'กระชัง/บ่อ 100 ตร.ม.', areaPerUnit: 100, investmentPerUnit: 6000, laborPerUnitPerDay: 0.6, waterNeed: 'high', soilPreference: { loam: 1.0, clay: 1.2, sandy: 0.4 }, weeklyCostPerUnit: 200, revenue: { model: 'lump', grossPerUnitPerCycle: 16000, cycleWeeks: 24, firstIncomeWeek: 24 }, maxUnits: 3, perishable: true },
+    { id: 'aqua-catfish', name: 'ปลาดุก', icon: '🐠', category: 'aquaculture', unitDesc: 'บ่อพลาสติก 50 ตร.ม.', areaPerUnit: 50, investmentPerUnit: 4500, laborPerUnitPerDay: 0.5, waterNeed: 'high', soilPreference: { loam: 1.0, clay: 1.2, sandy: 0.5 }, weeklyCostPerUnit: 180, revenue: { model: 'lump', grossPerUnitPerCycle: 11000, cycleWeeks: 14, firstIncomeWeek: 14 }, maxUnits: 4, perishable: true }
+  ];
+
+  const DEFAULT_ZONES = [
+    { id: 'zone-front', name: 'แปลงหน้าบ้าน (ดินร่วน ใกล้แหล่งน้ำ)', areaSqm: 600, soilType: 'loam', waterAccess: 0.9, floodRisk: 'low', note: 'ดินร่วนระบายน้ำดี ชลประทานดี เหมาะสำหรับการทำผักสวนครัวหรือพืชอายุสั้น' },
+    { id: 'zone-back', name: 'ที่ลุ่มหลังบ้าน (ดินเหนียว เสี่ยงน้ำท่วมปานกลาง)', areaSqm: 800, soilType: 'clay', waterAccess: 0.7, floodRisk: 'medium', note: 'ดินเหนียวอุ้มน้ำ มีความเสี่ยงท่วมขังปานกลาง เหมาะกับขุดสระเลี้ยงปลาหรือทำไม้ผลทนท่วม' },
+    { id: 'zone-hill', name: 'ที่เนินท้ายสวน (ดินร่วนปนทราย แห้งแล้ง)', areaSqm: 400, soilType: 'sandy', waterAccess: 0.3, floodRisk: 'low', note: 'พื้นที่เป็นเนินระบายน้ำเร็วมากและอยู่ห่างแหล่งน้ำ เหมาะแก่พืชไร่ทนแล้ง' }
+  ];
+
+  const DEFAULT_MARKETS = [
+    { id: 'market-local', name: 'ตลาดสดประจำหมู่บ้าน', distanceKm: 3, priceFactor: 0.95, transportCostPerTrip: 30, tripsPerWeek: 3, acceptsCategories: ['vegetable', 'fruit-tree', 'livestock'] },
+    { id: 'market-coop', name: 'สหกรณ์การเกษตรอำเภอ', distanceKm: 15, priceFactor: 1.05, transportCostPerTrip: 100, tripsPerWeek: 1, acceptsCategories: ['field-crop', 'livestock', 'aquaculture'] },
+    { id: 'market-central', name: 'ตลาดกลางส่งออกประจำจังหวัด', distanceKm: 35, priceFactor: 1.15, transportCostPerTrip: 250, tripsPerWeek: 1, acceptsCategories: ['vegetable', 'field-crop', 'fruit-tree', 'livestock', 'aquaculture'] }
+  ];
+
+  const VALID_CATEGORIES = ['vegetable', 'field-crop', 'fruit-tree', 'livestock', 'aquaculture'];
+  const VALID_WATER = ['low', 'medium', 'high'];
+  const VALID_REV_MODEL = ['recurring', 'lump'];
+  const VALID_SOIL = ['loam', 'clay', 'sandy'];
+  const VALID_FLOOD = ['low', 'medium', 'high'];
+
+  const LS_CATALOG_KEY = 'farmplan.catalog.v3';
+  const LS_FARM_KEY = 'farmplan.farm.v3';
+
+  function escapeHtml(s) {
+    return String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  /* --- 2. LOCAL STORAGE STORES --- */
+  function readUserList() {
+    try {
+      const raw = localStorage.getItem(LS_CATALOG_KEY);
+      if (!raw) return [];
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : [];
+    } catch { return []; }
+  }
+
+  function writeUserList(list) {
+    try { localStorage.setItem(LS_CATALOG_KEY, JSON.stringify(list)); return true; } catch (err) { console.error(err); return false; }
+  }
+
+  function slugify(name) {
+    const s = String(name || '').trim().toLowerCase().replace(/[^a-z0-9ก-๙\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    if (!s || /^-+$/.test(s)) return 'activity-' + Date.now().toString(36);
+    return s;
+  }
+
+  function uniqueId(baseId, existingIds) {
+    if (!existingIds.has(baseId)) return baseId;
+    let n = 2;
+    while (existingIds.has(`${baseId}-${n}`)) n++;
+    return `${baseId}-${n}`;
+  }
+
+  function validateActivity(a) {
+    const errs = [];
+    if (!a || typeof a !== 'object') { errs.push('ข้อมูลไม่ใช่ object'); return errs; }
+    if (!a.name || !String(a.name).trim()) errs.push('กรุณาระบุชื่อกิจกรรม');
+    if (!VALID_CATEGORIES.includes(a.category)) errs.push(`หมวดหมู่ไม่ถูกต้อง (${VALID_CATEGORIES.join(', ')})`);
+    const posFields = [['areaPerUnit','พื้นที่ต่อหน่วย'], ['investmentPerUnit','เงินลงทุนต่อหน่วย'], ['laborPerUnitPerDay','แรงงานต่อหน่วย'], ['weeklyCostPerUnit','ต้นทุนต่อสัปดาห์'], ['maxUnits','เพดานหน่วย']];
+    for (const [k, label] of posFields) {
+      const v = Number(a[k]);
+      if (!(v > 0)) errs.push(`${label} (${k}) ต้องมากกว่า 0`);
+    }
+    if (!VALID_WATER.includes(a.waterNeed)) errs.push(`ต้องการน้ำไม่ถูกต้อง (${VALID_WATER.join(', ')})`);
+    const soil = a.soilPreference || {};
+    for (const k of ['loam', 'clay', 'sandy']) {
+      const v = Number(soil[k]);
+      if (!(v >= 0 && v <= 1.2)) errs.push(`soilPreference.${k} ต้องอยู่ 0–1.2`);
+    }
+    const r = a.revenue || {};
+    if (!VALID_REV_MODEL.includes(r.model)) errs.push(`revenue.model ไม่ถูกต้อง (${VALID_REV_MODEL.join(', ')})`);
+    if (!(Number(r.grossPerUnitPerCycle) >= 0)) errs.push('รายได้ต่อรอบต้องไม่ติดลบ');
+    if (!(Number(r.cycleWeeks) >= 1)) errs.push('ความยาวรอบต้อง ≥ 1 สัปดาห์');
+    const first = Number(r.firstIncomeWeek);
+    if (!(first >= 1 && first <= 52)) errs.push('สัปดาห์แรกที่มีรายได้ต้องอยู่ 1–52');
+    return errs;
+  }
+
+  function loadCatalog() {
+    const users = readUserList();
+    const byId = new Map();
+    for (const a of DEFAULT_CATALOG) {
+      if (!validateActivity(a).length) byId.set(a.id, { ...a, source: 'default' });
+    }
+    for (const a of users) {
+      if (!validateActivity(a).length) byId.set(a.id, { ...a, source: 'user' });
+    }
+    return Array.from(byId.values());
+  }
+
+  function saveActivity(activity) {
+    if (!activity || typeof activity !== 'object') return { ok: false, errors: ['ข้อมูลไม่ถูกต้อง'] };
+    const draft = { ...activity, source: 'user' };
+    if (!draft.id) {
+      const existing = new Set(loadCatalog().map(a => a.id));
+      draft.id = uniqueId(slugify(draft.name || 'activity'), existing);
+    }
+    const errs = validateActivity(draft);
+    if (errs.length) return { ok: false, errors: errs };
+    const users = readUserList();
+    const idx = users.findIndex(u => u.id === draft.id);
+    if (idx >= 0) users[idx] = draft;
+    else users.push(draft);
+    if (!writeUserList(users)) return { ok: false, errors: ['บันทึกลงเครื่องไม่สำเร็จ (พื้นที่จัดเก็บอาจเต็ม)'] };
+    return { ok: true };
+  }
+
+  function deleteActivity(id) {
+    if (!id) return;
+    const users = readUserList().filter(u => u.id !== id);
+    writeUserList(users);
+  }
+
+  function cloneActivity(id) {
+    const src = loadCatalog().find(a => a.id === id);
+    if (!src) return null;
+    const existing = new Set(loadCatalog().map(a => a.id));
+    const cloned = JSON.parse(JSON.stringify(src));
+    cloned.id = uniqueId(`${src.id}-custom`, existing);
+    cloned.name = src.name + ' (สำเนา)';
+    cloned.source = 'user';
+    const res = saveActivity(cloned);
+    if (!res.ok) return null;
+    return cloned;
+  }
+
+  function exportUserCatalog() {
+    return JSON.stringify(readUserList(), null, 2);
+  }
+
+  function importCatalog(json) {
+    let arr;
+    try { arr = JSON.parse(json); } catch (err) { return { imported: 0, rejected: [{ name: '(root)', errors: [err.message] }] }; }
+    if (!Array.isArray(arr)) return { imported: 0, rejected: [{ name: '(root)', errors: ['ต้องเป็น array'] }] };
+    let imported = 0; const rejected = [];
+    for (const item of arr) {
+      const errs = validateActivity(item);
+      if (errs.length) { rejected.push({ name: item?.name || item?.id || '(unnamed)', errors: errs }); continue; }
+      const res = saveActivity({ ...item, source: 'user' });
+      if (res.ok) imported++;
+      else rejected.push({ name: item?.name || item?.id || '(unnamed)', errors: res.errors });
+    }
+    return { imported, rejected };
+  }
+
+  /* --- 3. FARM STORE --- */
+  function defaultFarm() {
+    return { capital: 30000, cashReserve: 10000, laborHoursPerDay: 6, zones: JSON.parse(JSON.stringify(DEFAULT_ZONES)), markets: JSON.parse(JSON.stringify(DEFAULT_MARKETS)) };
+  }
+
+  function readFarm() {
+    try {
+      const raw = localStorage.getItem(LS_FARM_KEY);
+      if (!raw) return null;
+      const cfg = JSON.parse(raw);
+      return (cfg && typeof cfg === 'object') ? cfg : null;
+    } catch { return null; }
+  }
+
+  function writeFarm(cfg) {
+    try { localStorage.setItem(LS_FARM_KEY, JSON.stringify(cfg)); return true; } catch (err) { console.error(err); return false; }
+  }
+
+  function ensureShape(cfg) {
+    const d = defaultFarm();
+    return {
+      capital: Number(cfg.capital ?? d.capital),
+      cashReserve: Number(cfg.cashReserve ?? d.cashReserve),
+      laborHoursPerDay: Number(cfg.laborHoursPerDay ?? d.laborHoursPerDay),
+      zones: Array.isArray(cfg.zones) ? cfg.zones : d.zones,
+      markets: Array.isArray(cfg.markets) ? cfg.markets : d.markets,
+    };
+  }
+
+  function validateZone(z) {
+    const errs = [];
+    if (!z || typeof z !== 'object') { errs.push('zone ไม่ใช่ object'); return errs; }
+    if (!z.name || !String(z.name).trim()) errs.push('ต้องระบุชื่อโซน');
+    if (!(Number(z.areaSqm) > 0)) errs.push('พื้นที่ต้องมากกว่า 0');
+    if (!VALID_SOIL.includes(z.soilType)) errs.push(`ชนิดดินไม่ถูกต้อง (${VALID_SOIL.join(', ')})`);
+    const wa = Number(z.waterAccess);
+    if (!(wa >= 0 && wa <= 1)) errs.push('waterAccess ต้องอยู่ 0–1');
+    if (!VALID_FLOOD.includes(z.floodRisk)) errs.push(`floodRisk ไม่ถูกต้อง (${VALID_FLOOD.join(', ')})`);
+    return errs;
+  }
+
+  function validateMarket(m) {
+    const errs = [];
+    if (!m || typeof m !== 'object') { errs.push('market ไม่ใช่ object'); return errs; }
+    if (!m.name || !String(m.name).trim()) errs.push('ต้องระบุชื่อตลาด');
+    if (!(Number(m.distanceKm) >= 0)) errs.push('ระยะทางต้องไม่ติดลบ');
+    const pf = Number(m.priceFactor);
+    if (!(pf >= 0.5 && pf <= 1.5)) errs.push('priceFactor ต้องอยู่ 0.5–1.5');
+    if (!(Number(m.transportCostPerTrip) >= 0)) errs.push('ค่าขนส่งต้องไม่ติดลบ');
+    const tw = Number(m.tripsPerWeek);
+    if (!(tw >= 1 && tw <= 14)) errs.push('เที่ยว/สัปดาห์ ต้องอยู่ 1–14');
+    const cats = m.acceptsCategories || [];
+    if (!cats.length) errs.push('ต้องระบุหมวดหมู่ที่รับซื้อ อย่างน้อย 1');
+    else if (!cats.every(c => VALID_CATEGORIES.includes(c))) errs.push('มีหมวดหมู่ที่รับซื้อไม่ถูกต้อง');
+    return errs;
+  }
+
+  function validateFarm(cfg) {
+    const errs = [];
+    if (!cfg || typeof cfg !== 'object') { errs.push('ข้อมูลไม่ใช่ object'); return errs; }
+    if (!(Number(cfg.capital) > 0)) errs.push('เงินลงทุน (capital) ต้องมากกว่า 0');
+    if (!(Number(cfg.cashReserve) >= 0)) errs.push('เงินสดสำรองต้องไม่ติดลบ');
+    if (!(Number(cfg.laborHoursPerDay) > 0)) errs.push('แรงงาน (ชม./วัน) ต้องมากกว่า 0');
+    const zones = cfg.zones || [];
+    if (!zones.length) errs.push('ต้องมีอย่างน้อย 1 โซนแปลง');
+    else {
+      if (!zones.some(z => Number(z.areaSqm) > 0)) errs.push('ต้องมีโซนที่มีพื้นที่มากกว่า 0 อย่างน้อย 1 โซน');
+      zones.forEach((z, i) => validateZone(z).forEach(e => errs.push(`โซน #${i + 1}: ${e}`)));
+    }
+    const markets = cfg.markets || [];
+    if (!markets.length) errs.push('ต้องมีอย่างน้อย 1 ตลาด');
+    else markets.forEach((m, i) => validateMarket(m).forEach(e => errs.push(`ตลาด #${i + 1}: ${e}`)));
+    return errs;
+  }
+
+  function loadFarm() {
+    const raw = readFarm();
+    if (!raw) return defaultFarm();
+    const cfg = ensureShape(raw);
+    if (validateFarm(cfg).length) return defaultFarm();
+    return cfg;
+  }
+
+  function saveFarm(cfg) {
+    if (!cfg || typeof cfg !== 'object') return { ok: false, errors: ['ข้อมูลไม่ถูกต้อง'] };
+    const clean = ensureShape(cfg);
+    const errs = validateFarm(clean);
+    if (errs.length) return { ok: false, errors: errs };
+    if (!writeFarm(clean)) return { ok: false, errors: ['บันทึกลงเครื่องไม่สำเร็จ (พื้นที่จัดเก็บอาจเต็ม)'] };
+    return { ok: true };
+  }
+
+  function saveZone(zone) {
+    if (!zone || typeof zone !== 'object') return { ok: false, errors: ['ข้อมูลไม่ถูกต้อง'] };
+    const cfg = loadFarm();
+    const zones = cfg.zones || [];
+    const draft = { ...zone };
+    if (!draft.id) draft.id = 'zone-' + Date.now().toString(36);
+    const errs = validateZone(draft);
+    if (errs.length) return { ok: false, errors: errs };
+    const idx = zones.findIndex(z => z.id === draft.id);
+    if (idx >= 0) zones[idx] = draft;
+    else zones.push(draft);
+    cfg.zones = zones;
+    if (!writeFarm(cfg)) return { ok: false, errors: ['บันทึกลงเครื่องไม่สำเร็จ (พื้นที่จัดเก็บอาจเต็ม)'] };
+    return { ok: true };
+  }
+
+  function deleteZone(zoneId) {
+    if (!zoneId) return;
+    const cfg = loadFarm();
+    cfg.zones = (cfg.zones || []).filter(z => z.id !== zoneId);
+    writeFarm(cfg);
+  }
+
+  function saveMarket(market) {
+    if (!market || typeof market !== 'object') return { ok: false, errors: ['ข้อมูลไม่ถูกต้อง'] };
+    const cfg = loadFarm();
+    const markets = cfg.markets || [];
+    const draft = { ...market };
+    if (!draft.id) draft.id = 'market-' + Date.now().toString(36);
+    const errs = validateMarket(draft);
+    if (errs.length) return { ok: false, errors: errs };
+    const idx = markets.findIndex(m => m.id === draft.id);
+    if (idx >= 0) markets[idx] = draft;
+    else markets.push(draft);
+    cfg.markets = markets;
+    if (!writeFarm(cfg)) return { ok: false, errors: ['บันทึกลงเครื่องไม่สำเร็จ (พื้นที่จัดเก็บอาจเต็ม)'] };
+    return { ok: true };
+  }
+
+  function deleteMarket(marketId) {
+    if (!marketId) return;
+    const cfg = loadFarm();
+    cfg.markets = (cfg.markets || []).filter(m => m.id !== marketId);
+    writeFarm(cfg);
+  }
+
+  /* --- 4. ENGINES (SUITABILITY, ALLOCATION, CASHFLOW) --- */
+  const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+  const lerp = (a, b, t) => a + (b - a) * clamp(t, 0, 1);
+
+  function yieldMultiplier(activity, zone) {
+    if (!activity || !zone) return 0;
+    const soilPref = activity.soilPreference || {};
+    const soilFactor = Number(soilPref[zone.soilType] ?? 0.5);
+    const wa = clamp(Number(zone.waterAccess ?? 0), 0, 1);
+    let waterFactor;
+    switch (activity.waterNeed) {
+      case 'high':   waterFactor = lerp(0.5, 1.0, wa); break;
+      case 'medium': waterFactor = lerp(0.7, 1.0, wa); break;
+      case 'low':    waterFactor = 1.0; break;
+      default:       waterFactor = lerp(0.7, 1.0, wa);
+    }
+    let floodFactor;
+    const cat = activity.category;
+    if (zone.floodRisk === 'high') {
+      floodFactor = (cat === 'field-crop' || cat === 'vegetable') ? 0 : 0.7;
+    } else if (zone.floodRisk === 'medium') {
+      floodFactor = 0.9;
+    } else {
+      floodFactor = 1.0;
+    }
+    return clamp(soilFactor * waterFactor * floodFactor, 0, 1.2);
+  }
+
+  function priceMultiplier(activity, market) {
+    if (!activity || !market) return null;
+    if (!(market.acceptsCategories || []).includes(activity.category)) return null;
+    const penalty = (activity.perishable && Number(market.distanceKm) > 20) ? 0.9 : 1.0;
+    return Number(market.priceFactor ?? 1) * penalty;
+  }
+
+  function pickBestMarket(activity, markets) {
+    if (!activity || !markets?.length) return null;
+    const expectedWeeklyRevenue = Number(activity.revenue?.grossPerUnitPerCycle || 0) / Math.max(1, Number(activity.revenue?.cycleWeeks || 1));
+    let best = null; let bestNet = -Infinity;
+    for (const m of markets) {
+      const pm = priceMultiplier(activity, m);
+      if (pm == null) continue;
+      const transportShare = Number(m.transportCostPerTrip || 0) * Number(m.tripsPerWeek || 0);
+      const netWeekly = expectedWeeklyRevenue * pm - transportShare;
+      if (netWeekly > bestNet) { bestNet = netWeekly; best = { market: m, priceMult: pm }; }
+    }
+    return best;
+  }
+
+  function scorePerSqm(activity, zone, market) {
+    if (!activity || !zone || !market) return 0;
+    const yMult = yieldMultiplier(activity, zone);
+    const pMult = priceMultiplier(activity, market);
+    if (pMult == null || yMult <= 0) return 0;
+    const r = activity.revenue || {};
+    const gross = Number(r.grossPerUnitPerCycle || 0);
+    const cycle = Math.max(1, Number(r.cycleWeeks || 1));
+    const first = clamp(Number(r.firstIncomeWeek || 1), 1, 52);
+    let annualRevenue;
+    if (r.model === 'lump') {
+      annualRevenue = gross * Math.max(0, Math.floor((52 - first) / cycle) + 1);
+    } else {
+      annualRevenue = gross * (Math.max(0, 52 - first + 1) / cycle);
+    }
+    const effRevenue = annualRevenue * yMult * pMult;
+    const annualCost = Number(activity.weeklyCostPerUnit || 0) * 52 + Number(activity.investmentPerUnit || 0);
+    return (effRevenue - annualCost) / Math.max(1, Number(activity.areaPerUnit || 1));
+  }
+
+  const PLAN_TEMPLATES = [
+    { id: 'safe', label: 'แผนปลอดภัย', emoji: '🛡️', desc: 'ลงทุนต่ำ เสี่ยงน้อย เน้นรายได้เข้าเร็ว', capitalFrac: 0.50, areaFrac: 0.45, laborFrac: 0.55, riskBias: 'quick-cash' },
+    { id: 'balanced', label: 'แผนสมดุล', emoji: '⚖️', desc: 'กระจายความเสี่ยงหลายกิจกรรม', capitalFrac: 0.75, areaFrac: 0.70, laborFrac: 0.75, riskBias: 'diversify' },
+    { id: 'high', label: 'แผนผลตอบแทนสูง', emoji: '🚀', desc: 'ใช้ทรัพยากรเกือบเต็ม เน้นกำไรสูงสุด', capitalFrac: 0.95, areaFrac: 0.90, laborFrac: 0.95, riskBias: 'max-profit' }
+  ];
+
+  function buildCandidates(farm, catalog) {
+    const list = [];
+    const zones = farm.zones || [];
+    const markets = farm.markets || [];
+    for (const a of catalog) {
+      const best = pickBestMarket(a, markets);
+      if (!best) continue;
+      const { market, priceMult } = best;
+      for (const z of zones) {
+        const yMult = yieldMultiplier(a, z);
+        if (yMult <= 0) continue;
+        const base = scorePerSqm(a, z, market);
+        if (base <= 0) continue;
+        list.push({ activity: a, zone: z, market, yieldMult: yMult, priceMult, baseScore: base });
+      }
+    }
+    return list;
+  }
+
+  function adjustScore(cand, bias, chosenN) {
+    const base = cand.baseScore;
+    const rev = cand.activity.revenue || {};
+    switch (bias) {
+      case 'quick-cash': return base * ((Number(rev.firstIncomeWeek || 99) <= 8) ? 1.30 : 1.0);
+      case 'diversify':  return base * Math.pow(0.8, chosenN);
+      default:           return base;
+    }
+  }
+
+  function allocate(template, farm, catalog) {
+    if (!farm || !catalog?.length) return [];
+    const candidates = buildCandidates(farm, catalog);
+    if (!candidates.length) return [];
+    const totalArea = (farm.zones || []).reduce((s, z) => s + (z.areaSqm || 0), 0);
+    let capLeft = Number(farm.capital || 0) * template.capitalFrac;
+    let laborLeft = Number(farm.laborHoursPerDay || 0) * template.laborFrac;
+    let areaLeft = totalArea * template.areaFrac;
+    const areaUsedByZone = {}; const chosenByActivity = {}; const chosenUnits = [];
+    let addedAny = true; let safety = 5000;
+    while (addedAny && safety-- > 0) {
+      addedAny = false;
+      const ranked = candidates.map(c => ({ c, score: adjustScore(c, template.riskBias, chosenByActivity[c.activity.id] || 0) })).filter(x => x.score > 0).sort((a, b) => b.score - a.score);
+      for (const { c } of ranked) {
+        const a = c.activity; const z = c.zone;
+        const usedInZone = areaUsedByZone[z.id] || 0;
+        const zoneCapLeft = (z.areaSqm || 0) - usedInZone;
+        if (a.investmentPerUnit > capLeft) continue;
+        if (a.laborPerUnitPerDay > laborLeft) continue;
+        if (a.areaPerUnit > zoneCapLeft) continue;
+        if (a.areaPerUnit > areaLeft) continue;
+        if ((chosenByActivity[a.id] || 0) >= (a.maxUnits || 99)) continue;
+        capLeft -= a.investmentPerUnit;
+        laborLeft -= a.laborPerUnitPerDay;
+        areaLeft -= a.areaPerUnit;
+        areaUsedByZone[z.id] = usedInZone + a.areaPerUnit;
+        chosenByActivity[a.id] = (chosenByActivity[a.id] || 0) + 1;
+        chosenUnits.push({ activityId: a.id, zoneId: z.id, marketId: c.market.id, yieldMult: c.yieldMult, priceMult: c.priceMult });
+        addedAny = true; break;
+      }
+    }
+    const groupMap = new Map();
+    for (const u of chosenUnits) {
+      const key = `${u.activityId}|${u.zoneId}|${u.marketId}`;
+      const cur = groupMap.get(key);
+      if (cur) cur.units += 1;
+      else groupMap.set(key, { activityId: u.activityId, zoneId: u.zoneId, marketId: u.marketId, units: 1, startWeek: 1, yieldMult: u.yieldMult, priceMult: u.priceMult });
+    }
+    return Array.from(groupMap.values());
+  }
+
+  function summarizeUsage(placements, catalog) {
+    const byId = Object.fromEntries((catalog || []).map(a => [a.id, a]));
+    let capUsed = 0; let laborUsed = 0; const areaUsedByZone = {};
+    for (const p of placements || []) {
+      const a = byId[p.activityId]; if (!a) continue;
+      capUsed += (a.investmentPerUnit || 0) * p.units;
+      laborUsed += (a.laborPerUnitPerDay || 0) * p.units;
+      areaUsedByZone[p.zoneId] = (areaUsedByZone[p.zoneId] || 0) + (a.areaPerUnit || 0) * p.units;
+    }
+    return { capUsed, laborUsed, areaUsedByZone };
+  }
+
+  const WEEKS_PER_YEAR = 52;
+  const ROLLING_WINDOW = 13;
+  const MONTHS_TH = ['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+  const zeros = n => new Array(n).fill(0);
+  const round0 = n => Math.round(n);
+
+  function weekToMonthTH(week) {
+    const w = Math.max(1, Math.min(52, Number(week) || 1));
+    return MONTHS_TH[Math.min(11, Math.floor((w - 1) / 4.34))];
+  }
+
+  function simulateCashflow(placements, catalog, markets, cashReserve) {
+    const catById = Object.fromEntries((catalog || []).map(a => [a.id, a]));
+    const mktById = Object.fromEntries((markets || []).map(m => [m.id, m]));
+    const income = zeros(WEEKS_PER_YEAR + 1); const cost = zeros(WEEKS_PER_YEAR + 1); const invest = zeros(WEEKS_PER_YEAR + 1);
+    for (const p of placements || []) {
+      const a = catById[p.activityId]; const m = mktById[p.marketId]; if (!a) continue;
+      const units = Number(p.units || 0); const startWeek = Math.max(1, Number(p.startWeek || 1));
+      const yMult = Number(p.yieldMult ?? 1); const pMult = Number(p.priceMult ?? 1);
+      if (startWeek <= WEEKS_PER_YEAR) invest[startWeek] += Number(a.investmentPerUnit || 0) * units;
+      const wCost = Number(a.weeklyCostPerUnit || 0) * units;
+      const transportShare = m ? Number(m.transportCostPerTrip || 0) * Number(m.tripsPerWeek || 0) : 0;
+      for (let w = startWeek; w <= WEEKS_PER_YEAR; w++) cost[w] += wCost + transportShare;
+      const rev = a.revenue || {}; const gross = Number(rev.grossPerUnitPerCycle || 0);
+      const cycle = Math.max(1, Number(rev.cycleWeeks || 1)); const first = Math.max(1, Number(rev.firstIncomeWeek || 1));
+      const firstAbs = startWeek + first - 1;
+      if (gross > 0) {
+        for (let w = firstAbs; w <= WEEKS_PER_YEAR; w += cycle) {
+          income[w] += gross * units * yMult * pMult;
+        }
+      }
+    }
+    const weekly = []; let balance = Number(cashReserve || 0); let minBalance = balance; let minBalanceWeek = 0;
+    for (let w = 1; w <= WEEKS_PER_YEAR; w++) {
+      const inc = income[w]; const c = cost[w]; const inv = invest[w]; const net = inc - c - inv;
+      balance += net;
+      if (balance < minBalance) { minBalance = balance; minBalanceWeek = w; }
+      weekly.push({ week: w, income: round0(inc), cost: round0(c), invest: round0(inv), net: round0(net), balance: round0(balance) });
+    }
+    const cashGaps = []; let gap = null;
+    weekly.forEach(w => {
+      if (w.balance < 0) {
+        if (!gap) gap = { fromWeek: w.week, toWeek: w.week, maxDeficit: -w.balance };
+        else { gap.toWeek = w.week; gap.maxDeficit = Math.max(gap.maxDeficit, -w.balance); }
+      } else if (gap) { cashGaps.push(gap); gap = null; }
+    });
+    if (gap) cashGaps.push(gap);
+    const rolling13 = [];
+    for (let w = 0; w < WEEKS_PER_YEAR; w++) {
+      const end = Math.min(WEEKS_PER_YEAR, w + ROLLING_WINDOW);
+      let m = Infinity;
+      for (let k = w; k < end; k++) m = Math.min(m, weekly[k].balance);
+      rolling13.push(m);
+    }
+    let firstWarningWeek = null;
+    for (let i = 0; i < rolling13.length; i++) { if (rolling13[i] < 0) { firstWarningWeek = i + 1; break; } }
+    const loanNeeded = minBalance < 0 ? Math.ceil((-minBalance * 1.2) / 1000) * 1000 : 0;
+    let cumIncMinusCost = 0; let cumInvest = 0; let breakEvenWeek = null;
+    weekly.forEach(w => {
+      cumIncMinusCost += w.income - w.cost; cumInvest += w.invest;
+      if (breakEvenWeek == null && cumInvest > 0 && cumIncMinusCost >= cumInvest) breakEvenWeek = w.week;
+    });
+    const result = { weekly, minBalance: round0(minBalance), minBalanceWeek, cashGaps: cashGaps.map(g => ({ fromWeek: g.fromWeek, toWeek: g.toWeek, maxDeficit: round0(g.maxDeficit) })), rolling13: rolling13.map(round0), firstWarningWeek, loanNeeded, breakEvenWeek, suggestions: [] };
+    result.suggestions = buildSuggestions(result, placements, catalog, markets, cashReserve);
+    return result;
+  }
+
+  function simulateCashflowRaw(placements, catalog, markets, cashReserve) {
+    const catById = Object.fromEntries((catalog || []).map(a => [a.id, a]));
+    const mktById = Object.fromEntries((markets || []).map(m => [m.id, m]));
+    const income = zeros(WEEKS_PER_YEAR + 1); const cost = zeros(WEEKS_PER_YEAR + 1); const invest = zeros(WEEKS_PER_YEAR + 1);
+    for (const p of placements) {
+      const a = catById[p.activityId]; const m = mktById[p.marketId]; if (!a) continue;
+      const units = Number(p.units || 0); const start = Math.max(1, Number(p.startWeek || 1));
+      const yM = Number(p.yieldMult ?? 1); const pM = Number(p.priceMult ?? 1);
+      if (start <= WEEKS_PER_YEAR) invest[start] += Number(a.investmentPerUnit || 0) * units;
+      const wCost = Number(a.weeklyCostPerUnit || 0) * units;
+      const tShare = m ? Number(m.transportCostPerTrip || 0) * Number(m.tripsPerWeek || 0) : 0;
+      for (let w = start; w <= WEEKS_PER_YEAR; w++) cost[w] += wCost + tShare;
+      const rev = a.revenue || {}; const gross = Number(rev.grossPerUnitPerCycle || 0);
+      const cycle = Math.max(1, Number(rev.cycleWeeks || 1)); const first = Math.max(1, Number(rev.firstIncomeWeek || 1));
+      const firstAbs = start + first - 1;
+      for (let w = firstAbs; w <= WEEKS_PER_YEAR; w += cycle) { income[w] += gross * units * yM * pM; }
+    }
+    let bal = Number(cashReserve || 0); let minBal = bal;
+    for (let w = 1; w <= WEEKS_PER_YEAR; w++) {
+      bal += income[w] - cost[w] - invest[w];
+      if (bal < minBal) minBal = bal;
+    }
+    return { loanNeeded: minBal < 0 ? Math.ceil((-minBal * 1.2) / 1000) * 1000 : 0 };
+  }
+
+  function trySchedulingShifts(placements, catalog, markets, cashReserve, currentLoan) {
+    const catById = Object.fromEntries((catalog || []).map(a => [a.id, a]));
+    let best = null; let bestLoan = currentLoan;
+    for (let i = 0; i < placements.length; i++) {
+      const p = placements[i]; const a = catById[p.activityId]; if (!a || a.revenue?.model !== 'lump') continue;
+      for (const shift of [4, 8, 12]) {
+        const newStart = Math.max(1, (p.startWeek || 1) + shift); if (newStart >= WEEKS_PER_YEAR) break;
+        const trial = placements.map((q, idx) => idx === i ? { ...q, startWeek: newStart } : q);
+        const trialResult = simulateCashflowRaw(trial, catalog, markets, cashReserve);
+        if (trialResult.loanNeeded < bestLoan) {
+          bestLoan = trialResult.loanNeeded;
+          best = { placement: p, newStart, newLoan: trialResult.loanNeeded };
+        }
+      }
+    }
+    if (best && best.newLoan < currentLoan * 0.5) return best;
+    return null;
+  }
+
+  function buildSuggestions(result, placements, catalog, markets, cashReserve) {
+    const suggestions = []; const catById = Object.fromEntries((catalog || []).map(a => [a.id, a]));
+    if (result.cashGaps?.length && result.loanNeeded > 0) {
+      const first = result.cashGaps[0]; const last = result.cashGaps[result.cashGaps.length - 1];
+      const range = `${weekToMonthTH(first.fromWeek)}–${weekToMonthTH(last.toWeek)}`;
+      suggestions.push(`🚨 ควรเตรียมวงเงินสำรอง/กู้ระยะสั้นประมาณ <strong>${result.loanNeeded.toLocaleString('th-TH')} บาท</strong> ช่วง <strong>${range}</strong> เพื่อประคองระดับเงินหมุนเวียน`);
+    }
+    if (result.loanNeeded > 0 && placements?.length) {
+      const bestShift = trySchedulingShifts(placements, catalog, markets, cashReserve, result.loanNeeded);
+      if (bestShift) {
+        const a = catById[bestShift.placement.activityId]; const saved = result.loanNeeded - bestShift.newLoan;
+        suggestions.push(`💡 ข้อเสนอแนะการจัดการคิว: เลื่อนเริ่มทำ <strong>${escapeHtml(a?.icon || '')} ${escapeHtml(a?.name || bestShift.placement.activityId)}</strong> ไปสัปดาห์ที่ <strong>${bestShift.newStart}</strong> จะลดปัญหาเงินสดขาดมือลงได้ประมาณ <strong>${Math.max(0, Math.round(saved)).toLocaleString('th-TH')} บาท</strong>`);
+      }
+    }
+    const hasQuickCash = (placements || []).some(p => {
+      const a = catById[p.activityId]; const first = Number(a?.revenue?.firstIncomeWeek || 99); const start = Number(p.startWeek || 1);
+      return (start + first - 1) <= 8;
+    });
+    if (!hasQuickCash) {
+      suggestions.push(`⏱ สังเกตการณ์: แผนนี้ขาดกิจกรรมที่สร้างเงินสดช่วง 8 สัปดาห์แรก — ควรเสริมพืชผัก/เห็ดระยะสั้นซัก 1-2 หน่วยเพื่อแก้จุดอ่อน`);
+    }
+    return suggestions;
+  }
+</script>
+
+<script>
+  /* --- 5. INTERACTIVE VIEWS --- */
+  function showToast(msg, type = '') {
+    const el = document.getElementById('toast'); if (!el) return;
+    el.className = 'toast'; el.textContent = msg; if (type) el.classList.add(type);
+    el.hidden = false; requestAnimationFrame(() => el.classList.add('show'));
+    clearTimeout(el._t);
+    el._t = setTimeout(() => { el.classList.remove('show'); setTimeout(() => (el.hidden = true), 250); }, 2800);
+  }
+
+  // --- Views Map & Store interfaces ---
+  const VIEW_MAP = {
+    farm:    { render: renderFarm },
+    catalog: { render: renderCatalog },
+    zones:   { render: renderZones },
+    markets: { render: renderMarkets },
+    results: { render: renderResults },
+  };
+
+  /* ==========================================
+     VIEWS DEFINITIONS
+     ========================================== */
+
+  // 🏡 FARM VIEW
+  function renderFarm(containerEl) {
+    const farm = loadFarm();
+    const totalArea = (farm.zones || []).reduce((s, z) => s + (z.areaSqm || 0), 0);
+    containerEl.innerHTML = `
+      <div class="card">
+        <h2 class="card-title">🏡 ตั้งค่าทรัพยากรฟาร์มหลัก</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="ff-capital">💰 เงินลงทุนสูงสุดสำหรับจัดสรร (บาท)</label>
+            <input type="number" id="ff-capital" min="1" step="1000" value="${farm.capital}">
+          </div>
+          <div class="form-group">
+            <label for="ff-cashReserve">🏦 เงินสดสำรองเริ่มต้น (บาท)</label>
+            <input type="number" id="ff-cashReserve" min="0" step="1000" value="${farm.cashReserve}">
+          </div>
+          <div class="form-group">
+            <label for="ff-labor">👨‍🌾 แรงงานสูงสุดที่มี (ชั่วโมง/วัน)</label>
+            <input type="number" id="ff-labor" min="0.1" step="0.5" value="${farm.laborHoursPerDay}">
+          </div>
+        </div>
+        <button class="btn-primary" id="ff-save">💾 บันทึกข้อมูลทรัพยากร</button>
+      </div>
+      <div class="card">
+        <h3>📊 โครงสร้างสถานะฟาร์ม ณ ปัจจุบัน</h3>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-top:.8rem;">
+          <div style="background:var(--gray-50); padding:1rem; border-radius:var(--radius-sm); border-left:4px solid var(--green-600);">
+            <div class="hint">โซนแปลงดินทั้งหมด</div>
+            <div style="font-size:1.4rem; font-weight:800; color:var(--green-900);">${(farm.zones || []).length} โซน</div>
+            <div class="hint">พื้นที่รวมกัน: <strong>${totalArea.toLocaleString()}</strong> ตร.ม.</div>
+          </div>
+          <div style="background:var(--gray-50); padding:1rem; border-radius:var(--radius-sm); border-left:4px solid var(--gold-600);">
+            <div class="hint">ตลาดจำหน่าย</div>
+            <div style="font-size:1.4rem; font-weight:800; color:var(--gold-700);">${(farm.markets || []).length} แห่ง</div>
+            <div class="hint">ไปปรับปรุงข้อมูลตลาดได้ในแท็บ 🏪 ตลาด</div>
+          </div>
+        </div>
+      </div>
+    `;
+    containerEl.querySelector('#ff-save').addEventListener('click', () => {
+      const d = {
+        ...farm,
+        capital: parseFloat(document.getElementById('ff-capital').value) || 0,
+        cashReserve: parseFloat(document.getElementById('ff-cashReserve').value) || 0,
+        laborHoursPerDay: parseFloat(document.getElementById('ff-labor').value) || 0
+      };
+      const res = saveFarm(d);
+      if (res.ok) { showToast('✅ บันทึกข้อมูลทรัพยากรฟาร์มสำเร็จ', 'success'); invalidateResults(); renderFarm(containerEl); }
+      else { showToast('❌ ' + res.errors[0], 'error'); }
+    });
+  }
+
+  // 📖 CATALOG VIEW
+  let filterCat = ''; let searchQ = ''; let editCatId = null;
+  function renderCatalog(containerEl) {
+    containerEl.innerHTML = `
+      <div class="card">
+        <h2 class="card-title">📖 แคตตาล็อกกิจกรรมการผลิต</h2>
+        <div style="display:flex; gap:.6rem; flex-wrap:wrap; margin-bottom:1rem;">
+          <button class="btn-primary" id="c-add">➕ เพิ่มกิจกรรม</button>
+          <button class="btn-secondary" id="c-export">📤 Export JSON</button>
+          <label class="btn-secondary" style="cursor:pointer;">📥 Import JSON <input type="file" id="c-import" accept="application/json" hidden></label>
+        </div>
+        <div class="form-grid" style="grid-template-columns:2fr 1fr; margin-bottom:.8rem;">
+          <div class="form-group">
+            <label for="c-search">🔍 ค้นหากิจกรรม</label>
+            <input type="text" id="c-search" placeholder="ค้นหาชื่อพืช/สัตว์..." value="${escapeHtml(searchQ)}">
+          </div>
+          <div class="form-group">
+            <label for="c-filter">หมวดหมู่</label>
+            <select id="c-filter">
+              <option value="">— ทั้งหมด —</option>
+              <option value="vegetable" ${filterCat === 'vegetable' ? 'selected' : ''}>🥬 ผัก</option>
+              <option value="field-crop" ${filterCat === 'field-crop' ? 'selected' : ''}>🌽 พืชไร่</option>
+              <option value="fruit-tree" ${filterCat === 'fruit-tree' ? 'selected' : ''}>🍌 ไม้ผล</option>
+              <option value="livestock" ${filterCat === 'livestock' ? 'selected' : ''}>🐔 ปศุสัตว์</option>
+              <option value="aquaculture" ${filterCat === 'aquaculture' ? 'selected' : ''}>🐟 ประมง</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap"><table class="data-table" id="c-table"></table></div>
+      </div>
+      <div id="c-form-wrap"></div>
+    `;
+    const $ = s => containerEl.querySelector(s);
+    $('#c-search').addEventListener('input', e => { searchQ = e.target.value; renderCatTable(containerEl); });
+    $('#c-filter').addEventListener('change', e => { filterCat = e.target.value; renderCatTable(containerEl); });
+    $('#c-add').addEventListener('click', () => { editCatId = '__new__'; renderCatForm(containerEl, '__new__'); });
+    $('#c-export').addEventListener('click', () => {
+      const blob = new Blob([exportUserCatalog()], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'catalog.json'; a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+    $('#c-import').addEventListener('change', async e => {
+      const file = e.target.files?.[0]; if (!file) return;
+      try {
+        const res = importCatalog(await file.text());
+        showToast(`✅ นำเข้าสำเร็จ ${res.imported} รายการ · ⚠️ ปฏิเสธ ${res.rejected.length} รายการ`, res.rejected.length ? 'warn' : 'success');
+        if (res.imported > 0) invalidateResults();
+        renderCatalog(containerEl);
+      } catch { showToast('❌ ไฟล์ JSON ไม่ถูกต้อง', 'error'); }
+      finally { e.target.value = ''; }
+    });
+    renderCatTable(containerEl);
+    if (editCatId) renderCatForm(containerEl, editCatId);
+  }
+
+  function renderCatTable(containerEl) {
+    const catalog = loadCatalog();
+    const q = searchQ.trim().toLowerCase();
+    const rows = catalog.filter(a => (!filterCat || a.category === filterCat) && (!q || a.name.toLowerCase().includes(q)));
+    const table = containerEl.querySelector('#c-table');
+    if (!rows.length) {
+      table.innerHTML = `<tbody><tr><td class="hint" style="text-align:center; padding:1.5rem;">ไม่พบข้อมูลพืชหรือสัตว์</td></tr></tbody>`;
+      return;
+    }
+    table.innerHTML = `
+      <thead><tr>
+        <th style="text-align:left;">กิจกรรม</th><th>หมวด</th><th>พื้นที่ (ตร.ม.)</th><th>ลงทุน (฿)</th><th>ต้นทุน/สัปดาห์</th><th>รายได้รอบ</th><th>เพดาน</th><th>จัดการ</th>
+      </tr></thead>
+      <tbody>
+        ${rows.map(a => `
+          <tr>
+            <td style="text-align:left;"><strong>${escapeHtml(a.icon)} ${escapeHtml(a.name)}</strong></td>
+            <td>${a.category === 'vegetable' ? 'ผัก' : a.category === 'field-crop' ? 'พืชไร่' : a.category === 'fruit-tree' ? 'ไม้ผล' : a.category === 'livestock' ? 'ปศุสัตว์' : 'ประมง'}</td>
+            <td>${a.areaPerUnit}</td><td>${a.investmentPerUnit.toLocaleString()}</td><td>${a.weeklyCostPerUnit}</td>
+            <td>${a.revenue.grossPerUnitPerCycle.toLocaleString()} (${a.revenue.model === 'lump' ? 'ก้อน' : 'สม่ำเสมอ'})</td>
+            <td>${a.maxUnits}</td>
+            <td style="white-space:nowrap;">
+              ${a.source === 'user'
+                ? `<button class="btn-secondary act-edit" data-id="${a.id}">แก้</button>
+                   <button class="btn-danger act-delete" data-id="${a.id}">ลบ</button>`
+                : `<button class="btn-secondary act-clone" data-id="${a.id}">Clone</button>`}
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    `;
+    table.querySelectorAll('.act-edit').forEach(b => b.addEventListener('click', () => { editCatId = b.dataset.id; renderCatForm(containerEl, editCatId); }));
+    table.querySelectorAll('.act-clone').forEach(b => b.addEventListener('click', () => { const c = cloneActivity(b.dataset.id); if (!c) { showToast('❌ ไม่สามารถคัดลอกกิจกรรมนี้ได้', 'error'); return; } editCatId = c.id; invalidateResults(); renderCatalog(containerEl); }));
+    table.querySelectorAll('.act-delete').forEach(b => b.addEventListener('click', () => { if (confirm('ต้องการลบกิจกรรมนี้?')) { deleteActivity(b.dataset.id); if (editCatId === b.dataset.id) editCatId = null; invalidateResults(); renderCatalog(containerEl); } }));
+  }
+
+  function renderCatForm(containerEl, id) {
+    const catalog = loadCatalog();
+    const a = (id === '__new__') ? { id: '', name: '', icon: '🌱', category: 'vegetable', unitDesc: '', areaPerUnit: 100, investmentPerUnit: 2000, laborPerUnitPerDay: 1, waterNeed: 'medium', soilPreference: { loam: 1.0, clay: 1.0, sandy: 1.0 }, weeklyCostPerUnit: 100, revenue: { model: 'recurring', grossPerUnitPerCycle: 500, cycleWeeks: 1, firstIncomeWeek: 6 }, maxUnits: 3, perishable: false } : catalog.find(x => x.id === id);
+    const wrap = containerEl.querySelector('#c-form-wrap');
+    if (!a) { editCatId = null; wrap.innerHTML = ''; return; }
+    wrap.innerHTML = `
+      <div class="card" style="margin-top:1rem;">
+        <h3>${id === '__new__' ? '➕ เพิ่มกิจกรรมเพาะปลูก/เลี้ยงสัตว์ใหม่' : '✏️ แก้ไขกิจกรรม'}</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>ชื่อพืช/สัตว์</label><input id="fa-name" value="${escapeHtml(a.name)}"></div>
+          <div class="form-group"><label>Emoji สัญลักษณ์</label><input id="fa-icon" value="${escapeHtml(a.icon)}"></div>
+          <div class="form-group"><label>หมวดหมู่</label><select id="fa-category"><option value="vegetable" ${a.category==='vegetable'?'selected':''}>ผัก</option><option value="field-crop" ${a.category==='field-crop'?'selected':''}>พืชไร่</option><option value="fruit-tree" ${a.category==='fruit-tree'?'selected':''}>ไม้ผล</option><option value="livestock" ${a.category==='livestock'?'selected':''}>ปศุสัตว์</option><option value="aquaculture" ${a.category==='aquaculture'?'selected':''}>ประมง</option></select></div>
+          <div class="form-group"><label>หน่วยเรียกคำอธิบาย</label><input id="fa-unitDesc" value="${escapeHtml(a.unitDesc)}" placeholder="เช่น แปลง 100 ตร.ม."></div>
+          <div class="form-group"><label>พื้นที่ที่ใช้/หน่วย (ตร.ม.)</label><input type="number" id="fa-area" value="${a.areaPerUnit}"></div>
+          <div class="form-group"><label>เงินลงทุนตั้งต้น/หน่วย (บาท)</label><input type="number" id="fa-invest" value="${a.investmentPerUnit}"></div>
+          <div class="form-group"><label>แรงงานที่ใช้ (ชั่วโมง/วัน/หน่วย)</label><input type="number" id="fa-labor" value="${a.laborPerUnitPerDay}" step="0.1"></div>
+          <div class="form-group"><label>ต้นทุนดำเนินงานรายสัปดาห์/หน่วย (บาท)</label><input type="number" id="fa-wcost" value="${a.weeklyCostPerUnit}"></div>
+          <div class="form-group"><label>ต้องการน้ำ</label><select id="fa-water"><option value="low" ${a.waterNeed==='low'?'selected':''}>ต่ำ</option><option value="medium" ${a.waterNeed==='medium'?'selected':''}>ปานกลาง</option><option value="high" ${a.waterNeed==='high'?'selected':''}>สูง</option></select></div>
+          <div class="form-group"><label>เพดานการจัดสรรสูงสุด (หน่วย)</label><input type="number" id="fa-max" value="${a.maxUnits}"></div>
+          <div class="form-group"><label>เน่าเสียง่ายไหม (เสียหายเร็ว)</label><select id="fa-peri"><option value="false" ${!a.perishable?'selected':''}>ไม่</option><option value="true" ${a.perishable?'selected':''}>ใช่</option></select></div>
+          <div class="form-group"><label>รูปแบบรายได้</label><select id="fa-rev-model"><option value="recurring" ${a.revenue.model==='recurring'?'selected':''}>สม่ำเสมอ (ขายเป็นรอบถี่)</option><option value="lump" ${a.revenue.model==='lump'?'selected':''}>ก้อนเดียวเมื่อจบรอบ</option></select></div>
+          <div class="form-group"><label>รายได้ต่อหน่วยต่อรอบ (บาท)</label><input type="number" id="fa-rev-gross" value="${a.revenue.grossPerUnitPerCycle}" min="0"></div>
+          <div class="form-group"><label>ความยาวรอบรายได้ (สัปดาห์)</label><input type="number" id="fa-rev-cycle" value="${a.revenue.cycleWeeks}" min="1"></div>
+          <div class="form-group"><label>สัปดาห์แรกที่เริ่มมีรายได้ (1–52)</label><input type="number" id="fa-rev-first" value="${a.revenue.firstIncomeWeek}" min="1" max="52"></div>
+          <div class="form-group"><label>ความเหมาะกับดินร่วน (0–1.2)</label><input type="number" id="fa-soil-loam" value="${a.soilPreference.loam}" step="0.1" min="0" max="1.2"></div>
+          <div class="form-group"><label>ความเหมาะกับดินเหนียว (0–1.2)</label><input type="number" id="fa-soil-clay" value="${a.soilPreference.clay}" step="0.1" min="0" max="1.2"></div>
+          <div class="form-group"><label>ความเหมาะกับดินทราย (0–1.2)</label><input type="number" id="fa-soil-sandy" value="${a.soilPreference.sandy}" step="0.1" min="0" max="1.2"></div>
+        </div>
+        <div style="display:flex; gap:.6rem; margin-top:.5rem;">
+          <button class="btn-primary" id="fa-save">💾 บันทึก</button>
+          <button class="btn-secondary" id="fa-cancel">ยกเลิก</button>
+        </div>
+      </div>
+    `;
+    wrap.querySelector('#fa-cancel').addEventListener('click', () => { editCatId = null; wrap.innerHTML = ''; });
+    wrap.querySelector('#fa-save').addEventListener('click', () => {
+      const draft = {
+        id: a.id,
+        name: document.getElementById('fa-name').value.trim(),
+        icon: document.getElementById('fa-icon').value.trim(),
+        category: document.getElementById('fa-category').value,
+        unitDesc: document.getElementById('fa-unitDesc').value,
+        areaPerUnit: parseFloat(document.getElementById('fa-area').value) || 0,
+        investmentPerUnit: parseFloat(document.getElementById('fa-invest').value) || 0,
+        laborPerUnitPerDay: parseFloat(document.getElementById('fa-labor').value) || 0,
+        weeklyCostPerUnit: parseFloat(document.getElementById('fa-wcost').value) || 0,
+        waterNeed: document.getElementById('fa-water').value,
+        maxUnits: Number(document.getElementById('fa-max').value),
+        perishable: document.getElementById('fa-peri').value === 'true',
+        soilPreference: {
+          loam: Number(document.getElementById('fa-soil-loam').value),
+          clay: Number(document.getElementById('fa-soil-clay').value),
+          sandy: Number(document.getElementById('fa-soil-sandy').value)
+        },
+        revenue: {
+          model: document.getElementById('fa-rev-model').value,
+          grossPerUnitPerCycle: Number(document.getElementById('fa-rev-gross').value),
+          cycleWeeks: Number(document.getElementById('fa-rev-cycle').value),
+          firstIncomeWeek: Number(document.getElementById('fa-rev-first').value)
+        }
+      };
+      const res = saveActivity(draft);
+      if (res.ok) { showToast('✅ บันทึกพืช/สัตว์สำเร็จ', 'success'); editCatId = null; invalidateResults(); renderCatalog(containerEl); }
+      else { showToast('❌ ' + res.errors[0], 'error'); }
+    });
+  }
+
+  // 🗺️ ZONES VIEW
+  let editZoneId = null;
+  function renderZones(containerEl) {
+    const farm = loadFarm(); const zones = farm.zones || [];
+    const totalArea = zones.reduce((s, z) => s + (z.areaSqm || 0), 0);
+    containerEl.innerHTML = `
+      <div class="card">
+        <h2 class="card-title">🗺️ แผนผังแปลงและโซนดินในฟาร์ม</h2>
+        <div style="display:flex; gap:.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+          <span class="badge">📐 ทั้งหมด: ${zones.length} โซน</span>
+          <span class="badge badge-gold">รวม: ${totalArea.toLocaleString()} ตร.ม.</span>
+        </div>
+        <button class="btn-primary" id="z-add" style="margin-bottom:1rem;">➕ เพิ่มโซนแปลง</button>
+        <div class="table-wrap"><table class="data-table" id="z-table"></table></div>
+      </div>
+      <div id="z-form-wrap"></div>
+    `;
+    const table = containerEl.querySelector('#z-table');
+    table.innerHTML = `
+      <thead><tr><th>ชื่อโซน</th><th>พื้นที่ (ตร.ม.)</th><th>ชนิดดิน</th><th>การเข้าถึงน้ำ</th><th>เสี่ยงน้ำท่วม</th><th>จัดการ</th></tr></thead>
+      <tbody>
+        ${zones.map(z => `
+          <tr>
+            <td style="text-align:left;"><strong>${escapeHtml(z.name)}</strong></td>
+            <td>${z.areaSqm.toLocaleString()}</td>
+            <td>${z.soilType==='loam'?'ดินร่วน':z.soilType==='clay'?'ดินเหนียว':'ดินทราย'}</td>
+            <td>${(z.waterAccess * 100).toFixed(0)}%</td>
+            <td><span class="badge ${z.floodRisk==='high'?'badge-danger':z.floodRisk==='medium'?'badge-warn':'badge'}">${z.floodRisk==='high'?'สูง':z.floodRisk==='medium'?'กลาง':'ต่ำ'}</span></td>
+            <td>
+              <button class="btn-secondary act-edit" data-id="${z.id}">แก้</button>
+              <button class="btn-danger act-delete" data-id="${z.id}">ลบ</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    `;
+    containerEl.querySelector('#z-add').addEventListener('click', () => { editZoneId = '__new__'; renderZoneForm(containerEl, '__new__'); });
+    table.querySelectorAll('.act-edit').forEach(b => b.addEventListener('click', () => { editZoneId = b.dataset.id; renderZoneForm(containerEl, editZoneId); }));
+    table.querySelectorAll('.act-delete').forEach(b => b.addEventListener('click', () => { if (confirm('ต้องการลบโซนแปลงดินนี้?')) { deleteZone(b.dataset.id); if (editZoneId === b.dataset.id) editZoneId = null; invalidateResults(); renderZones(containerEl); } }));
+    if (editZoneId) renderZoneForm(containerEl, editZoneId);
+  }
+
+  function renderZoneForm(containerEl, id) {
+    const farm = loadFarm();
+    const z = (id === '__new__') ? { id: '', name: '', areaSqm: 500, soilType: 'loam', waterAccess: 0.8, floodRisk: 'low', note: '' } : farm.zones.find(x => x.id === id);
+    const wrap = containerEl.querySelector('#z-form-wrap');
+    if (!z) { editZoneId = null; wrap.innerHTML = ''; return; }
+    wrap.innerHTML = `
+      <div class="card" style="margin-top:1rem;">
+        <h3>${id === '__new__' ? '➕ เพิ่มโซนแปลงดิน' : '✏️ แก้ไขโซนแปลง'}</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>ชื่อโซน</label><input id="fz-name" value="${escapeHtml(z.name)}"></div>
+          <div class="form-group"><label>พื้นที่โซน (ตร.ม.)</label><input type="number" id="fz-area" value="${z.areaSqm}"></div>
+          <div class="form-group"><label>ชนิดดิน</label><select id="fz-soil"><option value="loam" ${z.soilType==='loam'?'selected':''}>ดินร่วน</option><option value="clay" ${z.soilType==='clay'?'selected':''}>ดินเหนียว</option><option value="sandy" ${z.soilType==='sandy'?'selected':''}>ดินทราย</option></select></div>
+          <div class="form-group"><label>การเข้าถึงน้ำ (0–1)</label><input type="number" id="fz-water" value="${z.waterAccess}" step="0.1" min="0" max="1"></div>
+          <div class="form-group"><label>ระดับความเสี่ยงน้ำท่วม</label><select id="fz-flood"><option value="low" ${z.floodRisk==='low'?'selected':''}>ต่ำ</option><option value="medium" ${z.floodRisk==='medium'?'selected':''}>ปานกลาง</option><option value="high" ${z.floodRisk==='high'?'selected':''}>สูง</option></select></div>
+        </div>
+        <div style="display:flex; gap:.6rem; margin-top:.5rem;">
+          <button class="btn-primary" id="fz-save">💾 บันทึก</button>
+          <button class="btn-secondary" id="fz-cancel">ยกเลิก</button>
+        </div>
+      </div>
+    `;
+    wrap.querySelector('#fz-cancel').addEventListener('click', () => { editZoneId = null; wrap.innerHTML = ''; });
+    wrap.querySelector('#fz-save').addEventListener('click', () => {
+      const draft = {
+        id: z.id,
+        name: document.getElementById('fz-name').value.trim(),
+        areaSqm: parseFloat(document.getElementById('fz-area').value) || 0,
+        soilType: document.getElementById('fz-soil').value,
+        waterAccess: parseFloat(document.getElementById('fz-water').value) || 0,
+        floodRisk: document.getElementById('fz-flood').value,
+        note: z.note
+      };
+      const res = saveZone(draft);
+      if (res.ok) { showToast('✅ บันทึกโซนสำเร็จ', 'success'); editZoneId = null; invalidateResults(); renderZones(containerEl); }
+      else { showToast('❌ ' + res.errors[0], 'error'); }
+    });
+  }
+
+  // 🏪 MARKETS VIEW
+  let editMarketId = null;
+  function renderMarkets(containerEl) {
+    const farm = loadFarm(); const markets = farm.markets || [];
+    containerEl.innerHTML = `
+      <div class="card">
+        <h2 class="card-title">🏪 ตลาดรับซื้อปลายทาง</h2>
+        <button class="btn-primary" id="m-add" style="margin-bottom:1rem;">➕ เพิ่มช่องทางตลาด</button>
+        <div class="table-wrap"><table class="data-table" id="m-table"></table></div>
+      </div>
+      <div id="m-form-wrap"></div>
+    `;
+    const table = containerEl.querySelector('#m-table');
+    table.innerHTML = `
+      <thead><tr><th>ชื่อตลาด</th><th>ระยะทาง (กม.)</th><th>ตัวคูณราคา</th><th>ค่ารถ/เที่ยว</th><th>เที่ยว/สัปดาห์</th><th>จัดการ</th></tr></thead>
+      <tbody>
+        ${markets.map(m => `
+          <tr>
+            <td style="text-align:left;"><strong>${escapeHtml(m.name)}</strong></td>
+            <td>${m.distanceKm}</td>
+            <td><span class="badge ${m.priceFactor>=1.1?'badge-neutral':'badge-warn'}">${m.priceFactor}x</span></td>
+            <td>${m.transportCostPerTrip} ฿</td>
+            <td>${m.tripsPerWeek}</td>
+            <td>
+              <button class="btn-secondary act-edit" data-id="${m.id}">แก้</button>
+              <button class="btn-danger act-delete" data-id="${m.id}">ลบ</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    `;
+    containerEl.querySelector('#m-add').addEventListener('click', () => { editMarketId = '__new__'; renderMarketForm(containerEl, '__new__'); });
+    table.querySelectorAll('.act-edit').forEach(b => b.addEventListener('click', () => { editMarketId = b.dataset.id; renderMarketForm(containerEl, editMarketId); }));
+    table.querySelectorAll('.act-delete').forEach(b => b.addEventListener('click', () => { if (confirm('ต้องการลบข้อมูลตลาดนี้?')) { deleteMarket(b.dataset.id); if (editMarketId === b.dataset.id) editMarketId = null; invalidateResults(); renderMarkets(containerEl); } }));
+    if (editMarketId) renderMarketForm(containerEl, editMarketId);
+  }
+
+  function renderMarketForm(containerEl, id) {
+    const farm = loadFarm();
+    const m = (id === '__new__') ? { id: '', name: '', distanceKm: 10, priceFactor: 1.0, transportCostPerTrip: 100, tripsPerWeek: 1, acceptsCategories: ['vegetable'] } : farm.markets.find(x => x.id === id);
+    const wrap = containerEl.querySelector('#m-form-wrap');
+    if (!m) { editMarketId = null; wrap.innerHTML = ''; return; }
+    wrap.innerHTML = `
+      <div class="card" style="margin-top:1rem;">
+        <h3>${id === '__new__' ? '➕ เพิ่มตลาดใหม่' : '✏️ แก้ไขข้อมูลตลาด'}</h3>
+        <div class="form-grid">
+          <div class="form-group"><label>ชื่อตลาด</label><input id="fm-name" value="${escapeHtml(m.name)}"></div>
+          <div class="form-group"><label>ระยะทาง (กิโลเมตร)</label><input type="number" id="fm-dist" value="${m.distanceKm}"></div>
+          <div class="form-group"><label>ตัวคูณราคารับซื้อ (0.5–1.5)</label><input type="number" id="fm-price" value="${m.priceFactor}" step="0.05"></div>
+          <div class="form-group"><label>ค่าขนส่งขนส่ง (บาท/เที่ยว)</label><input type="number" id="fm-transport" value="${m.transportCostPerTrip}"></div>
+          <div class="form-group"><label>จำนวนเที่ยว/สัปดาห์</label><input type="number" id="fm-trips" value="${m.tripsPerWeek}"></div>
+          <div class="form-group" style="grid-column:1/-1;"><label>หมวดหมู่สินค้าที่ตลาดนี้รับซื้อ (เลือกอย่างน้อย 1)</label>
+            <div style="display:flex; gap:1rem; flex-wrap:wrap; padding:.3rem 0;">
+              ${[['vegetable','🥬 ผัก'],['field-crop','🌽 พืชไร่'],['fruit-tree','🍌 ไม้ผล'],['livestock','🐔 ปศุสัตว์'],['aquaculture','🐟 ประมง']].map(([v, l]) => `<label style="display:flex; align-items:center; gap:.35rem; font-weight:400;"><input type="checkbox" class="fm-cat" value="${v}" ${(m.acceptsCategories || []).includes(v) ? 'checked' : ''}> ${l}</label>`).join('')}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; gap:.6rem; margin-top:.5rem;">
+          <button class="btn-primary" id="fm-save">💾 บันทึก</button>
+          <button class="btn-secondary" id="fm-cancel">ยกเลิก</button>
+        </div>
+      </div>
+    `;
+    wrap.querySelector('#fm-cancel').addEventListener('click', () => { editMarketId = null; wrap.innerHTML = ''; });
+    wrap.querySelector('#fm-save').addEventListener('click', () => {
+      const draft = {
+        id: m.id,
+        name: document.getElementById('fm-name').value.trim(),
+        distanceKm: parseFloat(document.getElementById('fm-dist').value) || 0,
+        priceFactor: parseFloat(document.getElementById('fm-price').value) || 1.0,
+        transportCostPerTrip: parseFloat(document.getElementById('fm-transport').value) || 0,
+        tripsPerWeek: parseInt(document.getElementById('fm-trips').value, 10) || 1,
+        acceptsCategories: Array.from(wrap.querySelectorAll('.fm-cat:checked')).map(c => c.value)
+      };
+      const res = saveMarket(draft);
+      if (res.ok) { showToast('✅ บันทึกตลาดเสร็จสิ้น', 'success'); editMarketId = null; invalidateResults(); renderMarkets(containerEl); }
+      else { showToast('❌ ' + res.errors[0], 'error'); }
+    });
+  }
+
+  // 📊 RESULTS VIEW
+  let selectedIdx = null;
+  function renderResults(containerEl, results) {
+    if (!results || !results.length) {
+      containerEl.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">📊</div>
+          <h2>ยังไม่มีผลวิเคราะห์ที่สมบูรณ์</h2>
+          <p>กดปุ่ม <strong>⚡ วิเคราะห์แผน</strong> ที่มุมขวาบนของระบบ เพื่อประเมินผลผังแบบจำลองทั้ง 3 ระดับ</p>
+        </div>`;
+      return;
+    }
+    const farm = loadFarm(); const catalog = loadCatalog();
+    const totalArea = (farm.zones || []).reduce((s, z) => s + (z.areaSqm || 0), 0);
+    const lookup = {
+      act: Object.fromEntries(catalog.map(a => [a.id, a])),
+      zone: Object.fromEntries(farm.zones.map(z => [z.id, z])),
+      market: Object.fromEntries(farm.markets.map(m => [m.id, m]))
+    };
+    
+    // ค้นหาแผนแนะนำ
+    const safeResult = results.filter(r => (r.cashflow?.minBalance ?? 0) >= 0 && r.profit > 0);
+    const best = (safeResult.length ? safeResult : results).reduce((a, b) => (b.profit > a.profit ? b : a));
+
+    containerEl.innerHTML = `
+      <div class="card" style="padding: .9rem 1.2rem;">
+        <div style="display:flex; gap:.5rem 1.2rem; flex-wrap:wrap; font-size:.88rem;">
+          <span>📐 พื้นที่รวมฟาร์ม: <strong>${totalArea.toLocaleString()}</strong> ตร.ม.</span>
+          <span>💰 ทุนวิจัยหลัก: <strong>${farm.capital.toLocaleString()}</strong> ฿</span>
+          <span>🏦 เงินสดสำรองฐาน: <strong>${farm.cashReserve.toLocaleString()}</strong> ฿</span>
+          <span>👨‍🌾 แรงงานสูงสุด: <strong>${farm.laborHoursPerDay}</strong> ชม./วัน</span>
+        </div>
+      </div>
+      <div class="plans-grid" style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 1rem;">
+        ${results.map((r, idx) => {
+          const t = r.template; const cf = r.cashflow || {};
+          const isBest = (r === best);
+          const color = t.id === 'safe' ? 'var(--green-600)' : t.id === 'balanced' ? 'var(--gold-600)' : 'var(--red-600)';
+          
+          return `
+            <div class="card" style="position:relative; border-top:5px solid ${color}; margin-bottom:0;">
+              ${isBest ? `<div style="position:absolute; top:-10px; right:12px; background:var(--green-700); color:#fff; font-size:.72rem; font-weight:700; padding:.2rem .65rem; border-radius:20px;">⭐ แนะนำโดยระบบ</div>`:''}
+              <div style="display:flex; align-items:center; gap:.5rem; margin-bottom:.3rem;">
+                <span style="font-size:1.6rem;">${t.emoji}</span>
+                <span style="font-size:1.1rem; font-weight:800; color:${color};">${t.label}</span>
+              </div>
+              <div class="hint" style="margin-bottom:.6rem;">${t.desc}</div>
+              <div style="margin: .5rem 0;">
+                ${(r.placements || []).map(p => {
+                  const a = lookup.act[p.activityId]; const z = lookup.zone[p.zoneId]; if (!a) return '';
+                  return `<div style="display:flex; justify-content:space-between; font-size:.85rem; padding:.25rem 0; border-bottom:1px dashed var(--gray-100);">
+                    <span>${escapeHtml(a.icon)} ${escapeHtml(a.name)}</span>
+                    <span style="font-weight:700;">${p.units} ยูนิต · <span class="hint">${escapeHtml(z?.name || p.zoneId)}</span></span>
+                  </div>`;
+                }).join('') || '<div class="hint" style="text-align:center;">ทรัพยากรไม่พอจัดสรรกิจกรรม</div>'}
+              </div>
+              <div style="border-top:1px dashed var(--gray-200); padding-top:.6rem; margin-top:.6rem;">
+                <div style="display:flex; justify-content:space-between; font-size:.88rem; padding:.15rem 0;"><span class="hint">เงินลงทุนจริง</span><strong>${r.capUsed.toLocaleString()} ฿</strong></div>
+                <div style="display:flex; justify-content:space-between; font-size:.88rem; padding:.15rem 0;"><span class="hint">กำไรเฉลี่ยต่อปี</span><strong class="${r.profit >= 0 ? 'pos' : 'neg'}">${r.profit >= 0 ? '+' : ''}${r.profit.toLocaleString()} ฿</strong></div>
+                <div style="display:flex; justify-content:space-between; font-size:.88rem; padding:.15rem 0;"><span class="hint">สภาพคล่องต่ำสุด</span><strong class="${(cf.minBalance ?? 0)>=0?'pos':'neg'}">${(cf.minBalance ?? 0).toLocaleString()} ฿</strong></div>
+                ${cf.loanNeeded > 0 ? `<div style="display:flex; justify-content:space-between; font-size:.88rem; padding:.15rem 0;"><span class="hint">เงินกู้ประคองวิกฤต</span><strong class="warn">${cf.loanNeeded.toLocaleString()} ฿</strong></div>` : ''}
+              </div>
+              <button class="btn-secondary act-detail" data-idx="${idx}" style="width:100%; margin-top:.8rem;">📋 ดูกราฟรายสัปดาห์</button>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <!-- COMPARATIVE TABLE -->
+      <div class="card">
+        <h3>📊 ตารางเปรียบเทียบแผนที่จัดสรรได้</h3>
+        <div class="table-wrap">
+          <table class="compare-table">
+            <thead><tr><th style="text-align:left;">ตัวชี้วัดสำคัญ</th>${results.map(r => `<th>${r.template.emoji} ${r.template.label}</th>`).join('')}</tr></thead>
+            <tbody>
+              <tr><td style="text-align:left;">งบลงทุนจริง</td>${results.map(r => `<td>${r.capUsed.toLocaleString()} ฿</td>`).join('')}</tr>
+              <tr><td style="text-align:left;">แรงงานเฉลี่ย (ชม./วัน)</td>${results.map(r => `<td>${r.laborUsed.toFixed(1)} ชม.</td>`).join('')}</tr>
+              <tr><td style="text-align:left;">กำไรเฉลี่ยสุทธิสิ้นปี</td>${results.map(r => `<td class="${r.profit >= 0 ? 'pos' : 'neg'}">${r.profit.toLocaleString()} ฿</td>`).join('')}</tr>
+              <tr><td style="text-align:left;">ROI (%)</td>${results.map(r => `<td class="${r.roi >= 0 ? 'pos' : 'neg'}">${r.roi.toFixed(0)}%</td>`).join('')}</tr>
+              <tr><td style="text-align:left;">จุดเงินสดหมุนเวียนต่ำสุด</td>${results.map(r => `<td class="${(r.cashflow?.minBalance ?? 0)>=0?'pos':'neg'}">${(r.cashflow?.minBalance ?? 0).toLocaleString()} ฿</td>`).join('')}</tr>
+              <tr><td style="text-align:left;">คืนทุนเมื่อสัปดาห์ที่</td>${results.map(r => `<td>${r.cashflow?.breakEvenWeek || '—'}</td>`).join('')}</tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div id="r-detail-wrap"></div>
+    `;
+
+    containerEl.querySelectorAll('.act-detail').forEach(b => b.addEventListener('click', () => {
+      selectedIdx = parseInt(b.dataset.idx, 10);
+      renderDetailedAnalytics(containerEl, results[selectedIdx], lookup);
+    }));
+
+    if (selectedIdx !== null && results[selectedIdx]) {
+      renderDetailedAnalytics(containerEl, results[selectedIdx], lookup);
+    }
+  }
+
+  function renderDetailedAnalytics(containerEl, r, lookup) {
+    const wrap = containerEl.querySelector('#r-detail-wrap'); if (!wrap) return;
+    const cf = r.cashflow || {}; const weekly = cf.weekly || [];
+    const maxAbs = Math.max(1, ...weekly.map(w => Math.abs(w.balance || 0)));
+    const chartH = 120;
+
+    const rolling13 = cf.rolling13 || [];
+
+    const bars = weekly.map((w, i) => {
+      const wk = i + 1; const bal = w.balance || 0;
+      const h = Math.max(3, Math.round((Math.abs(bal) / maxAbs) * chartH));
+      const color = bal < 0 ? 'var(--red-600)' : (rolling13[i] ?? 0) < 0 ? 'var(--amber-600)' : 'var(--green-600)';
+      const monthLbl = (wk % 4 === 1) ? `<span style="font-size:.65rem; color:var(--gray-500);">${weekToMonthTH(wk)}</span>` : '';
+      return `
+        <div style="flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:8px;" title="สัปดาห์ ${wk}: เงินคงเหลือ ${bal.toLocaleString()} ฿ (รับ ${w.income} / จ่าย ${w.cost + w.invest})">
+          <div style="width:100%; height:${h}px; background:${color}; border-radius:3px 3px 1px 1px;"></div>
+          ${monthLbl}
+        </div>`;
+    }).join('');
+
+    wrap.innerHTML = `
+      <div class="card">
+        <h3>📅 รายละเอียดแผนภูมิกระแสเงินสดรายปี (52 สัปดาห์) — ${r.template.label}</h3>
+        <div style="display:flex; align-items:flex-end; gap:2px; height:${chartH + 20}px; padding:.4rem .2rem; background:var(--gray-50); border-radius:var(--radius-sm);">
+          ${bars}
+        </div>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; margin-top:.6rem; font-size:.78rem;">
+          <span><i style="display:inline-block; width:10px; height:10px; background:var(--green-600); border-radius:50%; margin-right:.3rem;"></i>ยอดเงินสดปลอดภัย</span>
+          <span><i style="display:inline-block; width:10px; height:10px; background:var(--amber-600); border-radius:50%; margin-right:.3rem;"></i>ยอดกระชั้นตึงตัว</span>
+          <span><i style="display:inline-block; width:10px; height:10px; background:var(--red-600); border-radius:50%; margin-right:.3rem;"></i>เงินคงคลังติดลบ</span>
+        </div>
+        ${cf.firstWarningWeek ? `<div class="badge badge-warn" style="margin-top:.6rem; width:100%; display:block; padding:.5rem;">⚠️ ระบบเตือนภัย: ภายใน 13 สัปดาห์ข้างหน้านับจากสัปดาห์ที่ ${cf.firstWarningWeek} จะมีช่วงที่เงินสดติดลบ — ควรเตรียมสภาพคล่องล่วงหน้า</div>` : ''}
+        ${cf.loanNeeded > 0 ? `<div class="badge badge-danger" style="margin-top:.4rem; width:100%; display:block; padding:.5rem;">🚨 แนะนำให้เตรียมวงเงินสำรองฉุกเฉินจำนวนประมาณ ${cf.loanNeeded.toLocaleString()} บาท เพื่อหลีกเลี่ยงกระแสการติดขัดทางการเงิน</div>` : ''}
+      </div>
+
+      <!-- SUGGESTIONS CARD -->
+      ${cf.suggestions?.length ? `
+        <div class="card">
+          <h3>💡 ข้อคิดเห็นเชิงกลยุทธ์จากเครื่องมือ DSS</h3>
+          <ul style="padding-left:1.2rem; line-height:1.7; font-size:.92rem;">
+            ${cf.suggestions.map(s => `<li style="margin-bottom:.4rem;">${s}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+    `;
+    wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+</script>
+
+<script>
+  /* --- 6. CORE CONTROLLER & ROUTER --- */
+  let cachedResults = [];
+
+  function invalidateResults() { cachedResults = []; selectedIdx = null; }
+
+  function switchTab(tabId) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `tab-${tabId}`));
+    renderTab(tabId);
+  }
+
+  function renderTab(tabId) {
+    const panel = document.getElementById(`tab-${tabId}`);
+    if (!panel) return;
+    const view = VIEW_MAP[tabId];
+    if (!view) { panel.innerHTML = `<div class="panel-loading">⚠️ View ${tabId} ไม่พร้อมใช้งาน</div>`; return; }
+    
+    try {
+      if (tabId === 'results') {
+        view.render(panel, cachedResults);
+      } else {
+        view.render(panel);
+      }
+    } catch (err) {
+      console.error(err);
+      panel.innerHTML = `<div class="empty-state"><h2>เกิดความผิดพลาดในการแสดงผล</h2><p>${err.message}</p></div>`;
+    }
+  }
+
+  function runAnalysis() {
+    const farm = loadFarm();
+    const catalog = loadCatalog();
+
+    if (!farm.zones?.length) { showToast('⚠️ คุณไม่มีโซนแปลงเพาะปลูก — กรุณาไปที่แท็บ 🗺️', 'warn'); switchTab('zones'); return; }
+    if (!farm.markets?.length) { showToast('⚠️ คุณไม่มีตลาดปลายทาง — กรุณาไปที่แท็บ 🏪', 'warn'); switchTab('markets'); return; }
+    if (!catalog?.length) { showToast('⚠️ ไม่มีข้อมูลกิจกรรมในแคตตาล็อก', 'warn'); switchTab('catalog'); return; }
+
+    const results = [];
+    for (const template of PLAN_TEMPLATES) {
+      try {
+        const placements = allocate(template, farm, catalog) || [];
+        const usage = summarizeUsage(placements, catalog) || {};
+        const cashflow = simulateCashflow(placements, catalog, farm.markets, farm.cashReserve) || {};
+
+        const totalRevenue = (cashflow.weekly || []).reduce((s, w) => s + (w.income || 0), 0);
+        const operatingCost = (cashflow.weekly || []).reduce((s, w) => s + (w.cost || 0), 0);
+        const capUsed = usage.capUsed || 0;
+        const totalCost = operatingCost + capUsed;
+        const profit = totalRevenue - totalCost;
+        const roi = capUsed > 0 ? (profit / capUsed) * 100 : 0;
+
+        results.push({ template, placements, capUsed, laborUsed: usage.laborUsed || 0, areaUsedByZone: usage.areaUsedByZone || {}, totalRevenue, totalCost, profit, roi, cashflow });
+      } catch (err) {
+        console.error(err);
+        results.push({ template, placements: [], capUsed: 0, laborUsed: 0, areaUsedByZone: {}, totalRevenue: 0, totalCost: 0, profit: 0, roi: 0, cashflow: { weekly: [], minBalance: 0, minBalanceWeek: 0, cashGaps: [], rolling13: [], firstWarningWeek: null, loanNeeded: 0, breakEvenWeek: null, suggestions: [`⚠️ แผนผิดพลาด: ${escapeHtml(err.message)}`] } });
+      }
+    }
+
+    cachedResults = results;
+    selectedIdx = null;
+    showToast('⚡ วิเคราะห์แบบจำลองทั้ง 3 ระดับเสร็จสิ้น!', 'success');
+    switchTab('results');
+  }
+
+  // BOOTSTRAP APP
+  window.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    });
+
+    const analyzeBtn = document.getElementById('analyzeBtn');
+    if (analyzeBtn) {
+      analyzeBtn.addEventListener('click', () => {
+        analyzeBtn.disabled = true; analyzeBtn.textContent = '...กำลังคำนวณแบบจำลอง';
+        requestAnimationFrame(() => {
+          try { runAnalysis(); } finally { analyzeBtn.disabled = false; analyzeBtn.textContent = '⚡ วิเคราะห์แผน'; }
+        });
+      });
+    }
+
+    // เริ่มต้นแอปพลิเคชันที่แท็บ ฟาร์ม
+    switchTab('farm');
+  });
+</script>
+
+</body>
+</html>
