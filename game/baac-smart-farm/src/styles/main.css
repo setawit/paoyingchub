@@ -1,0 +1,130 @@
+/* ===== BAAC Smart Farm RPG — สไตล์หลัก ===== */
+/* ยกจากเกมต้นฉบับ (index.html เดิม) แล้วต่อยอดสไตล์ระบบใหม่ท้ายไฟล์ */
+
+:root {
+  --deep: #0d1a0d; --dark: #162616; --panel: #1f331f; --card: #253a25;
+  --gold: #c8943e; --gold2: #f5d680; --text: #f0e6c8; --dim: #a99d80;
+  --ok: #6ecf70; --warn: #f5c050; --bad: #ff6b60;
+}
+* { box-sizing: border-box; }
+html, body, #app { margin: 0; width: 100%; height: 100%; overflow: hidden; }
+body {
+  font-family: Sarabun, "Noto Sans Thai", Tahoma, sans-serif;
+  background: var(--deep); color: var(--text); user-select: none;
+}
+.game { display: grid; grid-template-columns: 170px 1fr 185px; height: 100%; }
+.side { background: linear-gradient(var(--panel), var(--dark)); padding: 10px; border-color: #ffffff12; display: flex; flex-direction: column; gap: 7px; }
+.left { border-right: 1px solid #ffffff12; }
+.right { border-left: 1px solid #ffffff12; }
+.menu, .tool, .btn { border: 1px solid transparent; background: #ffffff08; color: var(--dim); border-radius: 10px; padding: 10px; cursor: pointer; font: inherit; }
+.menu { text-align: left; }
+.menu:hover, .menu.active, .tool:hover { color: var(--gold2); border-color: #c8943e80; background: #c8943e23; }
+.character { margin-top: auto; text-align: center; background: #0004; border: 1px solid #ffffff12; border-radius: 14px; padding: 8px; }
+.avatar { font-size: 28px; }
+.gold { color: var(--gold2); }
+.center { min-width: 0; display: flex; flex-direction: column; }
+.hud { min-height: 58px; background: #162616f2; border-bottom: 1px solid #ffffff12; display: flex; align-items: center; gap: 8px; padding: 7px 10px; flex-wrap: wrap; }
+.player { display: flex; align-items: center; gap: 8px; background: #0004; border-radius: 10px; padding: 5px 9px; }
+.bubble { background: #0004; border: 1px solid #ffffff12; border-radius: 22px; padding: 6px 10px; font-size: 12px; }
+.resources { display: flex; gap: 6px; flex: 1; justify-content: center; flex-wrap: wrap; }
+.viewport { position: relative; flex: 1; overflow: hidden; background: linear-gradient(#87ceeb 0 22%, #b8d8a0 42%, #62a343 65%, #2a4a2a); }
+.viewport:after { content: ""; position: absolute; inset: 0; background: radial-gradient(circle at 65% 20%, #ffffc833, transparent 35%); pointer-events: none; }
+.bank { position: absolute; right: 14%; top: 7%; z-index: 4; width: 110px; height: 86px; border: 2px solid var(--gold); border-radius: 12px; background: linear-gradient(#4a7c59, #2d5a3d); display: grid; place-content: center; text-align: center; cursor: pointer; box-shadow: 0 0 25px #c8943e44; }
+.atm { position: absolute; right: 9%; top: 22%; z-index: 4; border: 2px solid var(--gold); background: #3d6b3d; padding: 8px; border-radius: 7px; cursor: pointer; }
+.npc { position: absolute; z-index: 5; text-align: center; cursor: pointer; filter: drop-shadow(0 4px 4px #0008); animation: float 3s ease-in-out infinite; }
+.npc b { display: block; background: #000b; border-radius: 5px; font-size: 10px; padding: 2px 5px; }
+.grid { position: absolute; left: 50%; top: 52%; transform: translate(-50%, -42%); display: grid; grid-template-columns: repeat(6, 72px); gap: 3px; z-index: 3; }
+.cell { width: 72px; height: 72px; transform: rotateX(58deg) rotateZ(-45deg); border: 2px solid #0005; border-radius: 5px; display: grid; place-items: center; font-size: 25px; cursor: pointer; box-shadow: inset 0 1px #fff3; transition: .2s; }
+.cell:hover { filter: brightness(1.15); translate: 0 -8px; }
+.grass { background: linear-gradient(135deg, #7ec850, #5a9a30); }
+.dirt { background: linear-gradient(135deg, #b8956e, #8a6a4a); }
+.water { background: linear-gradient(135deg, #5ab8ff, #3a90e0); }
+.quest { position: absolute; z-index: 7; right: 8px; top: 8px; width: 200px; background: #162616ee; border: 1px solid var(--gold); border-radius: 14px; padding: 10px; box-shadow: 0 5px 20px #0008; }
+.quest h3 { font-size: 13px; margin: 0 0 7px; color: var(--gold2); }
+.quest .q { font-size: 11px; padding: 4px; border-bottom: 1px dashed #ffffff12; display: flex; justify-content: space-between; align-items: center; gap: 4px; }
+.bottom { background: var(--panel); display: flex; justify-content: center; gap: 5px; padding: 6px; flex-wrap: wrap; }
+.tool { padding: 6px 10px; font-size: 12px; }
+.panel { background: #0004; border: 1px solid #ffffff12; border-radius: 11px; padding: 9px; font-size: 12px; }
+.section-title { font-weight: 800; color: var(--gold2); font-size: 11px; margin: 5px 0; }
+.dscr { font-size: 26px; font-weight: 800; }
+.safe { color: var(--ok); }
+.warn { color: var(--warn); }
+.danger { color: var(--bad); }
+.bar { height: 7px; background: #0007; border-radius: 5px; overflow: hidden; }
+.bar i { display: block; height: 100%; background: currentColor; }
+.row { display: flex; justify-content: space-between; border-bottom: 1px dashed #ffffff12; padding: 4px 0; }
+.primary { background: linear-gradient(135deg, var(--gold), #7a5520); border: 1px solid #e8b84b; color: #1a1000; font-weight: 800; }
+.end { margin-top: auto; }
+.error { font-size: 10px; color: var(--bad); text-align: center; }
+.overlay { position: fixed; inset: 0; z-index: 50; background: #000b; display: none; place-items: center; padding: 15px; backdrop-filter: blur(3px); }
+.overlay.show { display: grid; }
+.modal { width: min(620px, 96vw); max-height: 84vh; overflow: auto; background: linear-gradient(var(--panel), var(--dark)); border: 2px solid var(--gold); border-radius: 18px; padding: 16px; box-shadow: 0 16px 50px #000; }
+.modal h2 { text-align: center; color: var(--gold2); margin: 0 0 12px; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.card { background: #0004; border: 2px solid #ffffff12; border-radius: 12px; text-align: center; padding: 9px; }
+.card.selected { border-color: var(--gold); background: #c8943e20; }
+.card .ico { font-size: 30px; }
+.card small { display: block; color: var(--dim); line-height: 1.5; }
+.counter { display: flex; justify-content: center; align-items: center; gap: 9px; margin-top: 6px; }
+.counter button { width: 28px; height: 28px; border-radius: 50%; border: 1px solid #fff4; background: #0005; color: #fff; cursor: pointer; }
+.actions { text-align: center; margin-top: 12px; }
+.btn { color: var(--text); margin: 3px; }
+.btn.primary { color: #160e00; }
+.dialog { display: flex; gap: 14px; }
+.dialog .face { font-size: 40px; border: 2px solid var(--gold); border-radius: 12px; padding: 10px; height: max-content; }
+@keyframes float { 50% { transform: translateY(-7px); } }
+
+@media (max-width: 900px) {
+  .game { grid-template-columns: 48px 1fr 140px; }
+  .left .menu span, .character { display: none; }
+  .menu { text-align: center; padding: 8px; }
+  .grid { grid-template-columns: repeat(4, 52px); }
+  .cell { width: 52px; height: 52px; }
+  .quest { width: 145px; }
+  .bank { width: 75px; height: 56px; }
+  .right { padding: 6px; }
+}
+@media (max-width: 520px) {
+  .game { grid-template-columns: 38px 1fr 100px; }
+  .right { font-size: 10px; }
+  .grid { grid-template-columns: repeat(4, 39px); }
+  .cell { width: 39px; height: 39px; font-size: 18px; }
+  .quest { width: 105px; padding: 6px; }
+  .quest .q { font-size: 9px; }
+  .bank { width: 50px; height: 38px; font-size: 10px; }
+  .hud { padding: 4px; }
+  .resources .bubble:nth-child(n+4) { display: none; }
+  .tool { padding: 5px; font-size: 10px; }
+  .cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ===== ระบบใหม่ ===== */
+
+/* ปุ่มปิด/เปิดเสียงบน HUD */
+.mute { cursor: pointer; }
+
+/* ป้ายราคาตลาดในการ์ดกิจกรรม */
+.price-up { color: var(--ok); }
+.price-down { color: var(--bad); }
+
+/* ปุ่มรับรางวัลเควสต์ */
+.claim { font-size: 10px; padding: 2px 6px; border-radius: 6px; border: 1px solid var(--gold); background: #c8943e30; color: var(--gold2); cursor: pointer; }
+.claim:disabled { opacity: .4; cursor: default; }
+.q-done { color: var(--ok); }
+.q-claimed { color: var(--dim); text-decoration: line-through; }
+
+/* อนิเมชันการเติบโตของพืชในแปลง (ตามอายุ/รอบ) */
+.cell.growth-0 { filter: brightness(.85) saturate(.7); }
+.cell.growth-1 { filter: brightness(.95); }
+.cell.growth-2 { filter: brightness(1.05); }
+.cell.growth-3 { animation: sway 2.5s ease-in-out infinite; }
+@keyframes sway { 50% { transform: rotateX(58deg) rotateZ(-45deg) translateY(-4px) scale(1.05); } }
+
+/* popup เหตุการณ์ */
+.event-pop { text-align: center; }
+.event-pop .big { font-size: 46px; }
+.event-pop .eff { font-size: 13px; margin-top: 8px; }
+
+/* ตัวชี้ขั้นตอน tutorial */
+.tut-step { text-align: center; }
+.tut-dots { margin: 10px 0; letter-spacing: 4px; color: var(--gold); }
