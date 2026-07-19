@@ -1,0 +1,17 @@
+{
+  "name": "baac-smart-farm",
+  "version": "1.0.0",
+  "description": "BAAC Smart Farm RPG — เกมวางแผนการเกษตร + สินเชื่อ ธ.ก.ส. (สถาปัตยกรรมโมดูล ES Modules + Vite)",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "vite": "^5.4.0",
+    "vitest": "^2.1.0"
+  }
+}
