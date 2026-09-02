@@ -47,10 +47,6 @@ body{
     margin-top:10px
 }
 
-.input label:first-child{
-    margin-top:0
-}
-
 .input input,
 .input select{
     width:100%;
@@ -59,6 +55,19 @@ body{
     font:inherit;
     border:none;
     border-radius:6px
+}
+
+.group-label{
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px solid rgba(255,255,255,.35);
+    font-weight:bold
+}
+
+.group-label:first-child{
+    margin-top:0;
+    padding-top:0;
+    border-top:none
 }
 
 .hint{
@@ -132,11 +141,46 @@ body{
     font-weight:bold
 }
 
+.compare,
 .summary{
     background:#fff;
     padding:15px;
     border-radius:12px;
     margin-top:15px
+}
+
+.compare h3,
+.summary h3{
+    margin:0 0 10px
+}
+
+.table-wrap{
+    overflow-x:auto
+}
+
+.compare table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:360px
+}
+
+.compare th,
+.compare td{
+    padding:8px;
+    text-align:right;
+    border-bottom:1px solid #eee;
+    white-space:nowrap
+}
+
+.compare th:first-child,
+.compare td:first-child{
+    text-align:left
+}
+
+.verdict{
+    margin-top:12px;
+    font-weight:bold;
+    color:#2e7d32
 }
 
 .summary p{
@@ -166,6 +210,8 @@ body{
 
     <div class="input">
 
+        <div class="group-label">รายได้</div>
+
         <label for="salary">เงินเดือนปัจจุบัน (บาท)</label>
         <input id="salary" type="number" min="0" step="any" value="47234">
 
@@ -185,18 +231,43 @@ body{
             <option value="new">เงินเดือนใหม่ (หลังปรับ)</option>
         </select>
 
+        <div class="group-label">ข้อบังคับกองทุน</div>
+
+        <label for="deductFromBonus">กองทุนหักเงินสะสมจากโบนัสด้วยหรือไม่</label>
+        <select id="deductFromBonus">
+            <option value="no" selected>ไม่หัก — หักจากเงินเดือนอย่างเดียว</option>
+            <option value="yes">หัก — หักจากโบนัสด้วยในอัตราเดียวกัน</option>
+        </select>
+
+        <label for="maxContribRate">เพดานอัตราสะสมสูงสุดที่ตั้งได้ (%)</label>
+        <input id="maxContribRate" type="number" min="0" max="100" step="0.01" value="30">
+        <div class="hint">ยืนยันกับข้อบังคับกองทุนและ HR ก่อนใช้จริง</div>
+
+        <label for="employerRate">อัตราเงินสมทบนายจ้าง (%)</label>
+        <input id="employerRate" type="number" min="0" max="100" step="0.01" value="11">
+        <div class="hint">เงินสมทบนายจ้างไม่นับเป็นค่าลดหย่อนของเรา</div>
+
+        <div class="group-label">ภาษี</div>
+
+        <label for="deductOther">ค่าใช้จ่าย + ค่าลดหย่อนรวม (ไม่รวม PVD)</label>
+        <input id="deductOther" type="number" min="0" step="any" value="169000">
+        <div class="hint">ค่าเริ่มต้น = ค่าใช้จ่าย 100,000 + ลดหย่อนส่วนตัว 60,000 + ประกันสังคม 9,000</div>
+
+        <label for="lumpSum">เงินก้อนที่อยากลงเพิ่ม (0 = ใช้ 15% ของโบนัส)</label>
+        <input id="lumpSum" type="number" min="0" step="any" value="0">
+
     </div>
 
     <div class="highlight-section">
 
         <div class="highlight-card highlight-percent">
-            <div>🎯 % ที่ต้องหักจากเงินเดือน</div>
+            <div>🎯 % สะสมที่คุ้มที่สุด</div>
             <div id="highlightPercent" class="highlight-value"></div>
             <div id="highlightPercentNote" class="highlight-note"></div>
         </div>
 
         <div class="highlight-card highlight-extra">
-            <div>🚨 ส่วนเกิน → ต้องลง RMF/SSF</div>
+            <div>💸 ภาษีที่ประหยัดได้</div>
             <div id="highlightExtra" class="highlight-value"></div>
             <div id="highlightExtraNote" class="highlight-note"></div>
         </div>
@@ -206,28 +277,28 @@ body{
     <div class="kpis">
 
         <div class="kpi">
-            รายได้รวมทั้งปี<br>
-            <b id="kpiTotal"></b>
+            รายได้พึงประเมินทั้งปี<br>
+            <b id="kpiIncome"></b>
         </div>
 
         <div class="kpi">
-            เป้า PVD 15% ของรายได้รวม<br>
-            <b id="kpiPvd"></b>
+            สิทธิลดหย่อน PVD (15% ของฐาน)<br>
+            <b id="kpiTaxCap"></b>
         </div>
 
         <div class="kpi">
-            % ตามเป้า (ก่อนเพดาน)<br>
-            <b id="kpiPercentRaw"></b>
+            เงินสะสมของเราทั้งปี<br>
+            <b id="kpiPvdPaid"></b>
         </div>
 
         <div class="kpi">
-            % หักจริง (หลังเพดาน 15%)<br>
-            <b id="kpiPercent"></b>
+            เงินสมทบนายจ้าง<br>
+            <b id="kpiEmployer"></b>
         </div>
 
         <div class="kpi">
-            ส่วนเกิน → RMF/SSF<br>
-            <b id="kpiExtra"></b>
+            โควตา 500,000 ที่เหลือ<br>
+            <b id="kpiRoomLeft"></b>
         </div>
 
     </div>
@@ -250,18 +321,8 @@ body{
         </div>
 
         <div class="row total">
-            <span>รวมรายได้ทั้งปี</span>
+            <span>รายได้พึงประเมินทั้งปี</span>
             <span id="totalIncome"></span>
-        </div>
-
-        <div class="row">
-            <span>เป้า PVD 15% ของรายได้รวม</span>
-            <span id="deduction"></span>
-        </div>
-
-        <div class="row">
-            <span>เงินสะสม PVD จริง (หลังเพดาน 15%)</span>
-            <span id="pvdActual"></span>
         </div>
 
         <div class="row">
@@ -274,6 +335,49 @@ body{
             <span id="monthlyNew"></span>
         </div>
 
+        <div class="row">
+            <span>หักจากโบนัส</span>
+            <span id="fromBonus"></span>
+        </div>
+
+        <div class="row">
+            <span>ภาษี — ถ้าไม่ใช้สิทธิ PVD</span>
+            <span id="taxNo"></span>
+        </div>
+
+        <div class="row total">
+            <span>ภาษี — เมื่อใช้สิทธิ PVD แล้ว</span>
+            <span id="taxYes"></span>
+        </div>
+
+    </div>
+
+    <div class="compare">
+        <h3 id="compareTitle">เงินก้อนนี้ควรไปไหน</h3>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ทางเลือก</th>
+                        <th>ใช้สิทธิได้</th>
+                        <th>ประหยัดภาษี</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>ลง PVD เพิ่ม</td>
+                        <td id="cmpPvdUse"></td>
+                        <td id="cmpPvdSave"></td>
+                    </tr>
+                    <tr>
+                        <td>ลง RMF / กองทุนเพื่อการเกษียณอื่น</td>
+                        <td id="cmpRmfUse"></td>
+                        <td id="cmpRmfSave"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="verdict" class="verdict"></div>
     </div>
 
     <div class="summary">
@@ -287,29 +391,37 @@ body{
 (function () {
     'use strict';
 
-    // เพดานตามกฎหมาย
-    var PVD_MAX_RATE = 15;      // พ.ร.บ.กองทุนสำรองเลี้ยงชีพ: ลูกจ้างสะสมได้ 2–15% ของค่าจ้าง
-    var DEDUCT_CAP   = 500000;  // เพดานลดหย่อนรวม PVD + RMF + SSF + ประกันบำนาญ ต่อปี
+    var PVD_TAX_RATE = 0.15;    // สิทธิลดหย่อนเงินสะสม PVD สูงสุด 15% ของค่าจ้าง
+    var GROUP_CAP    = 500000;  // เพดานรวม PVD + RMF + ThaiESG(เกษียณ) + ประกันบำนาญ ต่อปี
+    var RMF_RATE     = 0.30;    // RMF ซื้อได้ไม่เกิน 30% ของเงินได้พึงประเมิน
 
-    var IDS = [
-        'salary', 'bonusMonth', 'increaseRate', 'raiseMonth', 'bonusBase',
-        'highlightPercent', 'highlightPercentNote', 'highlightExtra', 'highlightExtraNote',
-        'kpiTotal', 'kpiPvd', 'kpiPercentRaw', 'kpiPercent', 'kpiExtra',
-        'futureSalary', 'totalWage', 'bonus', 'totalIncome',
-        'deduction', 'pvdActual', 'monthlyOld', 'monthlyNew', 'summary'
+    // ขั้นบันไดภาษีเงินได้บุคคลธรรมดา [ความกว้างของขั้น, อัตรา]
+    var BRACKETS = [
+        [150000, 0], [150000, 0.05], [200000, 0.10], [250000, 0.15],
+        [250000, 0.20], [1000000, 0.25], [3000000, 0.30], [Infinity, 0.35]
     ];
+
+    var INPUT_IDS = [
+        'salary', 'bonusMonth', 'increaseRate', 'raiseMonth', 'bonusBase',
+        'deductFromBonus', 'maxContribRate', 'employerRate', 'deductOther', 'lumpSum'
+    ];
+
+    // ช่องผลลัพธ์ที่ต้องล้างเป็น '—' เมื่อ input ยังใช้คำนวณไม่ได้
+    var OUTPUT_IDS = [
+        'highlightPercent', 'highlightExtra',
+        'kpiIncome', 'kpiTaxCap', 'kpiPvdPaid', 'kpiEmployer', 'kpiRoomLeft',
+        'futureSalary', 'totalWage', 'bonus', 'totalIncome',
+        'monthlyOld', 'monthlyNew', 'fromBonus', 'taxNo', 'taxYes',
+        'cmpPvdUse', 'cmpPvdSave', 'cmpRmfUse', 'cmpRmfSave'
+    ];
+
+    var TEXT_IDS = ['highlightPercentNote', 'highlightExtraNote', 'compareTitle', 'verdict', 'summary'];
 
     var el = {};
-    IDS.forEach(function (id) { el[id] = document.getElementById(id); });
+    INPUT_IDS.concat(OUTPUT_IDS, TEXT_IDS).forEach(function (id) {
+        el[id] = document.getElementById(id);
+    });
 
-    var OUTPUTS = [
-        'highlightPercent', 'highlightExtra',
-        'kpiTotal', 'kpiPvd', 'kpiPercentRaw', 'kpiPercent', 'kpiExtra',
-        'futureSalary', 'totalWage', 'bonus', 'totalIncome',
-        'deduction', 'pvdActual', 'monthlyOld', 'monthlyNew'
-    ];
-
-    // จัดรูปแบบเงิน — คืน '—' แทน NaN/Infinity
     function m(n) {
         if (!Number.isFinite(n)) { return '—'; }
         return Number(n).toLocaleString('th-TH', {
@@ -335,6 +447,18 @@ body{
         return Math.min(Math.max(v, lo), hi);
     }
 
+    // ภาษีขั้นบันไดจากเงินได้สุทธิ
+    function tax(net) {
+        if (!Number.isFinite(net) || net <= 0) { return 0; }
+        var remaining = net, total = 0;
+        for (var i = 0; i < BRACKETS.length && remaining > 0; i++) {
+            var slice = Math.min(remaining, BRACKETS[i][0]);
+            total += slice * BRACKETS[i][1];
+            remaining -= slice;
+        }
+        return total;
+    }
+
     function line(text, cls) {
         var p = document.createElement('p');
         if (cls) { p.className = cls; }
@@ -343,9 +467,11 @@ body{
     }
 
     function blank(message) {
-        OUTPUTS.forEach(function (id) { el[id].textContent = '—'; });
+        OUTPUT_IDS.forEach(function (id) { el[id].textContent = '—'; });
         el.highlightPercentNote.textContent = '';
         el.highlightExtraNote.textContent = '';
+        el.compareTitle.textContent = 'เงินก้อนนี้ควรไปไหน';
+        el.verdict.textContent = '';
         el.summary.textContent = '';
         el.summary.appendChild(line(message));
     }
@@ -354,97 +480,144 @@ body{
         var s  = num(el.salary);
         var bm = num(el.bonusMonth);
         var ir = num(el.increaseRate) / 100;
-
-        // เงินเดือนใหม่หลังปรับ
         var fs = s * (1 + ir);
 
-        // แบ่งเดือนตามที่ผู้ใช้ระบุ (เดือนแรกที่เงินเดือนใหม่มีผล)
         var rm        = clamp(Math.round(num(el.raiseMonth)) || 1, 1, 13);
         var oldMonths = clamp(rm - 1, 0, 12);
         var newMonths = 12 - oldMonths;
+        var wage      = s * oldMonths + fs * newMonths;
 
-        // ค่าจ้างรวมทั้งปี (ฐานของเพดาน 15%)
-        var totalWage = s * oldMonths + fs * newMonths;
-
-        if (!(s > 0) || fs < 0 || !(totalWage > 0)) {
+        if (!(s > 0) || fs < 0 || !(wage > 0)) {
             blank('กรอกเงินเดือนที่มากกว่า 0 และ % ปรับเงินเดือนที่ไม่ต่ำกว่า -100 เพื่อคำนวณ');
             return;
         }
 
-        // โบนัส คิดจากฐานที่ผู้ใช้เลือก
-        var b  = (el.bonusBase.value === 'new' ? fs : s) * bm;
-        var ti = totalWage + b;
+        var bonus  = (el.bonusBase.value === 'new' ? fs : s) * bm;
+        var income = wage + bonus;                       // เงินได้พึงประเมินทั้งปี
 
-        // เป้า PVD 15% ของรายได้รวม (รวมโบนัส)
-        var target = ti * 0.15;
+        // ฐานที่กองทุนใช้ = เงินเดือน + โบนัส
+        var fundBase    = income;
+        var fromBonus   = el.deductFromBonus.value === 'yes';
+        var contribBase = fromBonus ? income : wage;     // ฐานที่ถูกหักจริงทุกงวด
 
-        // อัตราเดียวคูณค่าจ้างของแต่ละเดือน — ใช้ได้จริงทั้งปี
-        var pRaw      = target / totalWage * 100;
-        var pApplied  = Math.min(pRaw, PVD_MAX_RATE);
-        var pvdActual = totalWage * pApplied / 100;
+        var maxRate   = clamp(num(el.maxContribRate), 0, 100);
+        var taxCapPVD = PVD_TAX_RATE * fundBase;         // สิทธิลดหย่อน PVD
+        var capFund   = maxRate / 100 * fundBase;        // เพดานตามข้อบังคับ
+        var capRMF    = RMF_RATE * income;
 
-        // ส่วนที่ PVD รับไม่ได้เพราะติดเพดาน 15%
-        var shortfall = Math.max(target - pvdActual, 0);
+        // ยอดสะสมที่ยังได้สิทธิภาษีเต็ม
+        var want         = Math.min(taxCapPVD, GROUP_CAP, capFund);
+        var rateUncapped = want / contribBase * 100;
+        var optimalRate  = Math.min(rateUncapped, maxRate);
+        var pvdPaid      = optimalRate / 100 * contribBase;
+        var employerPay  = num(el.employerRate) / 100 * contribBase;
 
-        // เพดานลดหย่อน 500,000 บาท/ปี
-        var overCap = Math.max(pvdActual - DEDUCT_CAP, 0);
+        var taxRoomPVD    = Math.min(taxCapPVD, GROUP_CAP);
+        var unusedTaxRoom = Math.max(taxRoomPVD - pvdPaid, 0);
+        var groupCapBinds = taxCapPVD > GROUP_CAP;
+
+        // ภาษี
+        var net0   = Math.max(income - num(el.deductOther), 0);
+        var taxNo  = tax(net0);
+        var netYes = Math.max(net0 - pvdPaid, 0);
+        var taxYes = tax(netYes);
+        var saved  = taxNo - taxYes;
+
+        // เงินก้อน — ลง PVD เพิ่ม vs ลง RMF
+        var lumpInput = num(el.lumpSum);
+        var lump      = lumpInput > 0 ? lumpInput : bonus * PVD_TAX_RATE;
+        var roomPVD   = Math.max(Math.min(taxCapPVD, GROUP_CAP, capFund) - pvdPaid, 0);
+        var roomRMF   = Math.max(Math.min(capRMF, GROUP_CAP - pvdPaid), 0);
+        var usePVD    = Math.min(lump, roomPVD);
+        var useRMF    = Math.min(lump, roomRMF);
+        var savePVD   = taxYes - tax(Math.max(netYes - usePVD, 0));
+        var saveRMF   = taxYes - tax(Math.max(netYes - useRMF, 0));
 
         el.futureSalary.textContent = baht(fs);
-        el.totalWage.textContent    = baht(totalWage) + ' (เดิม ' + oldMonths + ' เดือน + ใหม่ ' + newMonths + ' เดือน)';
-        el.bonus.textContent        = baht(b);
-        el.totalIncome.textContent  = baht(ti);
-        el.deduction.textContent    = baht(target);
-        el.pvdActual.textContent    = baht(pvdActual);
-        el.monthlyOld.textContent   = baht(s * pApplied / 100);
-        el.monthlyNew.textContent   = baht(fs * pApplied / 100);
+        el.totalWage.textContent    = baht(wage) + ' (เดิม ' + oldMonths + ' เดือน + ใหม่ ' + newMonths + ' เดือน)';
+        el.bonus.textContent        = baht(bonus);
+        el.totalIncome.textContent  = baht(income);
+        el.monthlyOld.textContent   = baht(s * optimalRate / 100);
+        el.monthlyNew.textContent   = baht(fs * optimalRate / 100);
+        el.fromBonus.textContent    = fromBonus
+            ? baht(bonus * optimalRate / 100)
+            : 'ไม่หักจากโบนัส';
+        el.taxNo.textContent        = baht(taxNo);
+        el.taxYes.textContent       = baht(taxYes);
 
-        el.highlightPercent.textContent = pct(pApplied);
-        el.highlightPercentNote.textContent = pRaw > PVD_MAX_RATE
-            ? 'ติดเพดานกฎหมาย 15% (เป้าจริงต้องการ ' + pct(pRaw) + ')'
-            : 'ยังไม่ติดเพดาน 15%';
+        el.highlightPercent.textContent = pct(optimalRate);
+        el.highlightPercentNote.textContent = 'สะสม ' + m(pvdPaid) + ' บาท/ปี · เพดานข้อบังคับ ' + pct(maxRate);
 
-        el.highlightExtra.textContent = baht(shortfall);
-        el.highlightExtraNote.textContent = shortfall > 0
-            ? 'ต่อปี — PVD รับไม่ได้ ต้องลงทุนช่องทางอื่น'
-            : 'ไม่ต้องลงทุนเพิ่ม';
+        el.highlightExtra.textContent = baht(saved);
+        el.highlightExtraNote.textContent = 'ต่อปี — ภาษี ' + m(taxNo) + ' → ' + m(taxYes) + ' บาท';
 
-        el.kpiTotal.textContent      = m(ti);
-        el.kpiPvd.textContent        = m(target);
-        el.kpiPercentRaw.textContent = pct(pRaw);
-        el.kpiPercent.textContent    = pct(pApplied);
-        el.kpiExtra.textContent      = m(shortfall);
+        el.kpiIncome.textContent   = m(income);
+        el.kpiTaxCap.textContent   = m(taxCapPVD);
+        el.kpiPvdPaid.textContent  = m(pvdPaid);
+        el.kpiEmployer.textContent = m(employerPay);
+        el.kpiRoomLeft.textContent = m(Math.max(GROUP_CAP - pvdPaid, 0));
 
-        el.summary.textContent = '';
-        el.summary.appendChild(line('รายได้รวมทั้งปี ' + baht(ti) + ' (ค่าจ้าง ' + m(totalWage) + ' + โบนัส ' + m(b) + ')'));
-        el.summary.appendChild(line('เป้า PVD 15% ของรายได้รวม ' + baht(target)));
-        el.summary.appendChild(line('ต้องหัก ' + pct(pRaw) + ' ของค่าจ้าง แต่กฎหมายให้สะสมได้สูงสุด ' + PVD_MAX_RATE + '% → ตั้งกับ HR ได้ ' + pct(pApplied)));
+        el.compareTitle.textContent = 'เงินก้อน ' + m(lump) + ' บาท ควรไปไหน'
+            + (lumpInput > 0 ? '' : ' (15% ของโบนัส)');
+        el.cmpPvdUse.textContent  = m(usePVD);
+        el.cmpPvdSave.textContent = m(savePVD);
+        el.cmpRmfUse.textContent  = m(useRMF);
+        el.cmpRmfSave.textContent = m(saveRMF);
 
-        if (shortfall > 0) {
-            el.summary.appendChild(line(
-                'ส่วนเกิน ' + baht(shortfall) + ' ต่อปี PVD รับไม่ได้ — ต้องลงทุน RMF/SSF หรือประกันบำนาญเพิ่มเอง',
-                'warn'
-            ));
+        if (savePVD === 0 && saveRMF === 0) {
+            el.verdict.textContent = lump <= 0
+                ? 'ไม่มีเงินก้อนให้จัดสรร'
+                : 'ลงเพิ่มไม่ช่วยภาษีแล้ว — ใช้สิทธิกลุ่มเกษียณเต็มเพดาน หรือฐานภาษีต่ำเกินกว่าจะได้ประโยชน์';
+        } else if (savePVD > saveRMF) {
+            el.verdict.textContent = '✅ ลง PVD เพิ่มคุ้มกว่า — ประหยัดภาษีมากกว่า ' + m(savePVD - saveRMF) + ' บาท และยังได้เงินสมทบนายจ้าง';
+        } else if (saveRMF > savePVD) {
+            el.verdict.textContent = '✅ ลง RMF คุ้มกว่า — โควตาลดหย่อน PVD เต็มแล้ว ลง PVD เพิ่มไม่ลดภาษีอีก แต่ RMF ยังประหยัดได้ ' + m(saveRMF) + ' บาท';
         } else {
-            el.summary.appendChild(line('PVD อย่างเดียวถึงเป้าแล้ว ไม่ต้องลงทุนเพิ่ม'));
+            el.verdict.textContent = '⚖️ ประหยัดภาษีเท่ากัน (' + m(savePVD) + ' บาท) — เลือกตามสภาพคล่อง เงิน PVD ถอนไม่ได้จนออกจากงานหรือเกษียณ';
         }
 
-        if (overCap > 0) {
+        el.summary.textContent = '';
+        el.summary.appendChild(line(
+            'รายได้พึงประเมินทั้งปี ' + baht(income) + ' (ค่าจ้าง ' + m(wage) + ' + โบนัส ' + m(bonus) + ')'
+        ));
+        el.summary.appendChild(line(
+            'สิทธิลดหย่อนเงินสะสม PVD = 15% ของฐานเงินเดือน+โบนัส = ' + baht(taxCapPVD)
+        ));
+        el.summary.appendChild(line(
+            'ควรตั้งอัตราสะสมกับ HR ที่ ' + pct(optimalRate) + ' → เข้ากองทุน ' + m(pvdPaid)
+            + ' บาท/ปี และนายจ้างสมทบอีก ' + m(employerPay) + ' บาท/ปี (ส่วนของนายจ้างไม่นับเป็นค่าลดหย่อน)'
+        ));
+        el.summary.appendChild(line(
+            'ประหยัดภาษีได้ ' + baht(saved) + ' ต่อปี'
+        ));
+
+        if (unusedTaxRoom > 0) {
             el.summary.appendChild(line(
-                'เงินสะสม PVD ' + baht(pvdActual) + ' เกินเพดานลดหย่อนรวม 500,000 บาท/ปี อยู่ ' + baht(overCap) + ' — ส่วนเกินนี้ลดหย่อนภาษีไม่ได้',
+                'ตั้งได้ไม่ถึงสิทธิเต็ม เพราะชนเพดานข้อบังคับ ' + pct(maxRate)
+                + ' — เหลือสิทธิลดหย่อนที่ยังไม่ได้ใช้ ' + baht(unusedTaxRoom) + ' ควรใช้ผ่าน RMF แทน',
+                'warn'
+            ));
+        }
+
+        if (groupCapBinds) {
+            el.summary.appendChild(line(
+                'รายได้สูงจนสิทธิ PVD 15% (' + m(taxCapPVD) + ' บาท) เกินเพดานรวมกลุ่มเกษียณ 500,000 บาท/ปี'
+                + ' — สะสมเกิน 500,000 ไม่ได้สิทธิภาษีเพิ่ม',
                 'warn'
             ));
         }
 
         el.summary.appendChild(line(
-            'หมายเหตุ: เพดาน 15% อ้างอิง พ.ร.บ.กองทุนสำรองเลี้ยงชีพ และเพดานลดหย่อน 500,000 บาท/ปี นับรวม PVD + RMF + SSF + ประกันบำนาญ — ตัวเลขเป็นการประมาณการ โปรดยืนยันกับ HR และข้อบังคับกองทุนก่อนตัดสินใจ',
+            'หมายเหตุ: เพดานสะสมและฐานคำนวณตั้งค่าได้ในช่องด้านบน โปรดยืนยันกับข้อบังคับกองทุนและ HR'
+            + ' — สิทธิลดหย่อน PVD ตามประมวลรัษฎากรคือตามจ่ายจริงแต่ไม่เกิน 15% ของค่าจ้าง และเมื่อรวม'
+            + ' RMF/ThaiESG(เกษียณ)/ประกันบำนาญ ต้องไม่เกิน 500,000 บาท/ปี — ภาษีเป็นการประมาณการจากค่าลดหย่อนที่กรอก',
             'disclaimer'
         ));
     }
 
-    ['salary', 'bonusMonth', 'increaseRate', 'raiseMonth'].forEach(function (id) {
-        el[id].addEventListener('input', calc);
+    INPUT_IDS.forEach(function (id) {
+        el[id].addEventListener(el[id].tagName === 'SELECT' ? 'change' : 'input', calc);
     });
-    el.bonusBase.addEventListener('change', calc);
 
     calc();
 }());
