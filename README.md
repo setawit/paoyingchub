@@ -52,6 +52,12 @@ Repository นี้คือ **blueprint** (เอกสารสถาปั�
 
 > โฟลเดอร์เหล่านี้เป็นโครงสำหรับโค้ดในอนาคต ปัจจุบันมี `README.md` อธิบายหน้าที่ในแต่ละโฟลเดอร์
 
+**โปรเจกต์อื่นใน repository นี้ (ไม่ใช่ส่วนหนึ่งของ FPOS):**
+
+| Folder | Purpose |
+| --- | --- |
+| [`/ai-marketing-textbook`](ai-marketing-textbook/) | System Instruction + Prompt Template สำหรับทีมเขียนหนังสือ AI Marketing |
+
 ---
 
 ## 🧭 Core Principles (จาก `00_MASTER.md`)
