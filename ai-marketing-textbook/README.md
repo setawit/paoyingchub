@@ -19,6 +19,7 @@
 | 01 | [`01_CHAPTER_PROMPT_TEMPLATE.md`](01_CHAPTER_PROMPT_TEMPLATE.md) | 2 — Chapter Prompt | Chapter Brief + ชุด Prompt 5 จังหวะ + Micro-Prompts + Editor Gate |
 | 02 | [`02_BOOK_LEDGER_TEMPLATE.md`](02_BOOK_LEDGER_TEMPLATE.md) | 3 — Ledger | ความจำข้ามบท: framework, punchline, ตัวละคร, ศัพท์, theme |
 | 03 | [`03_EXAMPLE_CHAPTER_BRIEF.md`](03_EXAMPLE_CHAPTER_BRIEF.md) | ตัวอย่าง | Brief บทที่ 1 ที่กรอกแล้ว + ตัวอย่างประโยคเปิดที่ผ่าน/ไม่ผ่าน |
+| 04 | [`04_BOOK_OUTLINE.md`](04_BOOK_OUTLINE.md) | โครงเล่ม | โครง 6 ภาค 16 บท + ตัวละครประจำเล่ม + แผนที่ theme/framework |
 
 ## 🔄 The Chapter Loop
 
