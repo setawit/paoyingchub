@@ -13,6 +13,8 @@
 - **FarmPlan Operating System (FPOS)** — *blueprint repository* (เอกสารสถาปัตยกรรม) ของระบบ AI วางแผนฟาร์ม
   เริ่มจาก "นา 1 ไร่" ยังไม่ใช่ codebase สมบูรณ์
 - ชื่อ repo `paoyingchub` มาจากเกมเป่ายิ้งฉุบเดิม ซึ่งตอนนี้อยู่ใน [`archive/`](archive/) และ **ไม่ใช่ส่วนหนึ่งของ FPOS** — อย่าแก้ไขหรืออ้างอิงเป็นส่วนของระบบ
+- repo นี้ยังเป็นที่เก็บงานอื่นของเจ้าของอีกหลายโปรเจกต์ โดยแยกไว้บน branch `claude/*` (ยังไม่ merge) — อย่าสับสนกับ FPOS บน `main`
+- นี่คือ `CLAUDE.md` ฉบับเดียวที่ใช้จริง; ไฟล์ CLAUDE.md บน branch อื่นเป็นของเกมเดิม/โปรเจกต์อื่นและล้าสมัยแล้ว
 - ไม่มี build system, package manager, linter หรือ test runner ในตอนนี้
 
 ## 2. Layout
@@ -45,6 +47,8 @@
 - เมื่อแก้เอกสาร ให้อัปเดต `Last Updated` (และ `Version` หากเปลี่ยนเนื้อหาสำคัญ)
 
 **Code / architecture**
+- แต่ละโฟลเดอร์ถูกกำกับโดยเอกสารเลขคู่กัน: `/core`↔`04`, `/database`↔`03`, `/knowledge`↔`05`, `/api`↔`06`, `/ui`↔`07`, `/agents` และ `/prompts`↔`08`, `/tests`↔`10` — เนื้อหาในโฟลเดอร์ต้องสอดคล้องกับ spec ของมัน
+- North Star คือรายได้มั่นคงภายใต้ความเสี่ยงที่รับได้ ไม่ใช่กำไรสูงสุด — เสนอทางเลือกพร้อมข้อดีข้อเสีย อย่าเลือกแทนผู้ใช้
 - ใช้ชื่อ Entity จาก `02_DOMAIN_MODEL.md` เท่านั้น; แก้ Entity ที่ `02` ก่อน แล้วจึงตามด้วย DB/โค้ด
 - Dependency ไหลลงอย่างเดียว (no upward calls) — ลูกศรจริงอยู่ที่ [`09_ENGINEERING_STANDARD.md`](09_ENGINEERING_STANDARD.md) §2 ซึ่งเป็นต้นทาง: `ui → api`; `api → core, agents, database`; `core → knowledge, database`; `agents → knowledge, prompts`
 - Explainable > clever; ตัวเลขที่คำนวณต้องมาพร้อมที่มาและสมมติฐาน (`is_estimate`)
