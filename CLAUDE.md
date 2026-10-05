@@ -29,7 +29,7 @@
 ## 3. Running / testing
 
 - เปิดไฟล์ใน `ui/*.html` ในเบราว์เซอร์ได้ทันที ไม่มี dependency ภายนอก
-- ตรวจผลแบบ headless ได้ด้วย Playwright + Chromium ที่ติดตั้งไว้ (`executablePath: '/opt/pw-browsers/chromium'`) — อย่ารัน `playwright install`
+- ตรวจผลแบบ headless ได้ด้วย Playwright + Chromium ถ้าในเครื่องมีอยู่แล้ว (repo ไม่มี dependency นี้ในตัว) — ใช้ browser ที่ environment เตรียมไว้ (เช่น `PLAYWRIGHT_BROWSERS_PATH`) แทนการติดตั้งใหม่ และถ้าไม่มี ให้เปิดไฟล์ในเบราว์เซอร์ตรวจเอง
 - ยังไม่มี automated test suite; กลยุทธ์การทดสอบอยู่ที่ [`10_TEST_PLAN.md`](10_TEST_PLAN.md)
 
 ## 4. Rules (สรุปจาก `00_MASTER.md` §9–§10 และ `09_ENGINEERING_STANDARD.md`)
@@ -46,7 +46,7 @@
 
 **Code / architecture**
 - ใช้ชื่อ Entity จาก `02_DOMAIN_MODEL.md` เท่านั้น; แก้ Entity ที่ `02` ก่อน แล้วจึงตามด้วย DB/โค้ด
-- Dependency ไหลลงอย่างเดียว: `ui → api → core/agents → knowledge/database` (no upward calls)
+- Dependency ไหลลงอย่างเดียว (no upward calls) — ลูกศรจริงอยู่ที่ [`09_ENGINEERING_STANDARD.md`](09_ENGINEERING_STANDARD.md) §2 ซึ่งเป็นต้นทาง: `ui → api`; `api → core, agents, database`; `core → knowledge, database`; `agents → knowledge, prompts`
 - Explainable > clever; ตัวเลขที่คำนวณต้องมาพร้อมที่มาและสมมติฐาน (`is_estimate`)
 - เพิ่มไฟล์ใหม่ใน `ui/` (หรือโฟลเดอร์อื่น) ให้เพิ่มแถวในตาราง Files ของ `README.md` ในโฟลเดอร์นั้นด้วย
 
