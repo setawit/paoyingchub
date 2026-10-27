@@ -20,6 +20,7 @@
 | 02 | [`02_BOOK_LEDGER_TEMPLATE.md`](02_BOOK_LEDGER_TEMPLATE.md) | 3 — Ledger | ความจำข้ามบท: framework, punchline, ตัวละคร, ศัพท์, theme |
 | 03 | [`03_EXAMPLE_CHAPTER_BRIEF.md`](03_EXAMPLE_CHAPTER_BRIEF.md) | ตัวอย่าง | Brief บทที่ 1 ที่กรอกแล้ว + ตัวอย่างประโยคเปิดที่ผ่าน/ไม่ผ่าน |
 | 04 | [`04_BOOK_OUTLINE.md`](04_BOOK_OUTLINE.md) | โครงเล่ม | โครง 6 ภาค 17 บท + ตัวละครประจำเล่ม + แผนที่ theme/framework + Trend Watch |
+| 05 | [`05_SKILL_HARNESS.md`](05_SKILL_HARNESS.md) | All-in-one | Prompt + Skill + Harness + Output ในไฟล์เดียว — ติดตั้งเป็น Claude Skill หรือวางเป็น Project Instructions ได้ |
 
 ## 🔄 The Chapter Loop
 
