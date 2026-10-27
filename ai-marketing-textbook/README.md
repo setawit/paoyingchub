@@ -21,6 +21,7 @@
 | 03 | [`03_EXAMPLE_CHAPTER_BRIEF.md`](03_EXAMPLE_CHAPTER_BRIEF.md) | ตัวอย่าง | Brief บทที่ 1 ที่กรอกแล้ว + ตัวอย่างประโยคเปิดที่ผ่าน/ไม่ผ่าน |
 | 04 | [`04_BOOK_OUTLINE.md`](04_BOOK_OUTLINE.md) | โครงเล่ม | โครง 6 ภาค 17 บท + ตัวละครประจำเล่ม + แผนที่ theme/framework + Trend Watch |
 | 05 | [`05_SKILL_HARNESS.md`](05_SKILL_HARNESS.md) | All-in-one | Prompt + Skill + Harness + Output ในไฟล์เดียว — ติดตั้งเป็น Claude Skill หรือวางเป็น Project Instructions ได้ |
+| — | [`chapters/`](chapters/) | เนื้อหา | ร่างบทจริง — เริ่มจาก [`ch01_draft.md`](chapters/ch01_draft.md) (ร่างสาธิต ขั้น DRAFT) |
 
 ## 🔄 The Chapter Loop
 
